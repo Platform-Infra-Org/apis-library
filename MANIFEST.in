@@ -1,0 +1,2 @@
+recursive-include tashtiot_apis_library/static *
+exclude tests

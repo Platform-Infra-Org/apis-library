@@ -1,0 +1,62 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tashtiot-apis-library"
+version = "0.1.0"
+description = "Unified package for infrastructure connectors (ArgoCD, Git, Vault) and FastAPI template utilities"
+readme = "README.md"
+authors = [
+    { name = "Yehonatan Magen" },
+    { name = "Alon Elimelech" },
+    { name = "Chaim Mendelson" }
+]
+license = { file = "LICENSE" }
+requires-python = ">=3.9"
+dependencies = [
+    "fastapi>=0.95",
+    "httpx>=0.24",
+    "loguru>=0.7",
+    "pydantic>=2.0",
+    "pydantic-settings>=2.0",
+    "pyyaml>=6.0.3",
+    "prometheus-client",
+    "uvicorn"
+]
+
+# Optional dependencies
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-asyncio",
+    "respx",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["tashtiot_apis_library", "tashtiot_apis_library.*"]
+exclude = ["tashtiot_apis_library.fastapi_template.tests*"]
+
+[tool.setuptools.package-data]
+tashtiot_apis_library = ["fastapi_template/static/**"]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.pytest.ini_options]
+testpaths = ["tashtiot_apis_library/fastapi_template/tests"]
+python_files = ["test_*.py", "*_test.py"]
+
+addopts = "-ra -q --disable-warnings --strict-markers"
+
+markers = [
+    "asyncio: mark test to be run by the asyncio event loop",
+    "rest: mark test as needing a REST server",
+    "ftp: mark test as needing an ftp server",
+]
+
+log_cli = true
+log_cli_level = "INFO"
+log_cli_format = "%(asctime)s [%(levelname)s] %(message)s"
+log_cli_date_format = "%H:%M:%S"
