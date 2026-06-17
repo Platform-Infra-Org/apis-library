@@ -25,6 +25,7 @@ def general_create_app(
     enable_metrics_route: bool = True,
     enable_swagger_routes: bool = True,
     enable_probe_routes: bool = True,
+    enable_auth: bool = False,
     **fastapi_kwargs: Any,
 ) -> FastAPI:
     """Create and configure the FastAPI application."""
@@ -59,6 +60,7 @@ def general_create_app(
         enable_request_logging=enable_logging_middleware,
         enable_request_timing=enable_time_recording_middleware,
         enable_exception_handlers=enable_exception_handlers,
+        enable_auth=enable_auth,
     )
 
     @app.get(settings.SWAGGER_OPENAPI_JSON_URL, include_in_schema=False)

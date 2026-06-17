@@ -27,6 +27,6 @@ setup(
         'psutil>=5.9.7',
         'starlette>=0.41.3',
         'starlette-exporter>=0.21.0',
-        'PyJWT>=2.9.0'
+        'pyjwt[crypto]>=2.9.0'
         ],
 )

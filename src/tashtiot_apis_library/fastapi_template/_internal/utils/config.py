@@ -1,5 +1,7 @@
 """Settings definition for the FastAPI Template application factory."""
 
+from typing import Optional
+
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -93,5 +95,76 @@ class ApplicationSettings(BaseSettings):
         default="/liveness",
         description="Path for liveness probe.",
         examples=["/liveness", "/api/liveness"],
+    )
+
+    # --- Inbound JWT authentication ---
+
+    AUTH_ENABLED: bool = Field(
+        default=False,
+        description="Runtime master switch for inbound JWT bearer authentication.",
+        examples=[True, False],
+    )
+
+    AUTH_HEADER_NAME: str = Field(
+        default="Authorization",
+        description="Request header carrying the bearer token.",
+        examples=["Authorization", "X-Auth-Token"],
+    )
+
+    AUTH_HS256_SECRET: Optional[str] = Field(
+        default=None,
+        description="Shared secret for HS256 verification. If set, selects HS256 mode.",
+        examples=["super-secret-value"],
+    )
+
+    AUTH_JWKS_URL: Optional[str] = Field(
+        default=None,
+        description="JWKS/OIDC endpoint URL for RS256 verification with key caching. Selects JWKS mode.",
+        examples=["https://idp.example.com/.well-known/jwks.json"],
+    )
+
+    AUTH_PUBLIC_KEY_PEM: Optional[str] = Field(
+        default=None,
+        description="Inline PEM public key for offline RS256 verification. Selects local-pubkey mode.",
+        examples=["-----BEGIN PUBLIC KEY-----\n...\n-----END PUBLIC KEY-----"],
+    )
+
+    AUTH_PUBLIC_KEY_PATH: Optional[str] = Field(
+        default=None,
+        description="Filesystem path to a PEM public key (alternative to AUTH_PUBLIC_KEY_PEM). Selects local-pubkey mode.",
+        examples=["/etc/secrets/jwt_pub.pem"],
+    )
+
+    AUTH_ALGORITHMS: list[str] = Field(
+        default=["RS256"],
+        description="Allowed JWT signing algorithms. HS256 mode forces ['HS256'].",
+        examples=[["RS256"], ["HS256"], ["RS256", "RS384"]],
+    )
+
+    AUTH_AUDIENCE: Optional[str] = Field(
+        default=None,
+        description="Expected 'aud' claim. When None, audience is not validated.",
+        examples=["my-api"],
+    )
+
+    AUTH_ISSUER: Optional[str] = Field(
+        default=None,
+        description="Expected 'iss' claim. When None, issuer is not validated.",
+        examples=["https://idp.example.com/"],
+    )
+
+    AUTH_JWKS_CACHE_TTL: int = Field(
+        default=3600,
+        description="Seconds to cache fetched JWKS keys before refetching.",
+        examples=[3600, 300],
+    )
+
+    AUTH_EXCLUDE_PATHS: list[str] = Field(
+        default=[
+            "/health", "/metrics", "/static", "/docs", "/redoc",
+            "/openapi.json", "/.well-known", "/liveness", "/readiness",
+        ],
+        description="Path prefixes/regexes that bypass authentication. Matched like LOG_REQUEST_EXCLUDE_PATHS.",
+        examples=[["/health", "/metrics"]],
     )
 
