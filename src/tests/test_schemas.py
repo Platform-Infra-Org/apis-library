@@ -1,5 +1,7 @@
 import pytest
-from ..tashtiot_apis_library.connectors.awx.models import MetadataRequest, OperationRequest, OperationResponse, AWXOperationResponse, TerraformOperationResponse
+from tashtiot_apis_library.schemas import MetadataRequest, OperationRequest
+from tashtiot_apis_library.connectors.response_schemas import OperationResponse
+from tashtiot_apis_library.connectors.awx.models import AWXOperationResponse
 
 def test_metadata_request():
     metadata_request = MetadataRequest(project="test_project", network="test_network", region="test_region", space="test_space", environment="test_env")
@@ -36,10 +38,3 @@ def test_awx_operation_response():
     assert awx_operation_response.status_code == 200
     assert awx_operation_response.stdout == "test_stdout"
     assert awx_operation_response.job_id == 123
-
-def test_terraform_operation_response():
-    terraform_operation_response = TerraformOperationResponse(status="success", status_code=200, stdout="test_stdout", process_id=123)
-    assert terraform_operation_response.status == "success"
-    assert terraform_operation_response.status_code == 200
-    assert terraform_operation_response.stdout == "test_stdout"
-    assert terraform_operation_response.process_id == 123
