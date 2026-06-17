@@ -30,12 +30,24 @@ def general_create_app(
 ) -> FastAPI:
     """Create and configure the FastAPI application."""
 
+    @asynccontextmanager
+    async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
+        # Launch each background task as a fire-and-forget coroutine on startup
+        # and cancel any still running on shutdown.
+        tasks = [asyncio.create_task(task()) for task in (async_background_tasks or [])]
+        try:
+            yield
+        finally:
+            for task in tasks:
+                task.cancel()
+
     app = FastAPI(
         **fastapi_kwargs,
         docs_url=None,
         redoc_url=None,
         openapi_url=settings.OPENAPI_JSON_URL,
         root_path=settings.PROXY_LISTEN_PATH,
+        lifespan=lifespan,
     )
 
     static_dir = Path(__file__).parent.parent / "static"
