@@ -2,3 +2,10 @@ __pycache__
 .coverage
 .pytest_cache
 .idea
+src/tashtiot_apis_library.egg-info/dependency_links.txt
+src/tashtiot_apis_library.egg-info/PKG-INFO
+src/tashtiot_apis_library.egg-info/requires.txt
+src/tashtiot_apis_library.egg-info/SOURCES.txt
+src/tashtiot_apis_library.egg-info/top_level.txt
+dist/tashtiot_apis_library-0.1.0-py3-none-any.whl
+dist/tashtiot_apis_library-0.1.0.tar.gz

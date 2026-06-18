@@ -25,7 +25,10 @@ class Git:
         project_key: str,
         repo_slug: str,
         default_ref: str = "main",
-        ssh_key_file_path: str =  "/etc/.ssh/private_key",
+        ssh_key_file_path: str = "/etc/.ssh/private_key",
+        # Forwarded to GitClient so callers can specify the Bitbucket SSH port without
+        # having to instantiate GitClient directly.
+        ssh_port: int = 7999,
     ) -> None:
         logger.debug(
             "Initialising Git service with Bitbucket Server: base_url={}, project_key={}, repo_slug={}",
@@ -41,6 +44,7 @@ class Git:
             repo_slug,
             default_ref,
             ssh_key_file_path,
+            ssh_port,
         )
         self.default_ref = default_ref
         self.last_commit: Optional[str] = None
