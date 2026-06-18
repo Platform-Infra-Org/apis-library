@@ -75,6 +75,13 @@ def general_create_app(
         enable_auth=enable_auth,
     )
 
+    # Same dual-gate as the auth middleware: only advertise bearer auth in the
+    # OpenAPI schema (Swagger's Authorize tab) when auth is actually enforced.
+    if enable_auth and settings.AUTH_ENABLED:
+        from .openapi import install_bearer_security_scheme
+
+        install_bearer_security_scheme(app)
+
     @app.get(settings.SWAGGER_OPENAPI_JSON_URL, include_in_schema=False)
     async def get_openapi():
         return app.openapi()

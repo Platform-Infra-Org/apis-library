@@ -337,3 +337,46 @@ async def test_dual_gate_disabled_when_auth_env_off(monkeypatch):
 
     resp = await _get(app, "/protected")
     assert resp.status_code == 200
+
+
+# --------------------------------------------------------------------------- #
+# OpenAPI / Swagger "Authorize" tab
+# --------------------------------------------------------------------------- #
+
+
+@pytest.mark.asyncio
+async def test_openapi_advertises_bearer_when_auth_enabled(monkeypatch):
+    """Auth on -> schema carries a global bearer scheme so Swagger shows Authorize."""
+    app = _auth_app(monkeypatch)
+    schema = (await _get(app, settings.OPENAPI_JSON_URL)).json()
+
+    scheme = schema["components"]["securitySchemes"]["BearerAuth"]
+    assert scheme == {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": scheme["description"],
+    }
+    assert schema["security"] == [{"BearerAuth": []}]
+
+
+@pytest.mark.asyncio
+async def test_openapi_custom_header_uses_apikey_scheme(monkeypatch):
+    monkeypatch.setattr(settings, "AUTH_HEADER_NAME", "X-Auth-Token")
+    app = _auth_app(monkeypatch)
+    schema = (await _get(app, settings.OPENAPI_JSON_URL)).json()
+
+    scheme = schema["components"]["securitySchemes"]["BearerAuth"]
+    assert scheme["type"] == "apiKey"
+    assert scheme["in"] == "header"
+    assert scheme["name"] == "X-Auth-Token"
+
+
+@pytest.mark.asyncio
+async def test_openapi_no_security_scheme_when_auth_disabled(monkeypatch):
+    # Code flag off entirely -> schema stays clean, no Authorize tab.
+    app = general_create_app(enable_auth=False)
+    schema = (await _get(app, settings.OPENAPI_JSON_URL)).json()
+
+    assert "security" not in schema
+    assert "BearerAuth" not in schema.get("components", {}).get("securitySchemes", {})
