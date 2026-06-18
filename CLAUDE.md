@@ -62,4 +62,3 @@ Top-level `tashtiot_apis_library/__init__.py` re-exports the connector services,
 ## Packaging notes
 - Both `pyproject.toml` (the active build backend, setuptools) and a legacy `setup.py` exist with **divergent versions and dependency lists**. CI uses `pyproject.toml`: `.woodpecker/build.yaml` rewrites the `name`/`version` from the git tag (`CI_COMMIT_TAG`) at build time, so the `version` committed in `pyproject.toml` is not the published one. Publishing is triggered by a `tag` or `manual` Woodpecker event and `curl`s the wheel/sdist to Artifactory.
 - `fastapi_template/tests/` is excluded from the built package (`pyproject.toml` packages.find exclude); static swagger assets are included as package data.
-- `terraform_runner.py` is not wired into the package exports and imports modules not present in the tree (`logger`, `from schemas import ...`, `status_code_mappings`); treat it as dead/legacy unless you are deliberately resurrecting it.
