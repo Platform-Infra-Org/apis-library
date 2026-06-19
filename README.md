@@ -137,6 +137,93 @@ from tashtiot_apis_library.fastapi_template import general_create_app
 - ✅ Built-in middleware for request timing, exception handling, and logging
 - ✅ Health check endpoints for Kubernetes readiness/liveness probes
 - ✅ Utilities for HTTP, FTP, and Kubernetes interactions
+- ✅ Inbound JWT bearer authentication (HS256 / local public key / JWKS) with a Swagger **Authorize** tab
+- ✅ Outbound SSO client (OAuth2 `client_credentials`) with automatic token caching & refresh
+- ✅ Dev key/token generation via the `gen-auth-material` CLI
+
+### Authentication
+
+The template ships a complete auth toolkit under `tashtiot_apis_library.fastapi_template.utils`. All
+auth imports are lazy, so apps that don't use auth pay no import cost.
+
+#### Protecting inbound requests (server side)
+
+Authentication is **dual-gated**: it activates only when you pass `enable_auth=True` *and* set
+`AUTH_ENABLED=true` in the environment. Configure exactly one piece of verification material —
+`AUTH_HS256_SECRET` (HS256), `AUTH_JWKS_URL` (JWKS/OIDC, the usual choice for SSO), or
+`AUTH_PUBLIC_KEY_PEM` / `AUTH_PUBLIC_KEY_PATH` (offline RS256).
+
+```python
+from tashtiot_apis_library import general_create_app
+
+app = general_create_app(enable_auth=True)   # + AUTH_ENABLED=true and one verification material
+```
+
+Requests must carry `Authorization: Bearer <token>`; verified claims land on `request.state.user`.
+Read them in a route via the dependency:
+
+```python
+from fastapi import Depends
+from tashtiot_apis_library.fastapi_template.utils import get_current_claims
+
+@app.get("/me")
+def me(claims: dict = Depends(get_current_claims)):
+    return claims
+```
+
+When auth is active, Swagger UI (`/docs`) automatically gains an **Authorize** tab so you can paste a
+token and use "Try it out" against protected routes.
+
+To check a token outside the request flow (workers, scripts), use the standalone helper:
+
+```python
+from tashtiot_apis_library.fastapi_template.utils import verify_token
+
+claims = verify_token(token)   # raises TokenError if invalid/expired
+```
+
+#### Calling other services with SSO (client side)
+
+Obtain and attach a token via the OAuth2 `client_credentials` grant, configured from `AUTH_SSO_*`
+env vars. `sso_authenticated_api(base_url)` returns a client whose every request carries a fresh
+bearer token (cached and auto-refreshed; refreshed again on a `401`):
+
+```python
+from tashtiot_apis_library.fastapi_template.utils import sso_authenticated_api
+
+async with sso_authenticated_api("https://downstream.example.com") as client:
+    resp = await client.get("/protected")   # Authorization: Bearer <auto-managed>
+```
+
+Prefer the raw token? `get_sso_token_client().get_token()` / `.auth_header()`.
+
+#### Generating dev key material
+
+After install, the `gen-auth-material` CLI mints an RSA keypair and a signed JWT for exercising
+local-pubkey auth:
+
+```bash
+gen-auth-material                                  # write jwt_private.pem + jwt_public.pem, print a token
+gen-auth-material --no-write                       # print a keypair + token, write nothing
+gen-auth-material --sub svc --aud my-api --iss https://idp/   # claims to match AUTH_AUDIENCE/AUTH_ISSUER
+gen-auth-material --private-key jwt_private.pem    # reuse existing keys, mint a fresh token
+```
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--sub` | Token subject (`sub` claim) | `local-dev` |
+| `--aud` | Audience (`aud`); set to match `AUTH_AUDIENCE` | `None` |
+| `--iss` | Issuer (`iss`); set to match `AUTH_ISSUER` | `None` |
+| `--algorithm` | Signing algorithm | `RS256` |
+| `--kid` | Key id placed in the JWT header | `local-dev-key` |
+| `--expires-minutes` | Token lifetime in minutes | `30` |
+| `--key-size` | RSA key size in bits | `2048` |
+| `--out-dir` | Directory for the `.pem` files | `.` |
+| `--private-name` | Private key filename | `jwt_private.pem` |
+| `--public-name` | Public key filename | `jwt_public.pem` |
+| `--no-write` | Print only; do not write key files | `false` |
+| `--private-key` | Path to an existing private key PEM to sign with (skips key generation) | `None` |
+| `--public-key` | Path to an existing public key PEM (derived from `--private-key` if omitted) | `None` |
 
 ## 🔧 Configuration
 
@@ -156,3 +243,37 @@ PORT=8000
 LOG_LEVEL=INFO
 APP_NAME=MyFastAPIApp
 ```
+
+### Inbound authentication (server side)
+
+Active only when `general_create_app(enable_auth=True)` **and** `AUTH_ENABLED=true`. Set exactly one
+verification material.
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `AUTH_ENABLED` | Runtime master switch for inbound JWT auth | `false` |
+| `AUTH_HEADER_NAME` | Header carrying the bearer token | `Authorization` |
+| `AUTH_HS256_SECRET` | Shared secret → selects HS256 mode | `None` |
+| `AUTH_JWKS_URL` | JWKS/OIDC endpoint → selects JWKS mode | `None` |
+| `AUTH_PUBLIC_KEY_PEM` / `AUTH_PUBLIC_KEY_PATH` | Public key → selects offline RS256 mode | `None` |
+| `AUTH_ALGORITHMS` | Allowed signing algorithms (HS256 mode forces `["HS256"]`) | `["RS256"]` |
+| `AUTH_AUDIENCE` | Expected `aud` claim (unchecked when unset) | `None` |
+| `AUTH_ISSUER` | Expected `iss` claim (unchecked when unset) | `None` |
+| `AUTH_JWKS_CACHE_TTL` | Seconds to cache fetched JWKS keys | `3600` |
+| `AUTH_EXCLUDE_PATHS` | Path prefixes that bypass auth | health/metrics/docs/… |
+
+### Outbound SSO (client side)
+
+Used by `sso_authenticated_api` / `get_sso_token_client`. The first three are required.
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `AUTH_SSO_TOKEN_URL` | OAuth2 token endpoint | `None` |
+| `AUTH_SSO_CLIENT_ID` | OAuth2 client id | `None` |
+| `AUTH_SSO_CLIENT_SECRET` | OAuth2 client secret | `None` |
+| `AUTH_SSO_SCOPE` | Space-separated scopes (omitted when unset) | `None` |
+| `AUTH_SSO_AUDIENCE` | `audience` token-request param (e.g. Auth0) | `None` |
+| `AUTH_SSO_AUTH_STYLE` | Credential delivery: `post` (body) or `basic` (HTTP Basic) | `post` |
+| `AUTH_SSO_VERIFY_SSL` | Verify the token endpoint's TLS certificate | `true` |
+| `AUTH_SSO_TIMEOUT` | Token request timeout (seconds) | `10.0` |
+| `AUTH_SSO_EXPIRY_SKEW` | Refresh the token this many seconds before expiry | `30` |

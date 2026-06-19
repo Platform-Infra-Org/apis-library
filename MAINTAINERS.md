@@ -31,9 +31,11 @@ tashtiot_apis_library/
     │   ├── utils/           # Settings & logging
     │   ├── metrics/         # Metrics
     │   ├── database/        # BaseAPI client
+    │   ├── security/        # Auth: verifier, middleware, keygen, SSO client
+    │   ├── openapi.py       # Swagger "Authorize" tab injection
     │   └── routes/          # Built-in routes
     ├── static/              # Static files (Swagger UI)
-    └── utils.py             # Public utility exports (BaseAPI and settings for now)
+    └── utils.py             # Public utility exports (BaseAPI, settings, auth helpers)
 ```
 
 ---
@@ -306,6 +308,7 @@ app = general_create_app(
     enable_metrics_route=True,             # Prometheus metrics at /metrics
     enable_swagger_routes=True,            # Swagger UI at /docs
     enable_probe_routes=True,              # Health checks at /healthz
+    enable_auth=False,                     # Inbound JWT auth (also needs AUTH_ENABLED=true)
 )
 ```
 
@@ -413,7 +416,7 @@ class MyServiceAPI:
 |-----------|------|---------|-------------|
 | `base_url` | str | required | API base URL |
 | `headers` | dict | `{}` | Default headers for all requests |
-| `auth` | tuple | `None` | Basic auth (username, password) |
+| `auth` | tuple \| `httpx.Auth` | `None` | Basic auth `(username, password)`, or any `httpx.Auth` (e.g. the SSO bearer auth) |
 | `timeout` | float | `10.0` | Request timeout in seconds |
 | `verify` | bool | `False` | Verify SSL certificates |
 
@@ -425,6 +428,75 @@ async with BaseAPI(base_url, headers=headers) as client:
     response2 = await client.get("/endpoint2")
     # Connection is reused for both requests
 ```
+
+---
+
+## Security Module (`_internal/security/`)
+
+The security package handles **both directions** of authentication. Everything is configured from
+`AUTH_*` / `AUTH_SSO_*` settings (`_internal/utils/config.py`) and re-exported lazily from
+`fastapi_template/utils.py` (importing `JWTVerifier`, the SSO client, or keygen pulls in PyJWT /
+cryptography / httpx-auth only on demand).
+
+| File | Responsibility |
+|------|----------------|
+| `errors.py` | `AuthConfigError` (startup misconfig), `TokenError` (inbound verify failure), `SSOError` (outbound token-acquisition failure) |
+| `verifier.py` | `JWTVerifier` (HS256 / local-pubkey / JWKS), `get_verifier` (memoized), `verify_token()` convenience |
+| `middleware.py` | `AuthMiddleware` — enforces bearer auth on every non-excluded request |
+| `dependency.py` | `get_current_claims` — FastAPI dependency returning the verified claims |
+| `keygen.py` | RSA keypair + dev-token generation; backs the `gen-auth-material` CLI |
+| `sso.py` | Outbound OAuth2 `client_credentials` token client + httpx auth |
+| (`../openapi.py`) | Injects the bearer security scheme so Swagger shows the **Authorize** tab |
+
+### Inbound verification (server side)
+
+`AuthMiddleware` extracts `Authorization: Bearer <token>`, verifies it via `JWTVerifier`, and stores
+the claims on `request.state.user`. It is wired in **only** under a dual-gate — the code flag
+`enable_auth=True` **and** the runtime switch `AUTH_ENABLED=true` — so the master switch can disable
+auth without a code change. The verifier auto-selects its mode from whichever single material is
+configured (`AUTH_HS256_SECRET` | `AUTH_JWKS_URL` | `AUTH_PUBLIC_KEY_PEM`/`PATH`) and raises
+`AuthConfigError` at startup if zero or more than one is set.
+
+```python
+# Verify a token anywhere (workers, scripts) — same code path as the middleware:
+from tashtiot_apis_library.fastapi_template.utils import verify_token
+claims = verify_token(token)        # raises TokenError on failure
+```
+
+Under the same dual-gate, `_internal/openapi.py` wraps `app.openapi` to add a global `BearerAuth`
+security scheme — that's what makes Swagger's **Authorize** tab appear. It lives outside the
+`security/` package so it doesn't force the PyJWT import.
+
+### Outbound SSO client (client side)
+
+`sso.py` implements the OAuth2 `client_credentials` grant for calling *other* services. Three layers,
+mirroring the connector pattern:
+
+- **`TokenResponse`** — Pydantic model of the token endpoint response.
+- **`SSOTokenClient`** — fetches, caches, and refreshes the access token (guarded by an
+  `asyncio.Lock`); `get_token()` / `auth_header()`. `get_sso_token_client(settings)` memoizes it.
+- **`SSOClientCredentialsAuth(httpx.Auth)`** — injects the bearer on every request and, on a `401`,
+  forces one refresh and retries.
+
+The headline helper plugs that auth into `BaseAPI` (whose `auth=` now accepts any `httpx.Auth`), so
+you get a connector-style client with **automatic per-request token refresh**:
+
+```python
+from tashtiot_apis_library.fastapi_template.utils import sso_authenticated_api
+
+async with sso_authenticated_api("https://downstream.example.com") as client:
+    resp = await client.get("/protected")   # bearer added & refreshed automatically
+```
+
+> `client_credentials` issues **no** OAuth2 refresh token (RFC 6749 §4.4.3) — "refresh" means
+> re-running the grant with the standing client secret.
+
+### Generating dev key material
+
+`keygen.py` is the signing-side companion to `JWTVerifier`, exposed both as importable functions
+(`generate_keypair`, `mint_token`, `load_keypair`, `derive_public_pem`) and the `gen-auth-material`
+console script (registered in `pyproject.toml` `[project.scripts]`). Useful for exercising
+local-pubkey auth locally.
 
 ---
 
@@ -442,6 +514,16 @@ from tashtiot_apis_library.connectors.errors import ExternalServiceError, ArgoCD
 
 # FastAPI utilities
 from tashtiot_apis_library.fastapi_template.utils import BaseAPI, settings
+
+# Auth utilities (lazy-loaded)
+from tashtiot_apis_library.fastapi_template.utils import (
+    get_current_claims,        # FastAPI dependency for verified claims
+    verify_token,              # standalone server-side token check
+    JWTVerifier,               # inbound verifier (HS256 / local-pubkey / JWKS)
+    sso_authenticated_api,     # outbound SSO client (auto-refresh bearer)
+    get_sso_token_client,      # outbound SSO token provider
+    generate_keypair, mint_token,  # dev key/token generation
+)
 ```
 
 ### Creating a New Feature Checklist
