@@ -436,7 +436,9 @@ async with BaseAPI(base_url, headers=headers) as client:
 The security package handles **both directions** of authentication. Everything is configured from
 `AUTH_*` / `AUTH_SSO_*` settings (`_internal/utils/config.py`) and re-exported lazily from
 `fastapi_template/utils.py` (importing `JWTVerifier`, the SSO client, or keygen pulls in PyJWT /
-cryptography / httpx-auth only on demand).
+cryptography / httpx-auth only on demand). The error types are exposed publicly via
+`fastapi_template/errors.py` (and the top-level package), mirroring `connectors/errors.py` — never
+import them from `_internal`.
 
 | File | Responsibility |
 |------|----------------|
@@ -524,6 +526,13 @@ from tashtiot_apis_library.fastapi_template.utils import (
     get_sso_token_client,      # outbound SSO token provider
     generate_keypair, mint_token,  # dev key/token generation
 )
+
+# Auth error types (public, like connectors/errors.py)
+from tashtiot_apis_library.fastapi_template.errors import (
+    AuthConfigError, TokenError, SSOError,
+)
+# ...also re-exported at the top level:
+from tashtiot_apis_library import AuthConfigError, TokenError, SSOError
 ```
 
 ### Creating a New Feature Checklist
