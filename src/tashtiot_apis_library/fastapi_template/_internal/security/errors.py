@@ -20,3 +20,16 @@ class TokenError(Exception):
     def __init__(self, detail: str) -> None:
         self.detail = detail
         super().__init__(detail)
+
+
+class SSOError(Exception):
+    """Outbound token-acquisition failure when requesting a token from the SSO
+    provider via the client_credentials grant (non-2xx response, malformed body,
+    or a network/transport error).
+
+    Carries a ``detail`` string describing the failure for logging/propagation.
+    """
+
+    def __init__(self, detail: str) -> None:
+        self.detail = detail
+        super().__init__(detail)

@@ -168,3 +168,59 @@ class ApplicationSettings(BaseSettings):
         examples=[["/health", "/metrics"]],
     )
 
+    # --- Outbound SSO (OAuth2 client_credentials) ---
+
+    AUTH_SSO_TOKEN_URL: Optional[str] = Field(
+        default=None,
+        description="OAuth2 token endpoint for the client_credentials grant. Required to use the SSO token client.",
+        examples=["https://idp.example.com/oauth/token", "https://login.microsoftonline.com/<tenant>/oauth2/v2.0/token"],
+    )
+
+    AUTH_SSO_CLIENT_ID: Optional[str] = Field(
+        default=None,
+        description="OAuth2 client id for the client_credentials grant.",
+        examples=["my-service"],
+    )
+
+    AUTH_SSO_CLIENT_SECRET: Optional[str] = Field(
+        default=None,
+        description="OAuth2 client secret for the client_credentials grant.",
+        examples=["super-secret-value"],
+    )
+
+    AUTH_SSO_SCOPE: Optional[str] = Field(
+        default=None,
+        description="Space-separated OAuth2 scopes to request. When None, no scope is sent.",
+        examples=["api.read api.write"],
+    )
+
+    AUTH_SSO_AUDIENCE: Optional[str] = Field(
+        default=None,
+        description="Optional 'audience' parameter sent in the token request (e.g. Auth0). When None, it is omitted.",
+        examples=["https://api.example.com"],
+    )
+
+    AUTH_SSO_AUTH_STYLE: str = Field(
+        default="post",
+        description="How client credentials are sent to the token endpoint: 'post' (form body) or 'basic' (HTTP Basic).",
+        examples=["post", "basic"],
+    )
+
+    AUTH_SSO_VERIFY_SSL: bool = Field(
+        default=True,
+        description="Verify the TLS certificate of the SSO token endpoint.",
+        examples=[True, False],
+    )
+
+    AUTH_SSO_TIMEOUT: float = Field(
+        default=10.0,
+        description="Timeout in seconds for token endpoint requests.",
+        examples=[10.0, 5.0],
+    )
+
+    AUTH_SSO_EXPIRY_SKEW: int = Field(
+        default=30,
+        description="Refresh the cached access token this many seconds before its expiry.",
+        examples=[30, 60],
+    )
+

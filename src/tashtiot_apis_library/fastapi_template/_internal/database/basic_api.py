@@ -1,5 +1,5 @@
 import httpx
-from typing import Optional, Dict, Tuple
+from typing import Dict, Optional, Tuple, Union
 
 from httpx import AsyncClient
 
@@ -9,7 +9,7 @@ class BaseAPI:
         self,
         base_url: str,
         headers: Optional[Dict[str, str]] = None,
-        auth: Optional[Tuple[str, str]] = None,
+        auth: Optional[Union[Tuple[str, str], httpx.Auth]] = None,
         timeout: float = 10.0,
         verify: bool = False,
     ):

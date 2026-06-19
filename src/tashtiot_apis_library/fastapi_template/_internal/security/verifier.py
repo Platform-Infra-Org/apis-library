@@ -20,7 +20,7 @@ from loguru import logger
 
 from .errors import AuthConfigError, TokenError
 
-__all__ = ["AuthMode", "JWTVerifier", "get_verifier"]
+__all__ = ["AuthMode", "JWTVerifier", "get_verifier", "verify_token"]
 
 
 class AuthMode(str, Enum):
@@ -182,3 +182,23 @@ def get_verifier(settings: Any) -> JWTVerifier:
         cached = JWTVerifier(settings)
         _verifier_cache[id(settings)] = cached
     return cached
+
+
+def verify_token(token: str, *, settings: Any = None) -> Dict[str, Any]:
+    """Verify a bearer token and return its claims (standalone server-side check).
+
+    A one-call convenience over :func:`get_verifier`, for checking a token outside
+    the request middleware (e.g. background workers, scripts, or routes that
+    receive a token by other means). Defaults to the package ``settings``; pass an
+    explicit settings object to verify against a different configuration. For SSO,
+    point ``AUTH_JWKS_URL`` at the provider's JWKS endpoint and set
+    ``AUTH_AUDIENCE`` / ``AUTH_ISSUER`` to match the issued tokens.
+
+    Raises:
+        TokenError: with a public-safe message on any verification failure.
+    """
+    if settings is None:
+        from ..utils import settings as default_settings
+
+        settings = default_settings
+    return get_verifier(settings).verify(token)
