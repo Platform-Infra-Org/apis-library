@@ -34,6 +34,10 @@ dev = [
     "respx",
 ]
 
+# Console entry points
+[project.scripts]
+gen-auth-material = "tashtiot_apis_library.fastapi_template._internal.security.keygen:main"
+
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["tashtiot_apis_library", "tashtiot_apis_library.*"]

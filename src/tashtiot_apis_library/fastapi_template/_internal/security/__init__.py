@@ -8,6 +8,12 @@ from .errors import AuthConfigError, TokenError
 from .verifier import AuthMode, JWTVerifier, get_verifier
 from .middleware import AuthMiddleware
 from .dependency import get_current_claims
+from .keygen import (
+    derive_public_pem,
+    generate_keypair,
+    load_keypair,
+    mint_token,
+)
 
 __all__ = [
     "AuthConfigError",
@@ -17,4 +23,8 @@ __all__ = [
     "get_verifier",
     "AuthMiddleware",
     "get_current_claims",
+    "generate_keypair",
+    "derive_public_pem",
+    "load_keypair",
+    "mint_token",
 ]

@@ -14,6 +14,12 @@ from ..utils import settings
 from .._internal import general_create_app
 from .._internal.security import verifier as verifier_mod
 from .._internal.security.errors import AuthConfigError, TokenError
+from .._internal.security.keygen import (
+    derive_public_pem,
+    generate_keypair,
+    load_keypair,
+    mint_token,
+)
 from .._internal.security.verifier import AuthMode, JWTVerifier
 
 # --------------------------------------------------------------------------- #
@@ -380,3 +386,53 @@ async def test_openapi_no_security_scheme_when_auth_disabled(monkeypatch):
 
     assert "security" not in schema
     assert "BearerAuth" not in schema.get("components", {}).get("securitySchemes", {})
+
+
+# --------------------------------------------------------------------------- #
+# Keygen round-trip (signing side <-> JWTVerifier verify side)
+# --------------------------------------------------------------------------- #
+
+
+def test_keygen_token_verifies_via_local_pubkey(monkeypatch):
+    # A freshly generated keypair signs a token the verifier accepts offline.
+    private_pem, public_pem = generate_keypair()
+    monkeypatch.setattr(settings, "AUTH_PUBLIC_KEY_PEM", public_pem)
+    v = JWTVerifier(settings)
+    assert v.mode is AuthMode.LOCAL_PUBKEY
+
+    token = mint_token(private_pem, subject="svc-account")
+    assert v.verify(token)["sub"] == "svc-account"
+
+
+def test_keygen_token_round_trips_aud_and_iss(monkeypatch):
+    private_pem, public_pem = generate_keypair()
+    monkeypatch.setattr(settings, "AUTH_PUBLIC_KEY_PEM", public_pem)
+    monkeypatch.setattr(settings, "AUTH_AUDIENCE", "my-api")
+    monkeypatch.setattr(settings, "AUTH_ISSUER", "https://idp.example.com/")
+    v = JWTVerifier(settings)
+
+    token = mint_token(
+        private_pem,
+        subject="svc",
+        audience="my-api",
+        issuer="https://idp.example.com/",
+    )
+    claims = v.verify(token)
+    assert claims["aud"] == "my-api"
+    assert claims["iss"] == "https://idp.example.com/"
+
+
+def test_keygen_load_keypair_derives_public(monkeypatch, tmp_path):
+    # load_keypair derives the public key from the private one when none given,
+    # and that derived key verifies a token signed with the private key.
+    private_pem, public_pem = generate_keypair()
+    assert derive_public_pem(private_pem).strip() == public_pem.strip()
+
+    key_file = tmp_path / "jwt_private.pem"
+    key_file.write_text(private_pem)
+    loaded_priv, loaded_pub = load_keypair(str(key_file))
+    assert loaded_pub.strip() == public_pem.strip()
+
+    monkeypatch.setattr(settings, "AUTH_PUBLIC_KEY_PEM", loaded_pub)
+    v = JWTVerifier(settings)
+    assert v.verify(mint_token(loaded_priv, subject="user-1"))["sub"] == "user-1"
