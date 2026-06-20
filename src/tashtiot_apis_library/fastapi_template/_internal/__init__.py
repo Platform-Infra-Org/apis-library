@@ -33,8 +33,12 @@ def general_create_app(
     @asynccontextmanager
     async def lifespan(_app: FastAPI) -> AsyncGenerator[None, None]:
         # Launch each background task as a fire-and-forget coroutine on startup
-        # and cancel any still running on shutdown.
-        tasks = [asyncio.create_task(task()) for task in (async_background_tasks or [])]
+        # and cancel any still running on shutdown. The task list is read from
+        # ``app.state`` (not the captured argument) so capabilities wired *after*
+        # construction -- e.g. ``enable_remote_config_api`` -- can append their
+        # own background tasks before the lifespan starts.
+        registered = getattr(_app.state, "async_background_tasks", [])
+        tasks = [asyncio.create_task(task()) for task in registered]
         try:
             yield
         finally:
@@ -49,6 +53,9 @@ def general_create_app(
         root_path=settings.PROXY_LISTEN_PATH,
         lifespan=lifespan,
     )
+
+    # Seed the mutable background-task registry the lifespan reads at startup.
+    app.state.async_background_tasks = list(async_background_tasks or [])
 
     static_dir = Path(__file__).parent.parent / "static"
 

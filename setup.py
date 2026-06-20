@@ -21,6 +21,7 @@ setup(
         'pytest>=7.4.3',
         'coverage>=7.5.2',
         'httpx>=0.27.2',
+        'aiocache>=0.12.0',
         'pytest-cov>=5.0.0',
         'pytest-mock>=3.6.0',
         'pyyaml>=6.0.1',
