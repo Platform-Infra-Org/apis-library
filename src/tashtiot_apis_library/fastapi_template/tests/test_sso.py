@@ -16,6 +16,7 @@ from .._internal.security import verifier as verifier_mod
 from .._internal.security.errors import AuthConfigError, SSOError, TokenError
 from .._internal.security.sso import (
     SSOClientCredentialsAuth,
+    SSOConfig,
     SSOTokenClient,
     get_sso_token_client,
     sso_auth,
@@ -253,3 +254,67 @@ def test_verify_token_rejects_invalid(monkeypatch):
     monkeypatch.setattr(settings, "AUTH_HS256_SECRET", "shared-secret")
     with pytest.raises(TokenError):
         verify_token(_hs256("wrong-secret"))
+
+
+# --------------------------------------------------------------------------- #
+# Client-side SSOConfig — config passed in, not read from the settings singleton
+# --------------------------------------------------------------------------- #
+
+ALT_TOKEN_URL = "https://other-idp.example.com/oauth/token"
+
+
+def test_sso_config_from_settings_maps_auth_sso_fields():
+    cfg = SSOConfig.from_settings(settings)
+    assert cfg.token_url == TOKEN_URL
+    assert cfg.client_id == "svc"
+    assert cfg.client_secret == "s3cret"
+    assert cfg.auth_style == "post"
+
+
+def test_sso_token_client_accepts_explicit_config():
+    cfg = SSOConfig(token_url=ALT_TOKEN_URL, client_id="c", client_secret="s")
+    client = SSOTokenClient(cfg)
+    assert client._config.token_url == ALT_TOKEN_URL
+
+
+def test_sso_config_missing_field_raises():
+    with pytest.raises(AuthConfigError, match="client_secret"):
+        SSOTokenClient(SSOConfig(token_url=ALT_TOKEN_URL, client_id="c"))
+
+
+@pytest.mark.asyncio
+@respx.mock
+async def test_sso_authenticated_api_uses_explicit_config_not_singleton():
+    # The singleton points at TOKEN_URL; the explicit config points elsewhere.
+    alt_route = respx.post(ALT_TOKEN_URL).mock(
+        return_value=httpx.Response(200, json={"access_token": "alt-tok", "expires_in": 3600})
+    )
+    api_route = respx.get(f"{DOWNSTREAM}/data").mock(return_value=httpx.Response(200, json={"ok": True}))
+
+    cfg = SSOConfig(token_url=ALT_TOKEN_URL, client_id="alt", client_secret="alt-secret")
+    async with sso_authenticated_api(DOWNSTREAM, config=cfg) as client:
+        resp = await client.get("/data")
+
+    assert resp.status_code == 200
+    assert alt_route.called  # token minted from the config's endpoint, not the singleton
+    assert api_route.calls.last.request.headers["Authorization"] == "Bearer alt-tok"
+
+
+@pytest.mark.asyncio
+@respx.mock
+async def test_distinct_configs_have_independent_token_caches():
+    respx.post(TOKEN_URL).mock(
+        return_value=httpx.Response(200, json={"access_token": "tok-default", "expires_in": 3600})
+    )
+    respx.post(ALT_TOKEN_URL).mock(
+        return_value=httpx.Response(200, json={"access_token": "tok-alt", "expires_in": 3600})
+    )
+
+    cfg_a = SSOConfig(token_url=TOKEN_URL, client_id="a", client_secret="s")
+    cfg_b = SSOConfig(token_url=ALT_TOKEN_URL, client_id="b", client_secret="s")
+
+    # Memoized per object identity -> different clients, different tokens.
+    assert get_sso_token_client(cfg_a) is get_sso_token_client(cfg_a)
+    assert get_sso_token_client(cfg_a) is not get_sso_token_client(cfg_b)
+    assert await get_sso_token_client(cfg_a).get_token() == "tok-default"
+    assert await get_sso_token_client(cfg_b).get_token() == "tok-alt"

@@ -222,13 +222,21 @@ class ApplicationSettings(BaseSettings):
 
     AUTH_SSO_SCOPE: Optional[str] = Field(
         default=None,
-        description="Space-separated OAuth2 scopes to request. When None, no scope is sent.",
+        description=(
+            "Space-separated OAuth2 scopes to request, sent as the 'scope' field. When None, no "
+            "scope is sent. On Keycloak this is also how a downstream 'aud' is obtained: request a "
+            "client scope that carries an Audience mapper (AUTH_SSO_AUDIENCE is ignored by Keycloak)."
+        ),
         examples=["api.read api.write"],
     )
 
     AUTH_SSO_AUDIENCE: Optional[str] = Field(
         default=None,
-        description="Optional 'audience' parameter sent in the token request (e.g. Auth0). When None, it is omitted.",
+        description=(
+            "'audience' parameter sent in the token request, honored by Auth0-style providers. "
+            "When None, it is omitted. NOTE: Keycloak ignores this parameter -- set the downstream "
+            "'aud' via an Audience mapper requested through AUTH_SSO_SCOPE instead."
+        ),
         examples=["https://api.example.com"],
     )
 
