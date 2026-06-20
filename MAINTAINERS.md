@@ -31,10 +31,13 @@ tashtiot_apis_library/
     │   ├── utils/           # Settings & logging
     │   ├── metrics/         # Metrics
     │   ├── database/        # BaseAPI client
-    │   ├── security/        # Auth: verifier, middleware, keygen, SSO client
+    │   ├── security/        # Auth: verifier, oidc discovery, middleware, keygen, SSO client
     │   ├── openapi.py       # Swagger "Authorize" tab injection
     │   └── routes/          # Built-in routes
+    ├── config_api/          # Remote Config capability (upstream Config API proxy)
     ├── static/              # Static files (Swagger UI)
+    ├── errors.py            # Public auth error types (AuthConfigError, TokenError, SSOError)
+    ├── security.py          # Public outbound SSO helpers (PyJWT-free import path)
     └── utils.py             # Public utility exports (BaseAPI, settings, auth helpers)
 ```
 
@@ -444,6 +447,7 @@ import them from `_internal`.
 |------|----------------|
 | `errors.py` | `AuthConfigError` (startup misconfig), `TokenError` (inbound verify failure), `SSOError` (outbound token-acquisition failure) |
 | `verifier.py` | `JWTVerifier` (HS256 / local-pubkey / JWKS), `get_verifier` (memoized), `verify_token()` convenience |
+| `oidc.py` | `discover_jwks_uri()` — resolves a provider's `jwks_uri` from `<issuer>/.well-known/openid-configuration` (backs `AUTH_OIDC_ISSUER`) |
 | `middleware.py` | `AuthMiddleware` — enforces bearer auth on every non-excluded request |
 | `dependency.py` | `get_current_claims` — FastAPI dependency returning the verified claims |
 | `keygen.py` | RSA keypair + dev-token generation; backs the `gen-auth-material` CLI |
@@ -456,8 +460,17 @@ import them from `_internal`.
 the claims on `request.state.user`. It is wired in **only** under a dual-gate — the code flag
 `enable_auth=True` **and** the runtime switch `AUTH_ENABLED=true` — so the master switch can disable
 auth without a code change. The verifier auto-selects its mode from whichever single material is
-configured (`AUTH_HS256_SECRET` | `AUTH_JWKS_URL` | `AUTH_PUBLIC_KEY_PEM`/`PATH`) and raises
-`AuthConfigError` at startup if zero or more than one is set.
+configured (`AUTH_HS256_SECRET` | `AUTH_JWKS_URL`/`AUTH_OIDC_ISSUER` | `AUTH_PUBLIC_KEY_PEM`/`PATH`)
+and raises `AuthConfigError` at startup if zero or more than one is set. `AUTH_JWKS_URL` and
+`AUTH_OIDC_ISSUER` both select JWKS mode and count as **one** material group: an explicit URL wins,
+otherwise `oidc.py`'s `discover_jwks_uri` resolves the `jwks_uri` from the issuer's well-known
+document at startup (and the issuer becomes the default expected `iss`).
+
+By default the verifier **requires an `exp` claim** (`_decode_kwargs` sets `require=["exp"]`). Set
+`AUTH_REQUIRE_EXP=false` to accept non-expiring tokens (e.g. a forever `gen-auth-material` token).
+Relaxing the *requirement* does not stop validating an `exp` that is present, so expired tokens are
+still rejected; a token lacking `exp` under the default surfaces as
+`TokenError("Token is missing required 'exp' claim")`.
 
 ```python
 # Verify a token anywhere (workers, scripts) — same code path as the middleware:
@@ -471,14 +484,27 @@ security scheme — that's what makes Swagger's **Authorize** tab appear. It liv
 
 ### Outbound SSO client (client side)
 
-`sso.py` implements the OAuth2 `client_credentials` grant for calling *other* services. Three layers,
+`sso.py` implements the OAuth2 `client_credentials` grant for calling *other* services. Layers,
 mirroring the connector pattern:
 
+- **`SSOConfig`** — client-side config (token URL, credentials, scope, audience, …). Pass an explicit
+  instance to talk to several upstreams that each need a different identity/audience **independently
+  of the settings singleton**; `SSOConfig.from_settings(settings)` bridges the legacy `AUTH_SSO_*`
+  path. The SSO helpers dual-accept an `SSOConfig`, a settings object, or `None` (package settings).
 - **`TokenResponse`** — Pydantic model of the token endpoint response.
 - **`SSOTokenClient`** — fetches, caches, and refreshes the access token (guarded by an
-  `asyncio.Lock`); `get_token()` / `auth_header()`. `get_sso_token_client(settings)` memoizes it.
+  `asyncio.Lock`); `get_token()` / `auth_header()`. `get_sso_token_client(source)` memoizes it by the
+  object's identity, so build one `SSOConfig` per remote and reuse it to share the token cache.
 - **`SSOClientCredentialsAuth(httpx.Auth)`** — injects the bearer on every request and, on a `401`,
   forces one refresh and retries.
+- **`StaticBearerAuth(httpx.Auth)`** — attaches a fixed, long-lived bearer token (no token endpoint,
+  no refresh) for upstreams secured by a service token.
+
+These outbound helpers are re-exported from the public **`fastapi_template/security.py`** module
+(`from ...fastapi_template.security import sso_authenticated_api, SSOConfig, StaticBearerAuth, …`),
+which imports straight from `_internal.security.sso` so consumers that only mint outbound tokens
+don't drag in the inbound-JWT machinery (PyJWT). They are also re-exported lazily from
+`fastapi_template/utils.py`.
 
 The headline helper plugs that auth into `BaseAPI` (whose `auth=` now accepts any `httpx.Auth`), so
 you get a connector-style client with **automatic per-request token refresh**:
@@ -500,6 +526,35 @@ async with sso_authenticated_api("https://downstream.example.com") as client:
 console script (registered in `pyproject.toml` `[project.scripts]`). Useful for exercising
 local-pubkey auth locally.
 
+`mint_token`'s `expires_minutes` defaults to `None`, which **omits the `exp` claim** entirely (a
+non-expiring token); pass an `int` for a normally-expiring one. Because the verifier requires `exp`
+by default, a forever token is only accepted when the service sets `AUTH_REQUIRE_EXP=false` — the
+CLI prints that hint in its `.env` config block when minting a non-expiring token.
+
+---
+
+## Remote Config Capability (`config_api/`)
+
+A self-contained, **opt-in** capability that turns the app into a thin authenticated proxy to an
+upstream Config API. It is wired by one call, `enable_remote_config_api(app, …)`, and is imported
+**lazily** from `fastapi_template/__init__.py` so apps that don't use it never pull in its
+dependency (`aiocache`). Files:
+
+| File | Responsibility |
+|------|----------------|
+| `wiring.py` | `enable_remote_config_api(app, …)` — builds the provider, installs the dynamic-enum OpenAPI patcher + the coordinate-validation→422 handler, and registers the background poller. Returns the `RemoteConfigProvider`. |
+| `provider.py` | `RemoteConfigProvider` — forwards coordinates to the upstream's `/config`, `/naming`, `/projects` routes (auth via an injected `httpx.Auth`), caches results (`aiocache` MEMORY, `cache_ttl`s), and runs `crawl_and_sync_keys` / `start_periodic_polling`. Upstream transport/≥400 errors → `502`; `404` → empty result. |
+| `schemas.py` | `InfraMetadata` / `RequiredInfraMetadata` coordinate models, the response models, and the mutable module-level `LIVE_ALLOWED_*` allowlists that drive **both** the field validators and the OpenAPI enums. Validators are permissive when their allowlist is empty (pre-poll). |
+| `conf.py` | `ConfigRemoteSettings` — `CONFIG_REMOTE_*` env config selecting the outbound auth method (`sso` / `bearer` / `none`); `resolve_auth()` returns `(httpx.Auth, base_api_kwargs)`. |
+| `openapi.py` | `make_config_openapi(app, …)` — **wraps** the existing `app.openapi` (preserving the bearer-auth scheme) to inject the live allowlists as `enum` dropdowns on the config/naming coordinate query params. |
+| `errors.py` | `install_coordinate_validation_error_handler(app)` — re-emits a `pydantic.ValidationError` from a depended-on coordinate model as FastAPI's standard 422 (instead of an uncaught 500). |
+
+**Background-task wiring note.** `general_create_app` now seeds a *mutable* registry
+`app.state.async_background_tasks` (read by the lifespan at startup) rather than capturing the
+constructor argument. That's what lets `enable_remote_config_api` — called *after* the app is built —
+append its allowlist poller and still have the lifespan launch it. If the app wasn't built by
+`general_create_app`, the poller is registered but warns that it won't auto-start.
+
 ---
 
 ## Quick Reference
@@ -517,22 +572,33 @@ from tashtiot_apis_library.connectors.errors import ExternalServiceError, ArgoCD
 # FastAPI utilities
 from tashtiot_apis_library.fastapi_template.utils import BaseAPI, settings
 
-# Auth utilities (lazy-loaded)
+# Inbound-auth utilities (lazy-loaded)
 from tashtiot_apis_library.fastapi_template.utils import (
     get_current_claims,        # FastAPI dependency for verified claims
     verify_token,              # standalone server-side token check
-    JWTVerifier,               # inbound verifier (HS256 / local-pubkey / JWKS)
-    sso_authenticated_api,     # outbound SSO client (auto-refresh bearer)
-    get_sso_token_client,      # outbound SSO token provider
+    JWTVerifier,               # inbound verifier (HS256 / local-pubkey / JWKS, incl. OIDC discovery)
     generate_keypair, mint_token,  # dev key/token generation
 )
 
-# Auth error types (public, like connectors/errors.py)
+# Outbound SSO helpers — public, PyJWT-free import path (also on .utils)
+from tashtiot_apis_library.fastapi_template.security import (
+    sso_authenticated_api,     # outbound SSO client (auto-refresh bearer)
+    get_sso_token_client,      # outbound SSO token provider
+    SSOConfig,                 # explicit per-remote client_credentials config
+    StaticBearerAuth,          # fixed long-lived bearer auth
+)
+
+# Remote Config capability (lazy — pulls in aiocache only when used)
+from tashtiot_apis_library.fastapi_template import enable_remote_config_api
+from tashtiot_apis_library.fastapi_template.config_api import (
+    RemoteConfigProvider, RequiredInfraMetadata, InfraMetadata,
+)
+
+# Auth error types — import from fastapi_template.errors (mirrors connectors/errors.py).
+# Deliberately NOT part of the top-level package's public export.
 from tashtiot_apis_library.fastapi_template.errors import (
     AuthConfigError, TokenError, SSOError,
 )
-# ...also re-exported at the top level:
-from tashtiot_apis_library import AuthConfigError, TokenError, SSOError
 ```
 
 ### Creating a New Feature Checklist

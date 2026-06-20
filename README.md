@@ -137,9 +137,10 @@ from tashtiot_apis_library.fastapi_template import general_create_app
 - ✅ Built-in middleware for request timing, exception handling, and logging
 - ✅ Health check endpoints for Kubernetes readiness/liveness probes
 - ✅ Utilities for HTTP, FTP, and Kubernetes interactions
-- ✅ Inbound JWT bearer authentication (HS256 / local public key / JWKS) with a Swagger **Authorize** tab
+- ✅ Inbound JWT bearer authentication (HS256 / local public key / JWKS, incl. OIDC issuer discovery) with a Swagger **Authorize** tab
 - ✅ Outbound SSO client (OAuth2 `client_credentials`) with automatic token caching & refresh
 - ✅ Dev key/token generation via the `gen-auth-material` CLI
+- ✅ Remote Config API capability — an authenticated proxy to an upstream Config API with live OpenAPI enum dropdowns (`enable_remote_config_api`)
 
 ### Authentication
 
@@ -150,8 +151,15 @@ auth imports are lazy, so apps that don't use auth pay no import cost.
 
 Authentication is **dual-gated**: it activates only when you pass `enable_auth=True` *and* set
 `AUTH_ENABLED=true` in the environment. Configure exactly one piece of verification material —
-`AUTH_HS256_SECRET` (HS256), `AUTH_JWKS_URL` (JWKS/OIDC, the usual choice for SSO), or
-`AUTH_PUBLIC_KEY_PEM` / `AUTH_PUBLIC_KEY_PATH` (offline RS256).
+`AUTH_HS256_SECRET` (HS256), `AUTH_JWKS_URL` (JWKS/OIDC, the usual choice for SSO),
+`AUTH_OIDC_ISSUER` (JWKS via OIDC discovery — see below), or `AUTH_PUBLIC_KEY_PEM` /
+`AUTH_PUBLIC_KEY_PATH` (offline RS256).
+
+For any standards-compliant OIDC provider you can skip looking up the JWKS endpoint and just set
+`AUTH_OIDC_ISSUER`: at startup the library fetches the issuer's
+`/.well-known/openid-configuration`, discovers its `jwks_uri`, and verifies in JWKS mode. The issuer
+also becomes the default expected `iss` claim (unless `AUTH_ISSUER` overrides it). An explicit
+`AUTH_JWKS_URL` always takes precedence over discovery.
 
 ```python
 from tashtiot_apis_library import general_create_app
@@ -189,10 +197,41 @@ env vars. `sso_authenticated_api(base_url)` returns a client whose every request
 bearer token (cached and auto-refreshed; refreshed again on a `401`):
 
 ```python
-from tashtiot_apis_library.fastapi_template.utils import sso_authenticated_api
+from tashtiot_apis_library.fastapi_template.security import sso_authenticated_api
 
 async with sso_authenticated_api("https://downstream.example.com") as client:
     resp = await client.get("/protected")   # Authorization: Bearer <auto-managed>
+```
+
+> The SSO helpers are also re-exported from `tashtiot_apis_library.fastapi_template.utils`, but
+> importing them from `…fastapi_template.security` keeps you clear of the inbound-JWT machinery
+> (and therefore PyJWT) if you only mint outbound tokens.
+
+To call **several** upstreams that each need a different identity or audience — independently of the
+`AUTH_SSO_*` singleton — pass an explicit `SSOConfig`. Build one per remote and reuse it so its
+token cache is shared:
+
+```python
+from tashtiot_apis_library.fastapi_template.security import SSOConfig, sso_authenticated_api
+
+billing = SSOConfig(
+    token_url="https://idp/oauth/token",
+    client_id="my-svc", client_secret="…",
+    audience="https://billing.example.com",
+)
+async with sso_authenticated_api("https://billing.example.com", config=billing) as client:
+    resp = await client.get("/invoices")
+```
+
+For an upstream secured by a long-lived service token (no token endpoint), use `StaticBearerAuth`
+with any client that accepts an `httpx.Auth`:
+
+```python
+from tashtiot_apis_library.fastapi_template.security import StaticBearerAuth
+from tashtiot_apis_library.fastapi_template.utils import BaseAPI
+
+async with BaseAPI("https://downstream.example.com", auth=StaticBearerAuth("token")) as client:
+    resp = await client.get("/protected")
 ```
 
 Prefer the raw token? `get_sso_token_client().get_token()` / `.auth_header()`.
@@ -203,11 +242,16 @@ After install, the `gen-auth-material` CLI mints an RSA keypair and a signed JWT
 local-pubkey auth:
 
 ```bash
-gen-auth-material                                  # write jwt_private.pem + jwt_public.pem, print a token
+gen-auth-material                                  # write jwt_private.pem + jwt_public.pem, print a non-expiring token
+gen-auth-material --expires-minutes 30             # mint a token that expires in 30 minutes
 gen-auth-material --no-write                       # print a keypair + token, write nothing
 gen-auth-material --sub svc --aud my-api --iss https://idp/   # claims to match AUTH_AUDIENCE/AUTH_ISSUER
 gen-auth-material --private-key jwt_private.pem    # reuse existing keys, mint a fresh token
 ```
+
+By default the minted token has **no `exp` claim** and never expires. The verifier requires `exp` out
+of the box, so to accept a non-expiring token set `AUTH_REQUIRE_EXP=false` on the verifying service
+(the CLI prints this hint). Pass `--expires-minutes N` to mint a normally-expiring token instead.
 
 | Option | Description | Default |
 |--------|-------------|---------|
@@ -216,7 +260,7 @@ gen-auth-material --private-key jwt_private.pem    # reuse existing keys, mint a
 | `--iss` | Issuer (`iss`); set to match `AUTH_ISSUER` | `None` |
 | `--algorithm` | Signing algorithm | `RS256` |
 | `--kid` | Key id placed in the JWT header | `local-dev-key` |
-| `--expires-minutes` | Token lifetime in minutes | `30` |
+| `--expires-minutes` | Token lifetime in minutes; omit for a non-expiring token (no `exp`) | `None` (never expires) |
 | `--key-size` | RSA key size in bits | `2048` |
 | `--out-dir` | Directory for the `.pem` files | `.` |
 | `--private-name` | Private key filename | `jwt_private.pem` |
@@ -224,6 +268,55 @@ gen-auth-material --private-key jwt_private.pem    # reuse existing keys, mint a
 | `--no-write` | Print only; do not write key files | `false` |
 | `--private-key` | Path to an existing private key PEM to sign with (skips key generation) | `None` |
 | `--public-key` | Path to an existing public key PEM (derived from `--private-key` if omitted) | `None` |
+
+### Remote Config API
+
+`enable_remote_config_api` wires a thin **authenticated proxy to an upstream Config API** onto your
+app. The upstream resolves hierarchical infrastructure config / naming / project-registry from a set
+of *allocation coordinates* (`space`, `network`, `region`, `island`, `environment`, `project`); this
+capability forwards those coordinates over HTTP, caches the result in memory, and keeps your own
+Swagger dropdowns and request validation in sync with the upstream's live allowlists.
+
+```python
+from tashtiot_apis_library import general_create_app
+from tashtiot_apis_library.fastapi_template import enable_remote_config_api
+
+app = general_create_app()
+
+provider = enable_remote_config_api(
+    app,
+    base_url="https://config-api.example.com",  # where the upstream lives
+    remote_prefix="/api/v1",                     # upstream prefix serving /projects, /config, /naming
+    config_path="/config",                       # your route whose coordinate params get enum dropdowns
+    naming_path="/naming",
+)
+
+# Define your own routes against the returned provider:
+from fastapi import Depends
+from tashtiot_apis_library.fastapi_template.config_api import RequiredInfraMetadata
+
+@app.get("/config")
+async def get_config(meta: RequiredInfraMetadata = Depends()):
+    return await provider.resolve_infra_config(meta)
+```
+
+What it sets up:
+
+- A `RemoteConfigProvider` (returned) with `resolve_infra_config`, `resolve_naming_convention`, and
+  `get_all_projects`, all cached for `cache_ttl` seconds (default 60).
+- A background poller (registered on `general_create_app`'s lifespan) that refreshes the live
+  coordinate allowlists from the upstream every `poll_interval` seconds, hot-patching both the
+  Pydantic validators and the OpenAPI `enum` dropdowns. Pass `enable_polling=False` to drive it
+  yourself.
+- A `pydantic.ValidationError → 422` handler so a coordinate outside its allowlist returns the same
+  shape as any other invalid query parameter.
+
+Outbound auth to the upstream is **selectable via `CONFIG_REMOTE_*` env vars** (SSO
+`client_credentials`, a static bearer, or none — see the configuration table below). Pass an explicit
+`httpx.Auth` via `auth=` to override the settings entirely (tests / escape hatch).
+
+> Remote Config pulls in [`aiocache`](https://pypi.org/project/aiocache/) for its in-memory cache.
+> Because the import is lazy, apps that don't call `enable_remote_config_api` never need it.
 
 ## 🔧 Configuration
 
@@ -255,8 +348,12 @@ verification material.
 | `AUTH_HEADER_NAME` | Header carrying the bearer token | `Authorization` |
 | `AUTH_HS256_SECRET` | Shared secret → selects HS256 mode | `None` |
 | `AUTH_JWKS_URL` | JWKS/OIDC endpoint → selects JWKS mode | `None` |
+| `AUTH_OIDC_ISSUER` | OIDC issuer base URL → selects JWKS mode via discovery; also default expected `iss` | `None` |
+| `AUTH_OIDC_VERIFY_SSL` | Verify TLS when fetching the OIDC discovery document | `true` |
+| `AUTH_OIDC_TIMEOUT` | Timeout (seconds) for the one-shot OIDC discovery request at startup | `10.0` |
 | `AUTH_PUBLIC_KEY_PEM` / `AUTH_PUBLIC_KEY_PATH` | Public key → selects offline RS256 mode | `None` |
 | `AUTH_ALGORITHMS` | Allowed signing algorithms (HS256 mode forces `["HS256"]`) | `["RS256"]` |
+| `AUTH_REQUIRE_EXP` | Require an `exp` claim; set `false` to accept non-expiring tokens | `true` |
 | `AUTH_AUDIENCE` | Expected `aud` claim (unchecked when unset) | `None` |
 | `AUTH_ISSUER` | Expected `iss` claim (unchecked when unset) | `None` |
 | `AUTH_JWKS_CACHE_TTL` | Seconds to cache fetched JWKS keys | `3600` |
@@ -277,3 +374,40 @@ Used by `sso_authenticated_api` / `get_sso_token_client`. The first three are re
 | `AUTH_SSO_VERIFY_SSL` | Verify the token endpoint's TLS certificate | `true` |
 | `AUTH_SSO_TIMEOUT` | Token request timeout (seconds) | `10.0` |
 | `AUTH_SSO_EXPIRY_SKEW` | Refresh the token this many seconds before expiry | `30` |
+
+##### Setting the `aud` of the service you call
+
+How the downstream's `aud` claim gets populated is **provider-specific** — it is decided when the
+token is minted at `AUTH_SSO_TOKEN_URL`, not by anything at the call site.
+
+- **Auth0-style providers** honor a request parameter: set `AUTH_SSO_AUDIENCE` and it is sent as the
+  `audience` form field, and the IdP stamps it into `aud`.
+- **Keycloak ignores the `audience` request parameter**, so `AUTH_SSO_AUDIENCE` is a no-op there.
+  Keycloak derives `aud` from server-side **Audience protocol mappers** on a client scope. Configure
+  it on the Keycloak side and request that scope from the client:
+  1. Create a client scope (e.g. `config-api-aud`) with an **Audience** mapper whose *Included Client
+     Audience* is the downstream client (or *Included Custom Audience* = a literal string), and assign
+     it to your client as an **Optional** client scope.
+  2. Request it per call by setting `AUTH_SSO_SCOPE=config-api-aud` — the library forwards it as the
+     OAuth2 `scope` field, pulling in the mapper so the issued token carries the right `aud`.
+
+  The downstream service then validates that value via its inbound `AUTH_AUDIENCE`.
+
+### Remote Config API (outbound to the upstream)
+
+Read by `enable_remote_config_api` to authenticate to the upstream Config API. `CONFIG_REMOTE_AUTH_METHOD`
+picks the strategy; only the knobs for the chosen method are required.
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `CONFIG_REMOTE_AUTH_METHOD` | Outbound auth strategy: `sso`, `bearer`, or `none` | `sso` |
+| `CONFIG_REMOTE_BEARER_TOKEN` | Static bearer token (required when method is `bearer`) | `None` |
+| `CONFIG_REMOTE_SSO_TOKEN_URL` | OAuth2 token endpoint (method `sso`) | `None` |
+| `CONFIG_REMOTE_SSO_CLIENT_ID` | OAuth2 client id (method `sso`) | `None` |
+| `CONFIG_REMOTE_SSO_CLIENT_SECRET` | OAuth2 client secret (method `sso`) | `None` |
+| `CONFIG_REMOTE_SSO_SCOPE` | Space-separated scopes (Keycloak: carries the downstream `aud`) | `None` |
+| `CONFIG_REMOTE_SSO_AUDIENCE` | `audience` token-request param (Auth0-style; Keycloak ignores it) | `None` |
+| `CONFIG_REMOTE_SSO_AUTH_STYLE` | Credential delivery: `post` or `basic` | `post` |
+| `CONFIG_REMOTE_SSO_VERIFY_SSL` | Verify the token endpoint's TLS certificate | `true` |
+| `CONFIG_REMOTE_SSO_TIMEOUT` | Token request timeout (seconds) | `10.0` |
+| `CONFIG_REMOTE_SSO_EXPIRY_SKEW` | Refresh the token this many seconds before expiry | `30` |
