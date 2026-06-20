@@ -4,7 +4,8 @@ Verification mode is auto-selected from settings:
 
 * **HS256**       -- symmetric, ``AUTH_HS256_SECRET``.
 * **LOCAL_PUBKEY** -- offline RS256 against ``AUTH_PUBLIC_KEY_PEM`` / ``AUTH_PUBLIC_KEY_PATH``.
-* **JWKS**        -- RS256 against keys fetched (and cached) from ``AUTH_JWKS_URL``.
+* **JWKS**        -- RS256 against keys fetched (and cached) from ``AUTH_JWKS_URL``, or from the
+  ``jwks_uri`` discovered from ``AUTH_OIDC_ISSUER`` (generic OIDC).
 
 Exactly one set of material may be configured; configuring more than one (or
 none, while auth is enabled) raises :class:`AuthConfigError` at startup.
@@ -19,6 +20,7 @@ import jwt
 from loguru import logger
 
 from .errors import AuthConfigError, TokenError
+from .oidc import discover_jwks_uri
 
 __all__ = ["AuthMode", "JWTVerifier", "get_verifier", "verify_token"]
 
@@ -32,14 +34,17 @@ class AuthMode(str, Enum):
 def _select_mode(settings: Any) -> AuthMode:
     """Pick the verification mode from configured material, failing loudly on
     ambiguity (more than one material set) or absence (none set)."""
-    has_jwks = bool(settings.AUTH_JWKS_URL)
+    # AUTH_JWKS_URL and AUTH_OIDC_ISSUER both select JWKS mode and are
+    # complementary (an explicit URL overrides discovery), so they count as one
+    # material group, not two competing ones.
+    has_jwks = bool(settings.AUTH_JWKS_URL or settings.AUTH_OIDC_ISSUER)
     has_local = bool(settings.AUTH_PUBLIC_KEY_PEM or settings.AUTH_PUBLIC_KEY_PATH)
     has_hs256 = bool(settings.AUTH_HS256_SECRET)
 
     configured = [
         name
         for name, present in (
-            ("AUTH_JWKS_URL", has_jwks),
+            ("AUTH_JWKS_URL/AUTH_OIDC_ISSUER", has_jwks),
             ("AUTH_PUBLIC_KEY_PEM/AUTH_PUBLIC_KEY_PATH", has_local),
             ("AUTH_HS256_SECRET", has_hs256),
         )
@@ -90,9 +95,13 @@ class JWTVerifier:
         if self._mode is AuthMode.LOCAL_PUBKEY:
             self._local_key = self._load_local_key()
         elif self._mode is AuthMode.JWKS:
-            self._jwks_client = _build_jwks_client(
-                settings.AUTH_JWKS_URL, settings.AUTH_JWKS_CACHE_TTL
+            # An explicit JWKS URL wins; otherwise discover it from the issuer.
+            jwks_url = settings.AUTH_JWKS_URL or discover_jwks_uri(
+                settings.AUTH_OIDC_ISSUER,
+                verify_ssl=settings.AUTH_OIDC_VERIFY_SSL,
+                timeout=settings.AUTH_OIDC_TIMEOUT,
             )
+            self._jwks_client = _build_jwks_client(jwks_url, settings.AUTH_JWKS_CACHE_TTL)
 
         logger.debug(
             "JWTVerifier initialised in {} mode (algorithms={}).",
@@ -123,12 +132,19 @@ class JWTVerifier:
 
     def _decode_kwargs(self) -> Dict[str, Any]:
         settings = self._settings
-        options: Dict[str, Any] = {"require": ["exp"], "verify_aud": bool(settings.AUTH_AUDIENCE)}
+        # 'exp' is required by default; opt out via AUTH_REQUIRE_EXP=false to accept
+        # non-expiring tokens. A token that *does* carry 'exp' is still validated
+        # (PyJWT's verify_exp stays on), so expired tokens remain rejected.
+        require = ["exp"] if settings.AUTH_REQUIRE_EXP else []
+        options: Dict[str, Any] = {"require": require, "verify_aud": bool(settings.AUTH_AUDIENCE)}
         kwargs: Dict[str, Any] = {"algorithms": self._algorithms, "options": options}
         if settings.AUTH_AUDIENCE:
             kwargs["audience"] = settings.AUTH_AUDIENCE
-        if settings.AUTH_ISSUER:
-            kwargs["issuer"] = settings.AUTH_ISSUER
+        # Validate 'iss' against AUTH_ISSUER, defaulting to the OIDC issuer so that
+        # configuring AUTH_OIDC_ISSUER enforces the issuer claim out of the box.
+        issuer = settings.AUTH_ISSUER or settings.AUTH_OIDC_ISSUER
+        if issuer:
+            kwargs["issuer"] = issuer
         return kwargs
 
     def _signing_key(self, token: str) -> Any:
@@ -162,8 +178,12 @@ class JWTVerifier:
             raise TokenError("Invalid token audience") from exc
         except jwt.InvalidIssuerError as exc:
             raise TokenError("Invalid token issuer") from exc
+        except jwt.MissingRequiredClaimError as exc:
+            # Most commonly the required 'exp' claim (e.g. a non-expiring token sent
+            # to a verifier that still requires it). Name the claim so the fix is clear.
+            raise TokenError(f"Token is missing required '{exc.claim}' claim") from exc
         except jwt.PyJWTError as exc:
-            # Bad signature, wrong algorithm, missing exp, malformed, etc.
+            # Bad signature, wrong algorithm, malformed, etc.
             # Do not disclose specifics (e.g. allowed algorithms) to the client.
             raise TokenError("Invalid token") from exc
 

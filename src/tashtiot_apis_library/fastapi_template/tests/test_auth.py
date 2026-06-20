@@ -12,8 +12,10 @@ from httpx import ASGITransport, AsyncClient
 
 from ..utils import settings
 from .._internal import general_create_app
+from .._internal.security import oidc as oidc_mod
 from .._internal.security import verifier as verifier_mod
 from .._internal.security.errors import AuthConfigError, TokenError
+from .._internal.security.oidc import discover_jwks_uri
 from .._internal.security.keygen import (
     derive_public_pem,
     generate_keypair,
@@ -38,9 +40,13 @@ def _reset_auth_settings(monkeypatch):
         "AUTH_HEADER_NAME": "Authorization",
         "AUTH_HS256_SECRET": None,
         "AUTH_JWKS_URL": None,
+        "AUTH_OIDC_ISSUER": None,
+        "AUTH_OIDC_VERIFY_SSL": True,
+        "AUTH_OIDC_TIMEOUT": 10.0,
         "AUTH_PUBLIC_KEY_PEM": None,
         "AUTH_PUBLIC_KEY_PATH": None,
         "AUTH_ALGORITHMS": ["RS256"],
+        "AUTH_REQUIRE_EXP": True,
         "AUTH_AUDIENCE": None,
         "AUTH_ISSUER": None,
     }.items():
@@ -400,8 +406,60 @@ def test_keygen_token_verifies_via_local_pubkey(monkeypatch):
     v = JWTVerifier(settings)
     assert v.mode is AuthMode.LOCAL_PUBKEY
 
-    token = mint_token(private_pem, subject="svc-account")
+    token = mint_token(private_pem, subject="svc-account", expires_minutes=30)
     assert v.verify(token)["sub"] == "svc-account"
+
+
+def test_mint_token_omits_exp_by_default():
+    # No expiry given -> a non-expiring token with no 'exp' claim.
+    private_pem, _ = generate_keypair()
+    claims = jwt.decode(
+        mint_token(private_pem, subject="svc"),
+        options={"verify_signature": False},
+    )
+    assert "exp" not in claims
+    assert claims["sub"] == "svc"
+
+
+def test_mint_token_includes_exp_when_given():
+    private_pem, _ = generate_keypair()
+    claims = jwt.decode(
+        mint_token(private_pem, subject="svc", expires_minutes=5),
+        options={"verify_signature": False},
+    )
+    assert "exp" in claims
+
+
+def test_forever_token_rejected_when_exp_required(monkeypatch):
+    # Default posture: a token without 'exp' is rejected, with a clear message.
+    private_pem, public_pem = generate_keypair()
+    monkeypatch.setattr(settings, "AUTH_PUBLIC_KEY_PEM", public_pem)
+    v = JWTVerifier(settings)
+
+    token = mint_token(private_pem, subject="svc")  # no expiry -> no 'exp'
+    with pytest.raises(TokenError, match="missing required 'exp' claim"):
+        v.verify(token)
+
+
+def test_forever_token_accepted_when_exp_not_required(monkeypatch):
+    # Opt out: AUTH_REQUIRE_EXP=false accepts the non-expiring token.
+    private_pem, public_pem = generate_keypair()
+    monkeypatch.setattr(settings, "AUTH_PUBLIC_KEY_PEM", public_pem)
+    monkeypatch.setattr(settings, "AUTH_REQUIRE_EXP", False)
+    v = JWTVerifier(settings)
+
+    token = mint_token(private_pem, subject="svc")  # no expiry -> no 'exp'
+    assert v.verify(token)["sub"] == "svc"
+
+
+def test_expired_token_still_rejected_when_exp_not_required(monkeypatch):
+    # Relaxing the *requirement* must not stop validating an 'exp' that is present.
+    monkeypatch.setattr(settings, "AUTH_HS256_SECRET", HS256_SECRET)
+    monkeypatch.setattr(settings, "AUTH_REQUIRE_EXP", False)
+    v = JWTVerifier(settings)
+    expired = _hs256(exp=datetime.now(timezone.utc) - timedelta(minutes=1))
+    with pytest.raises(TokenError, match="Token has expired"):
+        v.verify(expired)
 
 
 def test_keygen_token_round_trips_aud_and_iss(monkeypatch):
@@ -416,6 +474,7 @@ def test_keygen_token_round_trips_aud_and_iss(monkeypatch):
         subject="svc",
         audience="my-api",
         issuer="https://idp.example.com/",
+        expires_minutes=30,
     )
     claims = v.verify(token)
     assert claims["aud"] == "my-api"
@@ -435,4 +494,119 @@ def test_keygen_load_keypair_derives_public(monkeypatch, tmp_path):
 
     monkeypatch.setattr(settings, "AUTH_PUBLIC_KEY_PEM", loaded_pub)
     v = JWTVerifier(settings)
-    assert v.verify(mint_token(loaded_priv, subject="user-1"))["sub"] == "user-1"
+    assert v.verify(mint_token(loaded_priv, subject="user-1", expires_minutes=30))["sub"] == "user-1"
+
+
+# --------------------------------------------------------------------------- #
+# OIDC discovery + JWKS-via-issuer
+# --------------------------------------------------------------------------- #
+
+
+class _FakeResponse:
+    def __init__(self, json_data, status_code=200):
+        self._json = json_data
+        self.status_code = status_code
+
+    def raise_for_status(self):
+        import httpx
+        if self.status_code >= 400:
+            raise httpx.HTTPStatusError("error", request=None, response=None)
+
+    def json(self):
+        return self._json
+
+
+def _mock_discovery(monkeypatch, json_data=None, exc=None):
+    """Patch the one-shot discovery GET; capture the URL/kwargs it was called with."""
+    captured = {}
+
+    def fake_get(url, **kwargs):
+        captured["url"] = url
+        captured["kwargs"] = kwargs
+        if exc is not None:
+            raise exc
+        return _FakeResponse(json_data)
+
+    monkeypatch.setattr(oidc_mod.httpx, "get", fake_get)
+    return captured
+
+
+def test_discover_jwks_uri_returns_uri(monkeypatch):
+    captured = _mock_discovery(
+        monkeypatch, {"jwks_uri": "https://idp.example.com/keys", "issuer": "https://idp.example.com"}
+    )
+    url = discover_jwks_uri("https://idp.example.com", verify_ssl=False, timeout=3.0)
+    assert url == "https://idp.example.com/keys"
+    # Standard discovery path; issuer trailing slash collapsed; kwargs forwarded.
+    assert captured["url"] == "https://idp.example.com/.well-known/openid-configuration"
+    assert captured["kwargs"]["verify"] is False
+    assert captured["kwargs"]["timeout"] == 3.0
+
+
+def test_discover_jwks_uri_normalises_trailing_slash(monkeypatch):
+    captured = _mock_discovery(monkeypatch, {"jwks_uri": "https://idp/keys"})
+    discover_jwks_uri("https://idp.example.com/")
+    assert captured["url"] == "https://idp.example.com/.well-known/openid-configuration"
+
+
+def test_discover_jwks_uri_missing_uri_raises(monkeypatch):
+    _mock_discovery(monkeypatch, {"issuer": "https://idp.example.com"})
+    with pytest.raises(AuthConfigError, match="no 'jwks_uri'"):
+        discover_jwks_uri("https://idp.example.com")
+
+
+def test_discover_jwks_uri_network_error_raises(monkeypatch):
+    import httpx
+    _mock_discovery(monkeypatch, exc=httpx.ConnectError("boom"))
+    with pytest.raises(AuthConfigError, match="OIDC discovery failed"):
+        discover_jwks_uri("https://idp.example.com")
+
+
+def test_oidc_issuer_selects_jwks_mode_via_discovery(monkeypatch, rsa_keys):
+    priv_pem, pub_pem = rsa_keys
+    captured = _mock_discovery(monkeypatch, {"jwks_uri": "https://idp.example.com/keys"})
+    monkeypatch.setattr(settings, "AUTH_OIDC_ISSUER", "https://idp.example.com")
+
+    v = JWTVerifier(settings)
+    assert v.mode is AuthMode.JWKS
+    # Discovery ran against the configured issuer's well-known document.
+    assert captured["url"] == "https://idp.example.com/.well-known/openid-configuration"
+
+    # Stub the key lookup so verification runs without contacting the JWKS URL.
+    v._jwks_client = SimpleNamespace(get_signing_key_from_jwt=lambda token: SimpleNamespace(key=pub_pem))
+    # Issuer defaults to AUTH_OIDC_ISSUER -> a matching iss verifies, a wrong one fails.
+    assert v.verify(_rs256(priv_pem, iss="https://idp.example.com"))["sub"] == "user-1"
+    with pytest.raises(TokenError, match="Invalid token issuer"):
+        v.verify(_rs256(priv_pem, iss="https://evil.example.com"))
+
+
+def test_explicit_jwks_url_takes_precedence_over_issuer(monkeypatch):
+    # With both set, the explicit URL wins and no discovery request is made.
+    called = {"n": 0}
+    monkeypatch.setattr(oidc_mod.httpx, "get", lambda *a, **k: called.__setitem__("n", called["n"] + 1))
+    monkeypatch.setattr(settings, "AUTH_JWKS_URL", "https://idp.example.com/explicit-keys")
+    monkeypatch.setattr(settings, "AUTH_OIDC_ISSUER", "https://idp.example.com")
+
+    v = JWTVerifier(settings)
+    assert v.mode is AuthMode.JWKS
+    assert called["n"] == 0
+
+
+def test_explicit_auth_issuer_overrides_oidc_issuer_default(monkeypatch, rsa_keys):
+    priv_pem, pub_pem = rsa_keys
+    _mock_discovery(monkeypatch, {"jwks_uri": "https://idp.example.com/keys"})
+    monkeypatch.setattr(settings, "AUTH_OIDC_ISSUER", "https://discovery.example.com")
+    monkeypatch.setattr(settings, "AUTH_ISSUER", "https://explicit.example.com/")
+
+    v = JWTVerifier(settings)
+    v._jwks_client = SimpleNamespace(get_signing_key_from_jwt=lambda token: SimpleNamespace(key=pub_pem))
+    assert v.verify(_rs256(priv_pem, iss="https://explicit.example.com/"))["sub"] == "user-1"
+    with pytest.raises(TokenError, match="Invalid token issuer"):
+        v.verify(_rs256(priv_pem, iss="https://discovery.example.com"))
+
+
+def test_oidc_issuer_ambiguous_with_other_material(monkeypatch):
+    monkeypatch.setattr(settings, "AUTH_OIDC_ISSUER", "https://idp.example.com")
+    monkeypatch.setattr(settings, "AUTH_HS256_SECRET", HS256_SECRET)
+    with pytest.raises(AuthConfigError, match="Ambiguous"):
+        JWTVerifier(settings)

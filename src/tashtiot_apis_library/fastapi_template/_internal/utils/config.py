@@ -123,6 +123,29 @@ class ApplicationSettings(BaseSettings):
         examples=["https://idp.example.com/.well-known/jwks.json"],
     )
 
+    AUTH_OIDC_ISSUER: Optional[str] = Field(
+        default=None,
+        description=(
+            "OIDC issuer base URL. Selects JWKS mode by discovering the provider's "
+            "'jwks_uri' from <issuer>/.well-known/openid-configuration at startup "
+            "(an explicit AUTH_JWKS_URL takes precedence). Also used as the default "
+            "expected 'iss' when AUTH_ISSUER is unset."
+        ),
+        examples=["https://idp.example.com/", "https://sso.example.com/realms/platform"],
+    )
+
+    AUTH_OIDC_VERIFY_SSL: bool = Field(
+        default=True,
+        description="Verify the TLS certificate when fetching the OIDC discovery document.",
+        examples=[True, False],
+    )
+
+    AUTH_OIDC_TIMEOUT: float = Field(
+        default=10.0,
+        description="Timeout in seconds for the one-shot OIDC discovery request at startup.",
+        examples=[10.0, 5.0],
+    )
+
     AUTH_PUBLIC_KEY_PEM: Optional[str] = Field(
         default=None,
         description="Inline PEM public key for offline RS256 verification. Selects local-pubkey mode.",
@@ -139,6 +162,15 @@ class ApplicationSettings(BaseSettings):
         default=["RS256"],
         description="Allowed JWT signing algorithms. HS256 mode forces ['HS256'].",
         examples=[["RS256"], ["HS256"], ["RS256", "RS384"]],
+    )
+
+    AUTH_REQUIRE_EXP: bool = Field(
+        default=True,
+        description=(
+            "Require the 'exp' claim on inbound tokens. True (default) rejects tokens without an "
+            "expiry; set False to accept non-expiring tokens (e.g. a forever gen-auth-material token)."
+        ),
+        examples=[True, False],
     )
 
     AUTH_AUDIENCE: Optional[str] = Field(

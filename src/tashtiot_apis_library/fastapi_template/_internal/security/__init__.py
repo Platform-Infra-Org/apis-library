@@ -5,6 +5,7 @@ middleware wiring -- consumers with auth disabled never need PyJWT installed.
 """
 
 from .errors import AuthConfigError, SSOError, TokenError
+from .oidc import discover_jwks_uri
 from .verifier import AuthMode, JWTVerifier, get_verifier, verify_token
 from .middleware import AuthMiddleware
 from .dependency import get_current_claims
@@ -31,6 +32,7 @@ __all__ = [
     "JWTVerifier",
     "get_verifier",
     "verify_token",
+    "discover_jwks_uri",
     "AuthMiddleware",
     "get_current_claims",
     "generate_keypair",

@@ -86,22 +86,26 @@ def mint_token(
     subject: str,
     algorithm: str = "RS256",
     kid: str = "local-dev-key",
-    expires_minutes: int = 30,
+    expires_minutes: Optional[int] = None,
     audience: Optional[str] = None,
     issuer: Optional[str] = None,
 ) -> str:
     """Sign and return a JWT.
 
-    Always includes ``exp`` (the verifier requires it) and ``iat``; adds
-    ``aud`` / ``iss`` only when supplied, so they match the service's
-    ``AUTH_AUDIENCE`` / ``AUTH_ISSUER`` when those are configured.
+    Always includes ``iat``; includes ``exp`` only when ``expires_minutes`` is
+    given. When it is ``None`` (the default) the token never expires and carries
+    no ``exp`` claim -- the verifying service must then set ``AUTH_REQUIRE_EXP=false``
+    to accept it, since the verifier requires ``exp`` by default. Adds ``aud`` /
+    ``iss`` only when supplied, so they match the service's ``AUTH_AUDIENCE`` /
+    ``AUTH_ISSUER`` when those are configured.
     """
     now = datetime.now(timezone.utc)
     claims = {
         "sub": subject,
         "iat": now,
-        "exp": now + timedelta(minutes=expires_minutes),
     }
+    if expires_minutes is not None:
+        claims["exp"] = now + timedelta(minutes=expires_minutes)
     if audience is not None:
         claims["aud"] = audience
     if issuer is not None:
@@ -118,7 +122,15 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--iss", default=None, help="Issuer ('iss'); set to match AUTH_ISSUER.")
     parser.add_argument("--algorithm", default="RS256", help="Signing algorithm (default: RS256).")
     parser.add_argument("--kid", default="local-dev-key", help="Key id placed in the JWT header.")
-    parser.add_argument("--expires-minutes", type=int, default=30, help="Token lifetime in minutes.")
+    parser.add_argument(
+        "--expires-minutes",
+        type=int,
+        default=None,
+        help=(
+            "Token lifetime in minutes. Omit for a non-expiring token (the verifying "
+            "service must set AUTH_REQUIRE_EXP=false to accept it)."
+        ),
+    )
     parser.add_argument("--key-size", type=int, default=2048, help="RSA key size in bits.")
     parser.add_argument("--out-dir", default=".", help="Directory for the .pem files.")
     parser.add_argument("--private-name", default="jwt_private.pem", help="Private key filename.")
@@ -210,6 +222,9 @@ def main(argv: Optional[list] = None) -> None:
         print(f"  AUTH_AUDIENCE={args.aud}")
     if args.iss is not None:
         print(f"  AUTH_ISSUER={args.iss}")
+    if args.expires_minutes is None:
+        # The token carries no `exp`; the verifier requires it unless told otherwise.
+        print("  AUTH_REQUIRE_EXP=false   # the minted token never expires (no 'exp' claim)")
     print()
 
     print("===== BEARER TOKEN =====")
