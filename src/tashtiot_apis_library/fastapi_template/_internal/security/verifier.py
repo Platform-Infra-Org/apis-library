@@ -52,11 +52,19 @@ def _select_mode(settings: Any) -> AuthMode:
     ]
 
     if len(configured) > 1:
+        logger.warning(
+            "Ambiguous authentication configuration: more than one verification "
+            "material is set ({}).",
+            ", ".join(configured),
+        )
         raise AuthConfigError(
             "Ambiguous authentication configuration: more than one verification "
             f"material is set ({', '.join(configured)}). Configure exactly one."
         )
     if not configured:
+        logger.warning(
+            "Authentication is enabled but no verification material is configured."
+        )
         raise AuthConfigError(
             "Authentication is enabled but no verification material is configured. "
             "Set one of AUTH_JWKS_URL, AUTH_PUBLIC_KEY_PEM, AUTH_PUBLIC_KEY_PATH, "
@@ -121,11 +129,21 @@ class JWTVerifier:
     def _load_local_key(self) -> str:
         settings = self._settings
         if settings.AUTH_PUBLIC_KEY_PEM:
+            logger.debug("Loading local public key from AUTH_PUBLIC_KEY_PEM.")
             return settings.AUTH_PUBLIC_KEY_PEM
+        logger.debug(
+            "Loading local public key from AUTH_PUBLIC_KEY_PATH ({}).",
+            settings.AUTH_PUBLIC_KEY_PATH,
+        )
         try:
             with open(settings.AUTH_PUBLIC_KEY_PATH, "r", encoding="utf-8") as handle:
                 return handle.read()
         except OSError as exc:
+            logger.error(
+                "Unable to read AUTH_PUBLIC_KEY_PATH ({}): {}",
+                settings.AUTH_PUBLIC_KEY_PATH,
+                exc,
+            )
             raise AuthConfigError(
                 f"Unable to read AUTH_PUBLIC_KEY_PATH ({settings.AUTH_PUBLIC_KEY_PATH!r}): {exc}"
             ) from exc

@@ -53,8 +53,11 @@ def enable_remote_config_api(
     """
     if auth is not None:
         resolved_auth, api_kwargs = auth, {}
+        auth_source = "explicit"
     else:
-        resolved_auth, api_kwargs = (settings or ConfigRemoteSettings()).resolve_auth()
+        effective_settings = settings or ConfigRemoteSettings()
+        resolved_auth, api_kwargs = effective_settings.resolve_auth()
+        auth_source = effective_settings.CONFIG_REMOTE_AUTH_METHOD
 
     provider = RemoteConfigProvider(
         base_url,
@@ -62,6 +65,15 @@ def enable_remote_config_api(
         auth=resolved_auth,
         cache_ttl=cache_ttl,
         **api_kwargs,
+    )
+
+    logger.info(
+        "Remote Config API enabled: upstream={}{} auth={} polling={} (interval={}s).",
+        base_url,
+        remote_prefix,
+        auth_source,
+        enable_polling,
+        poll_interval,
     )
 
     # Wrap the existing app.openapi (preserving any bearer-security scheme) with the

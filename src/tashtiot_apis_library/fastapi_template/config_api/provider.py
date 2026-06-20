@@ -110,6 +110,17 @@ class RemoteConfigProvider:
 
             # Invalidate the cached OpenAPI schema so it regenerates with fresh enums.
             app_instance.openapi_schema = None
+
+            logger.debug(
+                "Synced Config API allowlists (networks={}, regions={}, islands={}, "
+                "environments={}, spaces={}, projects={}).",
+                len(LIVE_ALLOWED_NETWORKS),
+                len(LIVE_ALLOWED_REGIONS),
+                len(LIVE_ALLOWED_ISLANDS),
+                len(LIVE_ALLOWED_ENVIRONMENTS),
+                len(LIVE_ALLOWED_SPACES),
+                len(LIVE_ALLOWED_PROJECTS),
+            )
         except Exception as e:
             logger.error(f"Synchronization pipeline loop operation failure: {e}")
 

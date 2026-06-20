@@ -42,10 +42,12 @@ def discover_jwks_uri(issuer: str, *, verify_ssl: bool = True, timeout: float = 
         response.raise_for_status()
         document = response.json()
     except httpx.HTTPError as exc:
+        logger.error("OIDC discovery failed for issuer {!r}: {}", issuer, exc)
         raise AuthConfigError(f"OIDC discovery failed for issuer {issuer!r}: {exc}") from exc
 
     jwks_uri = document.get("jwks_uri")
     if not jwks_uri:
+        logger.warning("OIDC discovery document at {} has no 'jwks_uri'.", well_known)
         raise AuthConfigError(
             f"OIDC discovery document at {well_known} has no 'jwks_uri'."
         )

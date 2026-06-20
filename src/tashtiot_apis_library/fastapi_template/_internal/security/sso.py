@@ -212,6 +212,7 @@ class SSOTokenClient:
             timeout=config.timeout,
             verify=config.verify_ssl,
         )
+        logger.debug("Requesting SSO token from {}.", config.token_url)
         try:
             async with api as client:
                 # Post to the absolute URL so the exact token endpoint is hit
@@ -220,9 +221,16 @@ class SSOTokenClient:
                     config.token_url, **self._request_kwargs()
                 )
         except httpx.HTTPError as exc:
+            logger.error("SSO token request to {} failed: {}", config.token_url, exc)
             raise SSOError(f"SSO token request failed: {exc}") from exc
 
         if response.status_code >= 400:
+            logger.error(
+                "SSO token endpoint {} returned {}: {}",
+                config.token_url,
+                response.status_code,
+                response.text[:500],
+            )
             raise SSOError(
                 f"SSO token endpoint returned {response.status_code}: "
                 f"{response.text[:500]}"
@@ -230,6 +238,7 @@ class SSOTokenClient:
         try:
             return TokenResponse.model_validate(response.json())
         except Exception as exc:  # JSON decode or schema mismatch
+            logger.error("Malformed SSO token response from {}: {}", config.token_url, exc)
             raise SSOError(f"Malformed SSO token response: {exc}") from exc
 
 
@@ -258,6 +267,11 @@ class SSOClientCredentialsAuth(httpx.Auth):
 
         if response.status_code == 401:
             # Token may have been revoked/rotated early; refresh once and retry.
+            logger.info(
+                "SSO 401 on {} {}; refreshing token and retrying once.",
+                request.method,
+                request.url,
+            )
             token = await self._token_client.get_token(force_refresh=True)
             request.headers["Authorization"] = f"Bearer {token}"
             yield request

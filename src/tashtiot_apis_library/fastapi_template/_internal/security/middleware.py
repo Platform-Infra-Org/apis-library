@@ -83,6 +83,10 @@ class AuthMiddleware(BaseHTTPMiddleware):
 
         token = self._extract_bearer(request.headers.get(settings.AUTH_HEADER_NAME))
         if token is None:
+            logger.info(
+                f"Auth rejected {request.method} {path}: missing bearer token",
+                extra={"location": "Auth"},
+            )
             return self._unauthorized("Not authenticated")
 
         try:

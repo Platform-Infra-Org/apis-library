@@ -9,6 +9,7 @@ bearer, or no auth without code changes.
 from typing import Any, Dict, Optional, Tuple
 
 import httpx
+from loguru import logger
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -97,6 +98,7 @@ class ConfigRemoteSettings(BaseSettings):
         when the chosen method is missing its required configuration.
         """
         method = (self.CONFIG_REMOTE_AUTH_METHOD or "sso").lower()
+        logger.debug("Config-remote outbound auth method resolved: {}.", method)
 
         if method == "none":
             return None, {}
