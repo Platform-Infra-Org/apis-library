@@ -11,10 +11,10 @@ import pytest
 import pytest_asyncio
 import respx
 
-from ...config_api import schemas
-from ...config_api import RemoteConfigProvider
-from ...security import SSOConfig, sso_auth
-from ..._internal.security import sso as sso_mod
+from tashtiot_apis_library.fastapi_template.config_api import schemas
+from tashtiot_apis_library.fastapi_template.config_api import RemoteConfigProvider
+from tashtiot_apis_library.fastapi_template.security import SSOConfig, sso_auth
+from tashtiot_apis_library.fastapi_template._internal.security import sso as sso_mod
 
 from .upstream import ALL_SEED_DOCS, register_token_route, register_upstream_routes
 

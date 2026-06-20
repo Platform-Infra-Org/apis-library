@@ -2,7 +2,7 @@
 
 Routes that want the verified JWT claims can declare::
 
-    from tashtiot_apis_library.fastapi_template.utils import get_current_claims
+    from tashtiot_apis_library.fastapi_template.auth import get_current_claims
 
     @app.get("/me")
     def me(claims: dict = Depends(get_current_claims)):

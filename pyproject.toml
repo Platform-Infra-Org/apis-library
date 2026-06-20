@@ -1,19 +1,21 @@
 [build-system]
-requires = ["setuptools>=64", "wheel"]
+requires = ["setuptools>=64", "wheel", "setuptools-scm>=8"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "tashtiot-apis-library"
-version = "0.3.10"
 description = "Unified package for infrastructure connectors (ArgoCD, Git, Vault) and FastAPI template utilities"
 readme = "README.md"
 authors = [
     { name = "Yehonatan Magen" },
     { name = "Alon Elimelech" },
-    { name = "Chaim Mendelson" }
+    { name = "Chaim Mendelson" },
+    { name = "Daniel Tsytrinbaum" }
 ]
 license = { file = "LICENSE" }
 requires-python = ">=3.9"
+# version is provided by setuptools-scm from git tags
+dynamic = ["version"]
 dependencies = [
     "fastapi>=0.95",
     "httpx>=0.24",
@@ -23,7 +25,11 @@ dependencies = [
     "pyyaml>=6.0.3",
     "prometheus-client",
     "uvicorn",
-    "pyjwt[crypto]>=2.9.0"
+    "pyjwt[crypto]>=2.9.0",
+    "starlette",
+    "aiocache",
+    "cryptography",
+    "python-dotenv",
 ]
 
 # Optional dependencies
@@ -31,8 +37,11 @@ dependencies = [
 dev = [
     "pytest",
     "pytest-asyncio",
+    "pytest-cov",
     "respx",
 ]
+
+[tool.setuptools_scm]
 
 # Console entry points
 [project.scripts]
@@ -41,7 +50,6 @@ gen-auth-material = "tashtiot_apis_library.fastapi_template._internal.security.k
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["tashtiot_apis_library", "tashtiot_apis_library.*"]
-exclude = ["tashtiot_apis_library.fastapi_template.tests*"]
 
 [tool.setuptools.package-data]
 tashtiot_apis_library = ["fastapi_template/static/**"]
@@ -50,10 +58,13 @@ tashtiot_apis_library = ["fastapi_template/static/**"]
 include-package-data = true
 
 [tool.pytest.ini_options]
-testpaths = ["tashtiot_apis_library/fastapi_template/tests"]
+testpaths = ["tests"]
+pythonpath = ["src"]
 python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
 
-addopts = "-ra -q --disable-warnings --strict-markers"
+addopts = "-ra -q --disable-warnings --strict-markers --cov=tashtiot_apis_library --cov-report=term-missing"
 
 markers = [
     "asyncio: mark test to be run by the asyncio event loop",

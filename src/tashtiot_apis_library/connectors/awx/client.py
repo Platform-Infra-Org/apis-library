@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from typing import Any, Dict, Optional
 
-from tashtiot_apis_library.fastapi_template.utils import BaseAPI
+from ...fastapi_template.utils import BaseAPI
 from ..errors import AWXError
 from .models import (
     AWXJob,

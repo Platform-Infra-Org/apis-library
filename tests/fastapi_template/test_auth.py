@@ -10,19 +10,22 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from fastapi import Request
 from httpx import ASGITransport, AsyncClient
 
-from ..utils import settings
-from .._internal import general_create_app
-from .._internal.security import oidc as oidc_mod
-from .._internal.security import verifier as verifier_mod
-from .._internal.security.errors import AuthConfigError, TokenError
-from .._internal.security.oidc import discover_jwks_uri
-from .._internal.security.keygen import (
+from tashtiot_apis_library.fastapi_template import general_create_app
+from tashtiot_apis_library.fastapi_template.utils import settings
+from tashtiot_apis_library.fastapi_template.errors import AuthConfigError, TokenError
+from tashtiot_apis_library.fastapi_template.auth import (
+    AuthMode,
+    JWTVerifier,
     derive_public_pem,
     generate_keypair,
     load_keypair,
     mint_token,
 )
-from .._internal.security.verifier import AuthMode, JWTVerifier
+# White-box access to private module state (caches) and internal-only helpers --
+# these have no public re-export by design.
+from tashtiot_apis_library.fastapi_template._internal.security import oidc as oidc_mod
+from tashtiot_apis_library.fastapi_template._internal.security import verifier as verifier_mod
+from tashtiot_apis_library.fastapi_template._internal.security.oidc import discover_jwks_uri
 
 # --------------------------------------------------------------------------- #
 # Fixtures / helpers

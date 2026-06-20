@@ -2,7 +2,7 @@
 import pytest
 import httpx
 import respx
-from ..._internal.database.basic_api import BaseAPI  # adjust import path if needed
+from tashtiot_apis_library.fastapi_template.utils import BaseAPI
 
 # --------------------------- tests for BaseAPI ---------------------------
 

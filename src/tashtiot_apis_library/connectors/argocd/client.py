@@ -7,7 +7,7 @@ from typing import Any, Mapping, Union
 
 from pydantic import BaseModel
 
-from tashtiot_apis_library.fastapi_template.utils import BaseAPI
+from ...fastapi_template.utils import BaseAPI
 from ..errors import ArgoCDError
 from .models import ArgoApplication
 

@@ -9,7 +9,7 @@ public key (verify side), and a ready-to-use token.
 
 Use it as a library::
 
-    from tashtiot_apis_library.fastapi_template.utils import (
+    from tashtiot_apis_library.fastapi_template.auth import (
         generate_keypair, mint_token,
     )
 

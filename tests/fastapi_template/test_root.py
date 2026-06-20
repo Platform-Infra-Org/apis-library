@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock
 import pytest
 from httpx import AsyncClient, ASGITransport
 from fastapi.testclient import TestClient
-from .._internal import general_create_app
+from tashtiot_apis_library.fastapi_template import general_create_app
 
 # -------------------------- Tests for root endpoint --------------------------
 @pytest.mark.rest

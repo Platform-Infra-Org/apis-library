@@ -2,8 +2,8 @@
 import pytest
 from fastapi import APIRouter, Depends, FastAPI
 
-from ...config_api import schemas
-from ...config_api import (
+from tashtiot_apis_library.fastapi_template.config_api import schemas
+from tashtiot_apis_library.fastapi_template.config_api import (
     InfraMetadata, RequiredInfraMetadata, make_config_openapi,
 )
 

@@ -14,24 +14,25 @@ Consumers `pip install` this package and import from the top-level `tashtiot_api
 ## Commands
 
 ```bash
-pip install -e ".[dev]"          # install with dev deps (pytest, pytest-asyncio, respx)
+pip install -e ".[dev]"          # install with dev deps (pytest, pytest-asyncio, pytest-cov, respx)
 
-# Two separate test suites with two configs — run from the directory whose config you want:
-cd src && pytest                 # uses src/pytest.ini → src/tests/ (unittest-style, with coverage)
-pytest                           # uses pyproject [tool.pytest.ini_options] → fastapi_template/tests/
-
-pytest src/tests/test_awx_client.py                    # single file
-pytest src/tests/test_awx_client.py::TestAWXOperations # single class
+pytest                           # one suite, run from the repo root (see below)
+pytest tests/connectors/test_awx_client.py                    # single file
+pytest tests/connectors/test_awx_client.py::TestAWXOperations # single class
 python -m build                  # build sdist+wheel (what CI does before publishing)
 ```
 
 There is no linter configured. Python >= 3.9.
 
-### Two pytest configurations (important)
-- `src/pytest.ini`: `testpaths = tests`, runs with `--cov`, expects `pythonpath = .` (so tests use package-relative imports like `from ..tashtiot_apis_library...`). Run it from inside `src/`.
-- root `pyproject.toml` `[tool.pytest.ini_options]`: `testpaths = ["tashtiot_apis_library/fastapi_template/tests"]`, declares custom markers (`asyncio`, `rest`, `ftp`) and enables live log output.
-
-They cover different trees; running `pytest` from the wrong directory will collect the wrong suite or fail on imports.
+### Tests (single suite)
+- All tests live in the top-level `tests/` tree (`tests/connectors/`, `tests/fastapi_template/`),
+  outside the importable package, and import the package absolutely
+  (`from tashtiot_apis_library.fastapi_template... import ...`).
+- One config: root `pyproject.toml` `[tool.pytest.ini_options]` — `testpaths = ["tests"]`,
+  `pythonpath = ["src"]` (so tests resolve without an editable install), `--cov` coverage, custom
+  markers (`asyncio`, `rest`, `ftp`). Just run `pytest` from the repo root.
+- The test dirs keep `__init__.py` files because some `config_api` tests import sibling helper
+  modules (`from .conftest import ...`, `from .upstream import ...`).
 
 ## Architecture
 
@@ -53,7 +54,7 @@ Use **relative imports** within the package (`from .client import ...`, `from ..
 
 ### FastAPI template
 - `general_create_app(**flags)` in `fastapi_template/_internal/__init__.py` is the factory. Every built-in piece (logging/timing middleware, root route, exception handlers, uptime task, metrics, swagger, probes) is toggled by an `enable_*` keyword and extra `**fastapi_kwargs` pass through to `FastAPI()`. Docs/redoc/openapi are wired manually against self-hosted static assets in `fastapi_template/static/swagger/`.
-- Public surface is intentionally narrow: `fastapi_template/__init__.py` exports only `general_create_app`; `fastapi_template/utils.py` exports only `BaseAPI`, `settings`, `get_current_claims`, and (lazily) `JWTVerifier`. Everything under `_internal/` is private implementation.
+- Public surface is intentionally narrow and split by concern: `fastapi_template/__init__.py` exports `general_create_app` (+ lazy `enable_remote_config_api`); `fastapi_template/utils.py` exports only the infra utilities `BaseAPI` and `settings`; `fastapi_template/auth.py` is the inbound-JWT home (`get_current_claims` eager, `JWTVerifier`/`verify_token`/`AuthMode`/keygen lazy); `fastapi_template/security.py` is the outbound-SSO home; `fastapi_template/errors.py` holds the public auth error types. Everything under `_internal/` is private implementation.
 - Configuration is `pydantic-settings` (`_internal/utils/config.py`, `ApplicationSettings`), loaded from env vars / `.env` (`PORT`, `LOG_LEVEL`, `APP_NAME`, `DEBUG`, probe paths, swagger paths, etc.). Logging is Loguru throughout.
 
 #### Inbound JWT authentication
@@ -61,12 +62,13 @@ Use **relative imports** within the package (`from .client import ...`, `from ..
 - Enforced by `AuthMiddleware` (`_internal/security/`), **not** FastAPI dependencies. It extracts a `Bearer <token>` from the `AUTH_HEADER_NAME` header (default `Authorization`), verifies it, and stashes the claims on `request.state.user`. Routes read them via `Depends(get_current_claims)`. PyJWT is imported lazily so consumers with auth disabled never need it installed.
 - **Dual-gate**: auth is active only when both the code flag `enable_auth=True` (passed to `general_create_app`) and the runtime switch `AUTH_ENABLED=true` are set. The verifier auto-selects exactly one mode from the configured material — `AUTH_HS256_SECRET` (HS256), `AUTH_JWKS_URL` (JWKS/RS256), or `AUTH_PUBLIC_KEY_PEM`/`AUTH_PUBLIC_KEY_PATH` (local RS256) — and raises `AuthConfigError` at startup if zero or more than one is set. `AUTH_EXCLUDE_PATHS` (plus probes/swagger/openapi) bypass auth.
 - **Swagger Authorize tab**: because auth is middleware-based, the generated OpenAPI schema would otherwise carry no security info and Swagger would show no Authorize button. Under the same dual-gate, `_internal/openapi.py`'s `install_bearer_security_scheme(app)` wraps `app.openapi` to inject a global `BearerAuth` scheme so the Authorize dialog appears and "Try it out" sends the token. `Authorization` maps to an HTTP `bearer`/`JWT` scheme (Swagger adds the `Bearer ` prefix); a custom `AUTH_HEADER_NAME` maps to an `apiKey` header scheme (user types the `Bearer ` prefix themselves). Kept out of the `security/` package to avoid forcing the PyJWT import.
-- **Key/token generation** (`_internal/security/keygen.py`): the signing-side companion to `JWTVerifier`. Exposes `generate_keypair`, `derive_public_pem`, `load_keypair`, and `mint_token` (re-exported lazily from `fastapi_template/utils.py`) for minting RSA keys + dev tokens that pass local-pubkey verification. Also runnable as the `gen-auth-material` console script (registered in `pyproject.toml` `[project.scripts]`) or `python -m ...security.keygen`.
-- **Outbound SSO** (`_internal/security/sso.py`): the *client* side — obtaining a token to call other services via the OAuth2 **client_credentials** grant, configured from `AUTH_SSO_*` env vars (`AUTH_SSO_TOKEN_URL`/`CLIENT_ID`/`CLIENT_SECRET` required; optional `SCOPE`, `AUDIENCE`, `AUTH_STYLE` = `post`|`basic`, `VERIFY_SSL`, `TIMEOUT`, `EXPIRY_SKEW`). `SSOTokenClient` fetches/caches/refreshes the token (`get_token`, `auth_header`); `SSOClientCredentialsAuth` is an `httpx.Auth` that injects + refreshes the bearer per request and retries once on `401`. The headline helper `sso_authenticated_api(base_url)` returns a connector-style `BaseAPI` (`auth=` accepts an `httpx.Auth`) whose every request carries a fresh token — `async with sso_authenticated_api(url) as client: await client.get(...)`. All re-exported lazily from `fastapi_template/utils.py` (`get_sso_token_client`, `sso_auth`, `sso_authenticated_api`). Note: `client_credentials` issues **no** refresh token (RFC 6749 §4.4.3) — "refresh" re-runs the grant. **Server-side** verification of SSO-issued tokens reuses **JWKS mode**: set `AUTH_JWKS_URL` (+ `AUTH_AUDIENCE`/`AUTH_ISSUER`) and either protect routes with `AuthMiddleware` or check a token directly with `verify_token(token)` (`_internal/security/verifier.py`).
+- **Key/token generation** (`_internal/security/keygen.py`): the signing-side companion to `JWTVerifier`. Exposes `generate_keypair`, `derive_public_pem`, `load_keypair`, and `mint_token` (re-exported lazily from `fastapi_template/auth.py`) for minting RSA keys + dev tokens that pass local-pubkey verification. Also runnable as the `gen-auth-material` console script (registered in `pyproject.toml` `[project.scripts]`) or `python -m ...security.keygen`.
+- **Outbound SSO** (`_internal/security/sso.py`): the *client* side — obtaining a token to call other services via the OAuth2 **client_credentials** grant, configured from `AUTH_SSO_*` env vars (`AUTH_SSO_TOKEN_URL`/`CLIENT_ID`/`CLIENT_SECRET` required; optional `SCOPE`, `AUDIENCE`, `AUTH_STYLE` = `post`|`basic`, `VERIFY_SSL`, `TIMEOUT`, `EXPIRY_SKEW`). `SSOTokenClient` fetches/caches/refreshes the token (`get_token`, `auth_header`); `SSOClientCredentialsAuth` is an `httpx.Auth` that injects + refreshes the bearer per request and retries once on `401`. The headline helper `sso_authenticated_api(base_url)` returns a connector-style `BaseAPI` (`auth=` accepts an `httpx.Auth`) whose every request carries a fresh token — `async with sso_authenticated_api(url) as client: await client.get(...)`. All re-exported from `fastapi_template/security.py` (`get_sso_token_client`, `sso_auth`, `sso_authenticated_api`). Note: `client_credentials` issues **no** refresh token (RFC 6749 §4.4.3) — "refresh" re-runs the grant. **Server-side** verification of SSO-issued tokens reuses **JWKS mode**: set `AUTH_JWKS_URL` (+ `AUTH_AUDIENCE`/`AUTH_ISSUER`) and either protect routes with `AuthMiddleware` or check a token directly with `verify_token(token)` (`_internal/security/verifier.py`).
 
 ### Public API
 Top-level `tashtiot_apis_library/__init__.py` re-exports the connector services, error types, `general_create_app`, and the shared request schemas from `schemas.py` (`OperationRequest`, `ResourceSpec`, `DefaultMetaSpec`, `NameNamespace` — Kubernetes/PaaS-oriented Pydantic models with CPU/memory regex validation). Keep `__all__` here in sync when adding exports.
 
 ## Packaging notes
-- Both `pyproject.toml` (the active build backend, setuptools) and a legacy `setup.py` exist with **divergent versions and dependency lists**. CI uses `pyproject.toml`: `.woodpecker/build.yaml` rewrites the `name`/`version` from the git tag (`CI_COMMIT_TAG`) at build time, so the `version` committed in `pyproject.toml` is not the published one. Publishing is triggered by a `tag` or `manual` Woodpecker event and `curl`s the wheel/sdist to Artifactory.
-- `fastapi_template/tests/` is excluded from the built package (`pyproject.toml` packages.find exclude); static swagger assets are included as package data.
+- `pyproject.toml` (setuptools backend) is the single source of truth for build config and dependencies — there is no `setup.py` or `requirements.txt`.
+- The version is **dynamic**, derived from git tags by `setuptools-scm` (`dynamic = ["version"]` + `[tool.setuptools_scm]`); no version is hardcoded in source. `.woodpecker/build.yaml` rewrites only the `name` and exports `SETUPTOOLS_SCM_PRETEND_VERSION="${CI_COMMIT_TAG}"` so the built version matches the tag regardless of clone depth. Publishing is triggered by a `tag` or `manual` Woodpecker event and `curl`s the wheel/sdist to Artifactory.
+- Tests live in the top-level `tests/` tree (outside the package), so nothing test-related is built into the wheel; static swagger assets are included as package data.

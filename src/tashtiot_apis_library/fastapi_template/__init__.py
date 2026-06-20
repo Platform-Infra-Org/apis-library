@@ -9,10 +9,6 @@ __all__ = ["general_create_app", "settings", "enable_remote_config_api"]
 
 
 def __getattr__(name: str):
-    if name == "general_create_app":
-        return general_create_app
-    if name == "settings":
-        return settings
     # Imported lazily so consumers that don't use the Remote Config capability
     # don't pull in its dependencies (e.g. aiocache).
     if name == "enable_remote_config_api":

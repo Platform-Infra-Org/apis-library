@@ -10,11 +10,10 @@ import jwt
 import pytest
 import respx
 
-from ..utils import settings
-from .._internal.security import sso as sso_mod
-from .._internal.security import verifier as verifier_mod
-from .._internal.security.errors import AuthConfigError, SSOError, TokenError
-from .._internal.security.sso import (
+from tashtiot_apis_library.fastapi_template.utils import settings
+from tashtiot_apis_library.fastapi_template.errors import AuthConfigError, SSOError, TokenError
+from tashtiot_apis_library.fastapi_template.auth import verify_token
+from tashtiot_apis_library.fastapi_template.security import (
     SSOClientCredentialsAuth,
     SSOConfig,
     SSOTokenClient,
@@ -22,7 +21,9 @@ from .._internal.security.sso import (
     sso_auth,
     sso_authenticated_api,
 )
-from .._internal.security.verifier import verify_token
+# White-box access to private module state (caches) -- no public re-export by design.
+from tashtiot_apis_library.fastapi_template._internal.security import sso as sso_mod
+from tashtiot_apis_library.fastapi_template._internal.security import verifier as verifier_mod
 
 TOKEN_URL = "https://idp.example.com/oauth/token"
 DOWNSTREAM = "https://downstream.example.com"

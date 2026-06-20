@@ -5,13 +5,13 @@ import respx
 from fastapi import APIRouter, Depends, FastAPI
 from pydantic import ValidationError
 
-from ... import general_create_app
-from ...config_api import (
+from tashtiot_apis_library.fastapi_template import general_create_app
+from tashtiot_apis_library.fastapi_template.config_api import (
     ConfigRemoteSettings, InfraMetadata, RequiredInfraMetadata, enable_remote_config_api,
     schemas,
 )
-from ..._internal.security.errors import AuthConfigError
-from ...security import StaticBearerAuth, sso_auth
+from tashtiot_apis_library.fastapi_template.errors import AuthConfigError
+from tashtiot_apis_library.fastapi_template.security import StaticBearerAuth, sso_auth
 
 from .conftest import REMOTE_PREFIX, TOKEN_URL, UPSTREAM_BASE, SSO_CONFIG, make_provider
 from .upstream import register_token_route, register_upstream_routes, ALL_SEED_DOCS
@@ -138,7 +138,7 @@ class TestOutboundAuthHeaders:
             CONFIG_REMOTE_AUTH_METHOD="bearer", CONFIG_REMOTE_BEARER_TOKEN="static-xyz"
         )
         auth, kwargs = settings.resolve_auth()
-        from ...config_api import RemoteConfigProvider
+        from tashtiot_apis_library.fastapi_template.config_api import RemoteConfigProvider
         prov = RemoteConfigProvider(UPSTREAM_BASE, REMOTE_PREFIX, auth=auth, **kwargs)
         await prov._cache.clear()
 
@@ -149,7 +149,7 @@ class TestOutboundAuthHeaders:
     @respx.mock(assert_all_called=False)
     async def test_none_method_sends_no_authorization(self, respx_mock):
         register_upstream_routes(respx_mock, ALL_SEED_DOCS, UPSTREAM_BASE, REMOTE_PREFIX)
-        from ...config_api import RemoteConfigProvider
+        from tashtiot_apis_library.fastapi_template.config_api import RemoteConfigProvider
         prov = RemoteConfigProvider(UPSTREAM_BASE, REMOTE_PREFIX, auth=None)
         await prov._cache.clear()
 

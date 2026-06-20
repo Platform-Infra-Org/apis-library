@@ -26,8 +26,11 @@ def add_middlewares(
 
     # Dual-gate: require both the code flag and the runtime master switch.
     if enable_auth and settings.AUTH_ENABLED:
-        # Local import keeps PyJWT optional for consumers with auth disabled.
-        from ..security import AuthMiddleware, get_verifier
+        # Local, submodule-level import keeps PyJWT off the default import path
+        # for consumers with auth disabled (the security package __init__ is empty
+        # precisely so importing it doesn't eagerly pull in the verifier).
+        from ..security.middleware import AuthMiddleware
+        from ..security.verifier import get_verifier
 
         verifier = get_verifier(settings)  # raises AuthConfigError on misconfig
         app.add_middleware(AuthMiddleware, verifier=verifier)

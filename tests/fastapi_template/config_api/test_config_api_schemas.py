@@ -6,8 +6,8 @@ and permissive for omitted (``None``) coordinates.
 import pytest
 from pydantic import ValidationError
 
-from ...config_api import schemas
-from ...config_api import InfraMetadata, RequiredInfraMetadata
+from tashtiot_apis_library.fastapi_template.config_api import schemas
+from tashtiot_apis_library.fastapi_template.config_api import InfraMetadata, RequiredInfraMetadata
 
 
 COORD_TO_ALLOWLIST = [

@@ -144,8 +144,11 @@ from tashtiot_apis_library.fastapi_template import general_create_app
 
 ### Authentication
 
-The template ships a complete auth toolkit under `tashtiot_apis_library.fastapi_template.utils`. All
-auth imports are lazy, so apps that don't use auth pay no import cost.
+The template ships a complete auth toolkit, split by concern: inbound-JWT helpers live under
+`tashtiot_apis_library.fastapi_template.auth`, outbound-SSO helpers under
+`tashtiot_apis_library.fastapi_template.security`, and the auth error types under
+`tashtiot_apis_library.fastapi_template.errors`. The heavy bits import lazily, so apps that don't use
+auth pay no import cost.
 
 #### Protecting inbound requests (server side)
 
@@ -172,7 +175,7 @@ Read them in a route via the dependency:
 
 ```python
 from fastapi import Depends
-from tashtiot_apis_library.fastapi_template.utils import get_current_claims
+from tashtiot_apis_library.fastapi_template.auth import get_current_claims
 
 @app.get("/me")
 def me(claims: dict = Depends(get_current_claims)):
@@ -185,7 +188,7 @@ token and use "Try it out" against protected routes.
 To check a token outside the request flow (workers, scripts), use the standalone helper:
 
 ```python
-from tashtiot_apis_library.fastapi_template.utils import verify_token
+from tashtiot_apis_library.fastapi_template.auth import verify_token
 
 claims = verify_token(token)   # raises TokenError if invalid/expired
 ```
@@ -203,9 +206,8 @@ async with sso_authenticated_api("https://downstream.example.com") as client:
     resp = await client.get("/protected")   # Authorization: Bearer <auto-managed>
 ```
 
-> The SSO helpers are also re-exported from `tashtiot_apis_library.fastapi_template.utils`, but
-> importing them from `…fastapi_template.security` keeps you clear of the inbound-JWT machinery
-> (and therefore PyJWT) if you only mint outbound tokens.
+> The SSO helpers live in `…fastapi_template.security`, kept separate from the inbound-JWT machinery
+> in `…fastapi_template.auth` so consumers that only mint outbound tokens never pull in PyJWT.
 
 To call **several** upstreams that each need a different identity or audience — independently of the
 `AUTH_SSO_*` singleton — pass an explicit `SSOConfig`. Build one per remote and reuse it so its

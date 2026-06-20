@@ -4,8 +4,8 @@ import httpx
 import pytest
 import respx
 
-from ...config_api import schemas
-from ...config_api import InfraMetadata
+from tashtiot_apis_library.fastapi_template.config_api import schemas
+from tashtiot_apis_library.fastapi_template.config_api import InfraMetadata
 
 from .conftest import REMOTE_PREFIX, TOKEN_URL, UPSTREAM_BASE, FakeApp, make_provider
 from .upstream import register_token_route

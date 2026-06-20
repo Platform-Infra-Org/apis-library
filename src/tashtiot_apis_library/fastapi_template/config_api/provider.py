@@ -6,7 +6,7 @@ from aiocache import Cache
 from fastapi import HTTPException
 from loguru import logger
 
-from .._internal.database import BaseAPI
+from ..utils import BaseAPI
 
 from .schemas import (
     LIVE_ALLOWED_NETWORKS, LIVE_ALLOWED_REGIONS, LIVE_ALLOWED_ISLANDS,

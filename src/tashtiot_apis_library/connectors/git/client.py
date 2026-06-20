@@ -13,7 +13,7 @@ import shutil
 import tempfile
 from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 from loguru import logger
-from tashtiot_apis_library.fastapi_template.utils import BaseAPI
+from ...fastapi_template.utils import BaseAPI
 from ..errors import GitError
 from .models import GitChangedFile, GitDirectoryEntry, GitFileContent
 

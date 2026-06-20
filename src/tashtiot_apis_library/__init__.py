@@ -11,14 +11,13 @@ from .connectors.errors import (
     ArgoCDError,
     GitError,
     VaultError,
+    AWXError,
 )
 
 from .schemas import OperationRequest, ResourceSpec, DefaultMetaSpec, NameNamespace
 # Re-export FastAPI template
 from .fastapi_template import general_create_app
 from .fastapi_template.errors import AuthConfigError, TokenError, SSOError
-
-__version__ = "0.1.0"
 
 __all__ = [
     "ArgoCD",
@@ -29,9 +28,13 @@ __all__ = [
     "ArgoCDError",
     "GitError",
     "VaultError",
+    "AWXError",
+    "AuthConfigError",
+    "TokenError",
+    "SSOError",
     "general_create_app",
     "OperationRequest",
     "ResourceSpec",
     "DefaultMetaSpec",
-    "NameNamespace",
+    "NameNamespace"
 ]
