@@ -7,7 +7,7 @@ from fastapi import HTTPException
 from loguru import logger
 
 from ..utils import BaseAPI
-from .schemas import (
+from .models import (
     LIVE_ALLOWED_ENVIRONMENTS,
     LIVE_ALLOWED_ISLANDS,
     LIVE_ALLOWED_NETWORKS,

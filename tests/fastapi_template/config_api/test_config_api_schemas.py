@@ -10,16 +10,16 @@ from pydantic import ValidationError
 from tashtiot_apis_library.fastapi_template.config_api import (
     InfraMetadata,
     RequiredInfraMetadata,
-    schemas,
+    models,
 )
 
 COORD_TO_ALLOWLIST = [
-    ("space", schemas.LIVE_ALLOWED_SPACES),
-    ("network", schemas.LIVE_ALLOWED_NETWORKS),
-    ("region", schemas.LIVE_ALLOWED_REGIONS),
-    ("island", schemas.LIVE_ALLOWED_ISLANDS),
-    ("environment", schemas.LIVE_ALLOWED_ENVIRONMENTS),
-    ("project", schemas.LIVE_ALLOWED_PROJECTS),
+    ("space", models.LIVE_ALLOWED_SPACES),
+    ("network", models.LIVE_ALLOWED_NETWORKS),
+    ("region", models.LIVE_ALLOWED_REGIONS),
+    ("island", models.LIVE_ALLOWED_ISLANDS),
+    ("environment", models.LIVE_ALLOWED_ENVIRONMENTS),
+    ("project", models.LIVE_ALLOWED_PROJECTS),
 ]
 
 
@@ -98,7 +98,7 @@ class TestRequiredInfraMetadata:
         assert missing in str(exc.value)
 
     def test_inherits_allowlist_validation(self):
-        schemas.LIVE_ALLOWED_ENVIRONMENTS.update({"production"})
+        models.LIVE_ALLOWED_ENVIRONMENTS.update({"production"})
         coords = self._all_coords()
         coords["environment"] = "not-a-real-env"
         with pytest.raises(ValidationError):

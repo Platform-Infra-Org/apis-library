@@ -2,7 +2,7 @@ from typing import Callable
 
 from fastapi import FastAPI
 
-from .schemas import (
+from .models import (
     LIVE_ALLOWED_ENVIRONMENTS,
     LIVE_ALLOWED_ISLANDS,
     LIVE_ALLOWED_NETWORKS,

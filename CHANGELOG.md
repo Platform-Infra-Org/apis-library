@@ -76,8 +76,9 @@ change), and modernizes packaging, tooling, and documentation.
 - Importing the `_internal.security` package (or running an auth-disabled app) **no longer pulls in
   PyJWT** — the lazy-auth design now actually holds.
 - Internal: the SSO Pydantic models (`SSOConfig`, `TokenResponse`) moved to a co-located
-  `_internal/security/models.py` (mirroring the connector model/logic split). No public-API change —
-  still imported from `fastapi_template.security`.
+  `_internal/security/models.py` (mirroring the connector model/logic split), and
+  `config_api/schemas.py` was renamed to `config_api/models.py` for naming consistency. No
+  public-API change — both are still imported from `fastapi_template.security` / `…config_api`.
 - Background tasks run via the application lifespan.
 - **README and MAINTAINERS slimmed** to complement the docs site (now the single source of truth).
 

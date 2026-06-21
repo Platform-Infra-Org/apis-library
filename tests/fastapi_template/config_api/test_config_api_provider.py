@@ -5,7 +5,7 @@ import httpx
 import pytest
 import respx
 
-from tashtiot_apis_library.fastapi_template.config_api import InfraMetadata, schemas
+from tashtiot_apis_library.fastapi_template.config_api import InfraMetadata, models
 
 from .conftest import REMOTE_PREFIX, TOKEN_URL, UPSTREAM_BASE, FakeApp, make_provider
 from .upstream import register_token_route
@@ -156,33 +156,33 @@ class TestUpstreamErrors:
 class TestCrawlAndSyncKeys:
     @pytest.mark.asyncio
     async def test_populates_allowlists_in_place_and_invalidates_schema(self, provider):
-        net_set_id = id(schemas.LIVE_ALLOWED_NETWORKS)
-        proj_set_id = id(schemas.LIVE_ALLOWED_PROJECTS)
+        net_set_id = id(models.LIVE_ALLOWED_NETWORKS)
+        proj_set_id = id(models.LIVE_ALLOWED_PROJECTS)
         app = FakeApp()
 
         await provider.crawl_and_sync_keys(app)
 
-        assert schemas.LIVE_ALLOWED_NETWORKS == {"backbone-net"}
-        assert schemas.LIVE_ALLOWED_REGIONS == {"us-east"}
-        assert schemas.LIVE_ALLOWED_ISLANDS == {"compute-island-a"}
-        assert schemas.LIVE_ALLOWED_ENVIRONMENTS == {"staging", "production"}
-        assert schemas.LIVE_ALLOWED_SPACES == {"core-infrastructure", "tenant-alpha"}
-        assert schemas.LIVE_ALLOWED_PROJECTS == {
+        assert models.LIVE_ALLOWED_NETWORKS == {"backbone-net"}
+        assert models.LIVE_ALLOWED_REGIONS == {"us-east"}
+        assert models.LIVE_ALLOWED_ISLANDS == {"compute-island-a"}
+        assert models.LIVE_ALLOWED_ENVIRONMENTS == {"staging", "production"}
+        assert models.LIVE_ALLOWED_SPACES == {"core-infrastructure", "tenant-alpha"}
+        assert models.LIVE_ALLOWED_PROJECTS == {
             "payment-gateway",
             "authentication-service",
             "notification-engine",
             "data-warehouse-pipeline",
         }
-        assert id(schemas.LIVE_ALLOWED_NETWORKS) == net_set_id
-        assert id(schemas.LIVE_ALLOWED_PROJECTS) == proj_set_id
+        assert id(models.LIVE_ALLOWED_NETWORKS) == net_set_id
+        assert id(models.LIVE_ALLOWED_PROJECTS) == proj_set_id
         assert app.openapi_schema is None
 
     @pytest.mark.asyncio
     async def test_missing_documents_leave_allowlists_untouched(self, empty_provider):
-        schemas.LIVE_ALLOWED_NETWORKS.update({"preexisting"})
+        models.LIVE_ALLOWED_NETWORKS.update({"preexisting"})
         app = FakeApp()
         await empty_provider.crawl_and_sync_keys(app)
-        assert schemas.LIVE_ALLOWED_NETWORKS == {"preexisting"}
+        assert models.LIVE_ALLOWED_NETWORKS == {"preexisting"}
         assert app.openapi_schema is None
 
     @pytest.mark.asyncio

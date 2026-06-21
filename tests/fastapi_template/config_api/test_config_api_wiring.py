@@ -11,7 +11,7 @@ from tashtiot_apis_library.fastapi_template.config_api import (
     InfraMetadata,
     RequiredInfraMetadata,
     enable_remote_config_api,
-    schemas,
+    models,
 )
 from tashtiot_apis_library.fastapi_template.errors import AuthConfigError
 from tashtiot_apis_library.fastapi_template.security import StaticBearerAuth, sso_auth
@@ -117,7 +117,7 @@ class TestWiring:
         )
         app.include_router(_coord_router())
 
-        schemas.LIVE_ALLOWED_NETWORKS.update({"backbone-net", "edge-net"})
+        models.LIVE_ALLOWED_NETWORKS.update({"backbone-net", "edge-net"})
         app.openapi_schema = None
         schema = app.openapi()
         params = {p["name"]: p for p in schema["paths"][CONFIG_PATH]["get"]["parameters"]}

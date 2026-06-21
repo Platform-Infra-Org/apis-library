@@ -13,7 +13,7 @@ import pytest_asyncio
 import respx
 
 from tashtiot_apis_library.fastapi_template._internal.security import sso as sso_mod
-from tashtiot_apis_library.fastapi_template.config_api import RemoteConfigProvider, schemas
+from tashtiot_apis_library.fastapi_template.config_api import RemoteConfigProvider, models
 from tashtiot_apis_library.fastapi_template.security import SSOConfig, sso_auth
 
 from .upstream import ALL_SEED_DOCS, register_token_route, register_upstream_routes
@@ -48,12 +48,12 @@ def seed_docs():
 def reset_live_allowlists():
     """The ``LIVE_ALLOWED_*`` sets are mutable module globals; reset around each test."""
     sets = [
-        schemas.LIVE_ALLOWED_NETWORKS,
-        schemas.LIVE_ALLOWED_REGIONS,
-        schemas.LIVE_ALLOWED_ISLANDS,
-        schemas.LIVE_ALLOWED_ENVIRONMENTS,
-        schemas.LIVE_ALLOWED_SPACES,
-        schemas.LIVE_ALLOWED_PROJECTS,
+        models.LIVE_ALLOWED_NETWORKS,
+        models.LIVE_ALLOWED_REGIONS,
+        models.LIVE_ALLOWED_ISLANDS,
+        models.LIVE_ALLOWED_ENVIRONMENTS,
+        models.LIVE_ALLOWED_SPACES,
+        models.LIVE_ALLOWED_PROJECTS,
     ]
     for s in sets:
         s.clear()

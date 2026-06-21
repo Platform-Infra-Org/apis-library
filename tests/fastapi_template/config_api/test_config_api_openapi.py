@@ -7,7 +7,7 @@ from tashtiot_apis_library.fastapi_template.config_api import (
     InfraMetadata,
     RequiredInfraMetadata,
     make_config_openapi,
-    schemas,
+    models,
 )
 
 API_PREFIX = "/api/v1/infra"
@@ -49,8 +49,8 @@ class TestEnumInjection:
         assert "enum" not in params["project"]["schema"]
 
     def test_populated_allowlists_inject_sorted_enums(self, app_with_openapi):
-        schemas.LIVE_ALLOWED_NETWORKS.update({"backbone-net", "edge-net"})
-        schemas.LIVE_ALLOWED_PROJECTS.update({"payment-gateway", "authentication-service"})
+        models.LIVE_ALLOWED_NETWORKS.update({"backbone-net", "edge-net"})
+        models.LIVE_ALLOWED_PROJECTS.update({"payment-gateway", "authentication-service"})
         app_with_openapi.openapi_schema = None
 
         schema = app_with_openapi.openapi()
@@ -65,7 +65,7 @@ class TestEnumInjection:
     def test_schema_is_cached_until_invalidated(self, app_with_openapi):
         first = app_with_openapi.openapi()
         assert app_with_openapi.openapi() is first
-        schemas.LIVE_ALLOWED_REGIONS.update({"us-east"})
+        models.LIVE_ALLOWED_REGIONS.update({"us-east"})
         cached = app_with_openapi.openapi()
         assert "enum" not in _params_for(cached, CONFIG_PATH)["region"]["schema"]
         app_with_openapi.openapi_schema = None

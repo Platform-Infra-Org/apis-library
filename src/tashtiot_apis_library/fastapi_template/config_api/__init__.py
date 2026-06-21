@@ -13,9 +13,7 @@ Outbound auth to the upstream is package-side but selectable via the
 
 from .conf import ConfigRemoteSettings
 from .errors import install_coordinate_validation_error_handler
-from .openapi import make_config_openapi
-from .provider import RemoteConfigProvider
-from .schemas import (
+from .models import (
     LIVE_ALLOWED_ENVIRONMENTS,
     LIVE_ALLOWED_ISLANDS,
     LIVE_ALLOWED_NETWORKS,
@@ -28,6 +26,8 @@ from .schemas import (
     NamingConventionResponse,
     RequiredInfraMetadata,
 )
+from .openapi import make_config_openapi
+from .provider import RemoteConfigProvider
 from .wiring import enable_remote_config_api
 
 __all__ = [
