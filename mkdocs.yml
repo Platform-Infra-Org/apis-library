@@ -61,7 +61,9 @@ markdown_extensions:
   - pymdownx.superfences
   - pymdownx.details
   - pymdownx.inlinehilite
-  - pymdownx.snippets
+  - pymdownx.snippets:
+      base_path: ["."]          # allow including repo-root files (e.g. CHANGELOG.md)
+      check_paths: true         # fail the build if an included file is missing
   - pymdownx.tabbed:
       alternate_style: true
 
@@ -101,3 +103,4 @@ nav:
   - Contributing:
       - contributing/index.md
       - Development: contributing/development.md
+  - Changelog: changelog.md
