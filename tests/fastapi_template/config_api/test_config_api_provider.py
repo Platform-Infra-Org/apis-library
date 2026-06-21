@@ -121,6 +121,32 @@ class TestGetAllProjects:
         assert provider._router["projects"].call_count == hits
 
 
+class TestGetCoordinateCatalog:
+    @pytest.mark.asyncio
+    async def test_returns_catalog_from_upstream(self, provider):
+        catalog = await provider.get_coordinate_catalog()
+        assert catalog == {
+            "space": ["core-infrastructure"],
+            "network": ["backbone-net"],
+            "region": ["us-east"],
+            "island": ["compute-island-a"],
+            "environment": ["production", "staging"],
+            "projects": [
+                "authentication-service",
+                "data-warehouse-pipeline",
+                "notification-engine",
+                "payment-gateway",
+            ],
+        }
+
+    @pytest.mark.asyncio
+    async def test_cached_after_first_fetch(self, provider):
+        await provider.get_coordinate_catalog()
+        hits = provider._router["coordinates"].call_count
+        await provider.get_coordinate_catalog()
+        assert provider._router["coordinates"].call_count == hits
+
+
 class TestUpstreamErrors:
     @pytest.mark.asyncio
     @respx.mock(assert_all_called=False)

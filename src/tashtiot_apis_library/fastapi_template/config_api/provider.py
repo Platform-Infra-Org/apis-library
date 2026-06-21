@@ -212,3 +212,24 @@ class RemoteConfigProvider:
         result_list = response.json().get("projects", [])
         await self._cache.set(cache_key, result_list, ttl=self._cache_ttl)
         return result_list
+
+    async def get_coordinate_catalog(self) -> Dict[str, List[str]]:
+        """Fetch the valid values per coordinate level plus the project list from
+        the upstream ``/coordinates`` route. An upstream ``404`` maps to a catalog
+        of empty lists."""
+        cache_key = "global:coordinate_catalog"
+
+        cached = await self._cache.get(cache_key)
+        if cached is not None:
+            return cached
+
+        empty = {k: [] for k in ("space", "network", "region", "island", "environment", "projects")}
+        response = await self._get(f"{self._prefix}/coordinates", {})
+        if response.status_code == 404:
+            return empty
+        self._ensure_ok(response)
+
+        body = response.json()
+        catalog = {k: body.get(k, []) for k in empty}
+        await self._cache.set(cache_key, catalog, ttl=self._cache_ttl)
+        return catalog

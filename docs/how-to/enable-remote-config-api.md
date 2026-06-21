@@ -25,17 +25,29 @@ provider = enable_remote_config_api(
 
 ## Define routes against the provider
 
-The returned `RemoteConfigProvider` exposes `resolve_infra_config`, `resolve_naming_convention`, and
-`get_all_projects` (all cached for `cache_ttl` seconds, default 60):
+The returned `RemoteConfigProvider` exposes `resolve_infra_config`, `resolve_naming_convention`,
+`get_all_projects`, and `get_coordinate_catalog` (all cached for `cache_ttl` seconds, default 60):
 
 ```python
 from fastapi import Depends
-from tashtiot_apis_library.fastapi_template.config_api import RequiredInfraMetadata
+from tashtiot_apis_library.fastapi_template.config_api import (
+    RequiredInfraMetadata, CoordinateCatalogResponse,
+)
 
 @app.get("/config")
 async def get_config(meta: RequiredInfraMetadata = Depends()):
     return await provider.resolve_infra_config(meta)
+
+@app.get("/coordinates", response_model=CoordinateCatalogResponse)
+async def get_coordinates():
+    # Discovery: the valid values per coordinate level plus the project list.
+    return await provider.get_coordinate_catalog()
 ```
+
+`get_coordinate_catalog` proxies the upstream's `/coordinates` route and returns a
+[`CoordinateCatalogResponse`](../reference/api/config-api.md#models--allowlists)-shaped dict — the
+sorted set of values for each of `space` / `network` / `region` / `island` / `environment`, plus
+`projects`. An unseeded upstream yields empty lists (a valid `200`, not a `404`).
 
 ## What it sets up
 

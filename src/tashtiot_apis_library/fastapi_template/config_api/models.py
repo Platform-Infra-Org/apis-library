@@ -125,3 +125,20 @@ class AllProjectsResponse(BaseModel):
     projects: List[str] = Field(
         ..., description="List of all platform application names inside the cluster catalog"
     )
+
+
+class CoordinateCatalogResponse(BaseModel):
+    """Every valid value per coordinate level plus the project list.
+
+    Backs a ``/coordinates`` discovery route: it lets clients learn which
+    coordinate values the config/naming routes will accept (the same data behind
+    the live ``LIVE_ALLOWED_*`` allowlists). Each field is the sorted set of keys
+    for that level; an unseeded source yields empty lists (a valid 200 response,
+    not a 404)."""
+
+    space: List[str] = Field(default_factory=list, description="Allowed organizational space names")
+    network: List[str] = Field(default_factory=list, description="Allowed network partition names")
+    region: List[str] = Field(default_factory=list, description="Allowed geographical region codes")
+    island: List[str] = Field(default_factory=list, description="Allowed compute cluster zone names")
+    environment: List[str] = Field(default_factory=list, description="Allowed lifecycle tier names")
+    projects: List[str] = Field(default_factory=list, description="All registered platform application names")

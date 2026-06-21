@@ -130,6 +130,37 @@ def list_projects(docs: List[Dict[str, Any]]) -> Optional[List[str]]:
     return doc.get("projects", [])
 
 
+def resolve_coordinates(docs: List[Dict[str, Any]]) -> Dict[str, List[str]]:
+    """Collect valid coordinate values by walking the enterprise config tree, plus
+    the project registry — mirrors the origin's ``/coordinates`` route."""
+    doc = _find(docs, "enterprise_configuration") or {}
+    projects_doc = _find(docs, "project_registry") or {}
+
+    spaces, networks, regions, islands, environments = set(), set(), set(), set(), set()
+    space_map = doc.get("space", {})
+    spaces.update(space_map.keys())
+    for space_node in space_map.values():
+        network_map = space_node.get("network", {})
+        networks.update(network_map.keys())
+        for network_node in network_map.values():
+            region_map = network_node.get("region", {})
+            regions.update(region_map.keys())
+            for region_node in region_map.values():
+                island_map = region_node.get("island", {})
+                islands.update(island_map.keys())
+                for island_node in island_map.values():
+                    environments.update(island_node.get("environment", {}).keys())
+
+    return {
+        "space": sorted(spaces),
+        "network": sorted(networks),
+        "region": sorted(regions),
+        "island": sorted(islands),
+        "environment": sorted(environments),
+        "projects": sorted(projects_doc.get("projects", [])),
+    }
+
+
 # --------------------------------------------------------------------------- #
 # respx wiring.
 # --------------------------------------------------------------------------- #
@@ -169,10 +200,20 @@ def _projects_handler(docs):
     return handler
 
 
+def _coordinates_handler(docs):
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, json=resolve_coordinates(docs))
+
+    return handler
+
+
 def register_upstream_routes(router, docs, base_url: str, prefix: str):
     base = base_url.rstrip("/")
     router.get(f"{base}{prefix}/projects", name="projects").mock(
         side_effect=_projects_handler(docs)
+    )
+    router.get(f"{base}{prefix}/coordinates", name="coordinates").mock(
+        side_effect=_coordinates_handler(docs)
     )
     router.get(f"{base}{prefix}/config", name="config").mock(side_effect=_config_handler(docs))
     router.get(f"{base}{prefix}/naming", name="naming").mock(side_effect=_naming_handler(docs))
