@@ -13,16 +13,42 @@ Consumers `pip install` this package and import from the top-level `tashtiot_api
 
 ## Commands
 
-```bash
-pip install -e ".[dev]"          # install with dev deps (pytest, pytest-asyncio, pytest-cov, respx)
+Dev environment is managed with **uv** (used as a fast runner — there is intentionally **no
+committed `uv.lock`**: this is a library, so consumers resolve against the dependency *ranges* in
+`pyproject.toml`, and a lock would only churn against the setuptools-scm dynamic version). Plain
+`pip` still works for anyone not using uv.
 
-pytest                           # one suite, run from the repo root (see below)
-pytest tests/connectors/test_awx_client.py                    # single file
-pytest tests/connectors/test_awx_client.py::TestAWXOperations # single class
-python -m build                  # build sdist+wheel (what CI does before publishing)
+```bash
+uv venv                              # create .venv
+uv pip install -e ".[dev,docs]"      # dev tools: pytest, ruff, ty, pre-commit, mkdocs…
+# (equivalently: pip install -e ".[dev]")
+
+uv run pytest                        # one suite, from the repo root (see below)
+uv run pytest tests/connectors/test_awx_client.py                    # single file
+uv run pytest tests/connectors/test_awx_client.py::TestAWXOperations # single class
+
+uv run ruff format .                 # format
+uv run ruff check . --fix            # lint (+ safe autofixes)
+uv run ty check src                  # type check (advisory; see below)
+
+uv run pre-commit install            # enable git hooks (ruff + ruff-format on commit)
+python -m build                      # build sdist+wheel (what CI does before publishing)
 ```
 
-There is no linter configured. Python >= 3.9.
+### Tooling (Astral: Ruff, ty, uv)
+- **Ruff** is the linter + formatter (config in `pyproject.toml` `[tool.ruff]`). Conservative rule
+  set (`E,F,I,B,C4`); deliberately **not** `UP` (pushes PEP 585/604 annotations unsafe on the py39
+  target), `TID252` (the package relies on relative imports), or `G` (mixed f-string/`{}` Loguru).
+  `auth.py` carries a `per-file-ignores` for `F822` (its `__all__` lists lazily re-exported names).
+- **ty** is the type checker (`[tool.ty]`), run **advisory / non-blocking** everywhere — it's beta
+  with no Pydantic plugin, so it reports a known baseline (~35 diagnostics in `src`, mostly
+  Optional-annotation imprecision and Pydantic false positives). Useful signal, not a gate; revisit
+  blocking once it reaches 1.0.
+- **Enforcement**: `.pre-commit-config.yaml` runs ruff + ruff-format on commit (ty is a `manual`
+  stage hook); `.woodpecker/check.yaml` runs ruff + pytest + ty (advisory) on push/PR. The tag-only
+  `build.yaml` publish pipeline is unchanged.
+
+Python >= 3.9.
 
 ### Tests (single suite)
 - All tests live in the top-level `tests/` tree (`tests/connectors/`, `tests/fastapi_template/`),

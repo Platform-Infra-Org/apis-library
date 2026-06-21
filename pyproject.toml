@@ -39,6 +39,14 @@ dev = [
     "pytest-asyncio",
     "pytest-cov",
     "respx",
+    "ruff",
+    "ty",
+    "pre-commit",
+]
+docs = [
+    "mkdocs",
+    "mkdocs-material",
+    "mkdocstrings[python]",
 ]
 
 [tool.setuptools_scm]
@@ -76,3 +84,41 @@ log_cli = true
 log_cli_level = "INFO"
 log_cli_format = "%(asctime)s [%(levelname)s] %(message)s"
 log_cli_date_format = "%H:%M:%S"
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+# Conservative, high-signal set. Intentionally NOT enabling: TID252 (the package
+# relies on relative imports), G (it mixes f-string and {}-style Loguru calls), and
+# UP (pyupgrade pushes PEP 585/604 annotations that are runtime-unsafe on the py39
+# target with this codebase's mixed `from __future__ import annotations` usage).
+select = ["E", "F", "I", "B", "C4"]
+ignore = ["E501"]  # line length is owned by the formatter
+
+[tool.ruff.lint.isort]
+known-first-party = ["tashtiot_apis_library"]
+
+[tool.ruff.lint.flake8-bugbear]
+# FastAPI's dependency-injection markers are *designed* to be called in argument
+# defaults, so they are not the mutable-default antipattern B008 warns about.
+extend-immutable-calls = [
+    "fastapi.Depends",
+    "fastapi.Query",
+    "fastapi.Header",
+    "fastapi.Path",
+    "fastapi.Cookie",
+    "fastapi.Body",
+    "fastapi.Form",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# auth.py re-exports JWTVerifier/verify_token/AuthMode/keygen lazily via __getattr__,
+# so they are listed in __all__ but not statically defined in the module.
+"src/tashtiot_apis_library/fastapi_template/auth.py" = ["F822"]
+
+[tool.ty.environment]
+python-version = "3.9"
+root = ["./src"]
