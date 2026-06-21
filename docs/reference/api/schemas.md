@@ -9,18 +9,7 @@ from tashtiot_apis_library import (
 )
 ```
 
-## OperationRequest
+The four headline models are re-exported at the top level; the rest are their building blocks
+(`CpuAndMemory`, `PaasLabels`, `MetadataRequest`).
 
-::: tashtiot_apis_library.schemas.OperationRequest
-
-## ResourceSpec
-
-::: tashtiot_apis_library.schemas.ResourceSpec
-
-## NameNamespace
-
-::: tashtiot_apis_library.schemas.NameNamespace
-
-## DefaultMetaSpec
-
-::: tashtiot_apis_library.schemas.DefaultMetaSpec
+::: tashtiot_apis_library.schemas
