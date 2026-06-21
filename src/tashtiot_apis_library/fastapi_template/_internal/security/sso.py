@@ -35,11 +35,11 @@ from typing import Any, Dict, Optional
 
 import httpx
 from loguru import logger
-from pydantic import BaseModel, ConfigDict
 
 from ..database import BaseAPI
 from ..utils import settings as default_settings
 from .errors import AuthConfigError, SSOError
+from .models import SSOConfig, TokenResponse
 
 __all__ = [
     "SSOConfig",
@@ -54,63 +54,6 @@ __all__ = [
 
 # Fallback lifetime (seconds) when the token endpoint omits ``expires_in``.
 _DEFAULT_TTL_SECONDS = 60
-
-
-class SSOConfig(BaseModel):
-    """Client-side OAuth2 ``client_credentials`` configuration.
-
-    Pass an explicit instance to the SSO helpers ([`sso_authenticated_api`][sso_authenticated_api],
-    [`sso_auth`][sso_auth], [`SSOTokenClient`][SSOTokenClient]) to mint tokens for a specific
-    identity/audience **independently of the package settings singleton** -- so a
-    single process can talk to several upstreams that each require a different
-    audience or even a different SSO. Build one instance per remote and reuse it,
-    so its token cache (memoized by object identity) is shared across calls.
-
-    The required fields default to ``None`` rather than being mandatory so a
-    partially-configured instance still constructs and is validated by
-    [`SSOTokenClient`][SSOTokenClient] (which raises a clear [`AuthConfigError`][AuthConfigError]),
-    mirroring the settings-driven path.
-    """
-
-    token_url: Optional[str] = None
-    client_id: Optional[str] = None
-    client_secret: Optional[str] = None
-    scope: Optional[str] = None
-    audience: Optional[str] = None
-    auth_style: str = "post"
-    verify_ssl: bool = True
-    timeout: float = 10.0
-    expiry_skew: int = 30
-
-    @classmethod
-    def from_settings(cls, settings: Any) -> "SSOConfig":
-        """Build an [`SSOConfig`][SSOConfig] from a settings object's ``AUTH_SSO_*`` knobs.
-
-        This is the bridge that keeps the legacy singleton-driven path working: a
-        settings object is just one source of an [`SSOConfig`][SSOConfig].
-        """
-        return cls(
-            token_url=settings.AUTH_SSO_TOKEN_URL,
-            client_id=settings.AUTH_SSO_CLIENT_ID,
-            client_secret=settings.AUTH_SSO_CLIENT_SECRET,
-            scope=settings.AUTH_SSO_SCOPE,
-            audience=settings.AUTH_SSO_AUDIENCE,
-            auth_style=settings.AUTH_SSO_AUTH_STYLE,
-            verify_ssl=settings.AUTH_SSO_VERIFY_SSL,
-            timeout=settings.AUTH_SSO_TIMEOUT,
-            expiry_skew=settings.AUTH_SSO_EXPIRY_SKEW,
-        )
-
-
-class TokenResponse(BaseModel):
-    """Parsed OAuth2 token endpoint response (tolerant of provider extras)."""
-
-    model_config = ConfigDict(extra="allow")
-
-    access_token: str
-    token_type: str = "Bearer"
-    expires_in: Optional[int] = None
-    scope: Optional[str] = None
 
 
 class SSOTokenClient:

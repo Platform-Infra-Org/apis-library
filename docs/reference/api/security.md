@@ -22,7 +22,7 @@ See [Call other services with SSO](../../how-to/call-services-with-sso.md) for u
 
 ## Configuration & clients
 
-::: tashtiot_apis_library.fastapi_template._internal.security.sso.SSOConfig
+::: tashtiot_apis_library.fastapi_template._internal.security.models.SSOConfig
 
 ::: tashtiot_apis_library.fastapi_template._internal.security.sso.SSOTokenClient
 
@@ -32,4 +32,4 @@ See [Call other services with SSO](../../how-to/call-services-with-sso.md) for u
 
 ::: tashtiot_apis_library.fastapi_template._internal.security.sso.StaticBearerAuth
 
-::: tashtiot_apis_library.fastapi_template._internal.security.sso.TokenResponse
+::: tashtiot_apis_library.fastapi_template._internal.security.models.TokenResponse

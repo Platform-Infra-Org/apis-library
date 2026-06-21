@@ -29,6 +29,10 @@ follow suit (see [Add a new connector](../how-to/add-a-connector.md)):
 Adding a capability means touching the layers bottom-up: model (if new shapes) → client method →
 service method.
 
+The FastAPI template's outbound-SSO area follows the same model/logic split — its Pydantic data
+models (`SSOConfig`, `TokenResponse`) live in a co-located `_internal/security/models.py`, while the
+client/auth classes stay in `_internal/security/sso.py`.
+
 ### Standardized responses and errors
 
 Service methods return `OperationResponse` subclasses (`status`, `status_code`, `return_code`,
