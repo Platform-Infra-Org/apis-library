@@ -2,18 +2,19 @@
 
 from __future__ import annotations
 
-from fastapi import HTTPException
 from typing import Optional
+
+from fastapi import HTTPException
 
 
 class ExternalServiceError(HTTPException):
     """Base exception raised when a remote system responds with an error."""
 
     def __init__(
-            self,
-            service_name: str,
-            status_code: int,
-            detail: Optional[str] = None,
+        self,
+        service_name: str,
+        status_code: int,
+        detail: Optional[str] = None,
     ) -> None:
         self.service_name = service_name
         self.status_code = status_code

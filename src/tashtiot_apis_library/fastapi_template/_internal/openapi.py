@@ -45,8 +45,7 @@ def install_bearer_security_scheme(app: FastAPI) -> None:
                 "scheme": "bearer",
                 "bearerFormat": "JWT",
                 "description": (
-                    "Paste a JWT access token. Swagger sends it as "
-                    "`Authorization: Bearer <token>`."
+                    "Paste a JWT access token. Swagger sends it as `Authorization: Bearer <token>`."
                 ),
             }
         else:
@@ -54,9 +53,7 @@ def install_bearer_security_scheme(app: FastAPI) -> None:
                 "type": "apiKey",
                 "in": "header",
                 "name": header_name,
-                "description": (
-                    f"Provide `Bearer <token>` in the `{header_name}` header."
-                ),
+                "description": (f"Provide `Bearer <token>` in the `{header_name}` header."),
             }
 
         components = schema.setdefault("components", {})

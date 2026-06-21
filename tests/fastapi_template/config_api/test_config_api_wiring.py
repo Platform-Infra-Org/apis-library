@@ -1,20 +1,23 @@
 """enable_remote_config_api wiring + selectable CONFIG_REMOTE_* outbound auth."""
-import httpx
+
 import pytest
 import respx
-from fastapi import APIRouter, Depends, FastAPI
+from fastapi import APIRouter, Depends
 from pydantic import ValidationError
 
 from tashtiot_apis_library.fastapi_template import general_create_app
 from tashtiot_apis_library.fastapi_template.config_api import (
-    ConfigRemoteSettings, InfraMetadata, RequiredInfraMetadata, enable_remote_config_api,
+    ConfigRemoteSettings,
+    InfraMetadata,
+    RequiredInfraMetadata,
+    enable_remote_config_api,
     schemas,
 )
 from tashtiot_apis_library.fastapi_template.errors import AuthConfigError
 from tashtiot_apis_library.fastapi_template.security import StaticBearerAuth, sso_auth
 
-from .conftest import REMOTE_PREFIX, TOKEN_URL, UPSTREAM_BASE, SSO_CONFIG, make_provider
-from .upstream import register_token_route, register_upstream_routes, ALL_SEED_DOCS
+from .conftest import REMOTE_PREFIX, SSO_CONFIG, UPSTREAM_BASE
+from .upstream import ALL_SEED_DOCS, register_upstream_routes
 
 API_PREFIX = "/api/v1/infra"
 CONFIG_PATH = f"{API_PREFIX}/config"
@@ -38,6 +41,7 @@ def _coord_router() -> APIRouter:
 # --------------------------------------------------------------------------- #
 # resolve_auth — the three selectable methods.
 # --------------------------------------------------------------------------- #
+
 
 class TestResolveAuth:
     def test_none_method_yields_no_auth(self):
@@ -77,6 +81,7 @@ class TestResolveAuth:
 # enable_remote_config_api — wiring onto a general_create_app app.
 # --------------------------------------------------------------------------- #
 
+
 class TestWiring:
     def _app(self):
         return general_create_app(title="Wiring Test", version="1.0.0")
@@ -102,9 +107,13 @@ class TestWiring:
     def test_enum_injection_through_wired_openapi(self):
         app = self._app()
         enable_remote_config_api(
-            app, base_url=UPSTREAM_BASE, remote_prefix=REMOTE_PREFIX,
-            config_path=CONFIG_PATH, naming_path=NAMING_PATH,
-            settings=ConfigRemoteSettings(CONFIG_REMOTE_AUTH_METHOD="none"), enable_polling=False,
+            app,
+            base_url=UPSTREAM_BASE,
+            remote_prefix=REMOTE_PREFIX,
+            config_path=CONFIG_PATH,
+            naming_path=NAMING_PATH,
+            settings=ConfigRemoteSettings(CONFIG_REMOTE_AUTH_METHOD="none"),
+            enable_polling=False,
         )
         app.include_router(_coord_router())
 
@@ -118,9 +127,13 @@ class TestWiring:
         app = self._app()
         before = len(app.state.async_background_tasks)
         enable_remote_config_api(
-            app, base_url=UPSTREAM_BASE, remote_prefix=REMOTE_PREFIX,
-            config_path=CONFIG_PATH, naming_path=NAMING_PATH,
-            settings=ConfigRemoteSettings(CONFIG_REMOTE_AUTH_METHOD="none"), enable_polling=False,
+            app,
+            base_url=UPSTREAM_BASE,
+            remote_prefix=REMOTE_PREFIX,
+            config_path=CONFIG_PATH,
+            naming_path=NAMING_PATH,
+            settings=ConfigRemoteSettings(CONFIG_REMOTE_AUTH_METHOD="none"),
+            enable_polling=False,
         )
         assert len(app.state.async_background_tasks) == before
 
@@ -128,6 +141,7 @@ class TestWiring:
 # --------------------------------------------------------------------------- #
 # Outbound auth actually applied on upstream calls.
 # --------------------------------------------------------------------------- #
+
 
 class TestOutboundAuthHeaders:
     @pytest.mark.asyncio
@@ -139,17 +153,22 @@ class TestOutboundAuthHeaders:
         )
         auth, kwargs = settings.resolve_auth()
         from tashtiot_apis_library.fastapi_template.config_api import RemoteConfigProvider
+
         prov = RemoteConfigProvider(UPSTREAM_BASE, REMOTE_PREFIX, auth=auth, **kwargs)
         await prov._cache.clear()
 
         await prov.get_all_projects()
-        assert respx_mock["projects"].calls.last.request.headers["Authorization"] == "Bearer static-xyz"
+        assert (
+            respx_mock["projects"].calls.last.request.headers["Authorization"]
+            == "Bearer static-xyz"
+        )
 
     @pytest.mark.asyncio
     @respx.mock(assert_all_called=False)
     async def test_none_method_sends_no_authorization(self, respx_mock):
         register_upstream_routes(respx_mock, ALL_SEED_DOCS, UPSTREAM_BASE, REMOTE_PREFIX)
         from tashtiot_apis_library.fastapi_template.config_api import RemoteConfigProvider
+
         prov = RemoteConfigProvider(UPSTREAM_BASE, REMOTE_PREFIX, auth=None)
         await prov._cache.clear()
 

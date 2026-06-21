@@ -6,6 +6,7 @@ Unlike the generic, now client-side SSO (:class:`SSOConfig`), these are read fro
 the environment via ``CONFIG_REMOTE_*`` so a deployment can pick SSO, a static
 bearer, or no auth without code changes.
 """
+
 from typing import Any, Dict, Optional, Tuple
 
 import httpx
@@ -49,7 +50,8 @@ class ConfigRemoteSettings(BaseSettings):
 
     # --- method == "sso" (OAuth2 client_credentials) ---
     CONFIG_REMOTE_SSO_TOKEN_URL: Optional[str] = Field(
-        default=None, description="OAuth2 token endpoint for the config-remote client_credentials grant."
+        default=None,
+        description="OAuth2 token endpoint for the config-remote client_credentials grant.",
     )
     CONFIG_REMOTE_SSO_CLIENT_ID: Optional[str] = Field(
         default=None, description="OAuth2 client id for the config-remote grant."
@@ -61,10 +63,12 @@ class ConfigRemoteSettings(BaseSettings):
         default=None, description="Space-separated scopes (Keycloak: carries the downstream 'aud')."
     )
     CONFIG_REMOTE_SSO_AUDIENCE: Optional[str] = Field(
-        default=None, description="'audience' token-request parameter (Auth0-style; Keycloak ignores it)."
+        default=None,
+        description="'audience' token-request parameter (Auth0-style; Keycloak ignores it).",
     )
     CONFIG_REMOTE_SSO_AUTH_STYLE: str = Field(
-        default="post", description="How credentials are sent to the token endpoint: 'post' or 'basic'."
+        default="post",
+        description="How credentials are sent to the token endpoint: 'post' or 'basic'.",
     )
     CONFIG_REMOTE_SSO_VERIFY_SSL: bool = Field(
         default=True, description="Verify the TLS certificate of the token endpoint."

@@ -11,8 +11,12 @@ from fastapi import Request
 from httpx import ASGITransport, AsyncClient
 
 from tashtiot_apis_library.fastapi_template import general_create_app
-from tashtiot_apis_library.fastapi_template.utils import settings
-from tashtiot_apis_library.fastapi_template.errors import AuthConfigError, TokenError
+
+# White-box access to private module state (caches) and internal-only helpers --
+# these have no public re-export by design.
+from tashtiot_apis_library.fastapi_template._internal.security import oidc as oidc_mod
+from tashtiot_apis_library.fastapi_template._internal.security import verifier as verifier_mod
+from tashtiot_apis_library.fastapi_template._internal.security.oidc import discover_jwks_uri
 from tashtiot_apis_library.fastapi_template.auth import (
     AuthMode,
     JWTVerifier,
@@ -21,11 +25,8 @@ from tashtiot_apis_library.fastapi_template.auth import (
     load_keypair,
     mint_token,
 )
-# White-box access to private module state (caches) and internal-only helpers --
-# these have no public re-export by design.
-from tashtiot_apis_library.fastapi_template._internal.security import oidc as oidc_mod
-from tashtiot_apis_library.fastapi_template._internal.security import verifier as verifier_mod
-from tashtiot_apis_library.fastapi_template._internal.security.oidc import discover_jwks_uri
+from tashtiot_apis_library.fastapi_template.errors import AuthConfigError, TokenError
+from tashtiot_apis_library.fastapi_template.utils import settings
 
 # --------------------------------------------------------------------------- #
 # Fixtures / helpers
@@ -66,10 +67,14 @@ def rsa_keys():
         serialization.PrivateFormat.PKCS8,
         serialization.NoEncryption(),
     ).decode()
-    pub_pem = priv.public_key().public_bytes(
-        serialization.Encoding.PEM,
-        serialization.PublicFormat.SubjectPublicKeyInfo,
-    ).decode()
+    pub_pem = (
+        priv.public_key()
+        .public_bytes(
+            serialization.Encoding.PEM,
+            serialization.PublicFormat.SubjectPublicKeyInfo,
+        )
+        .decode()
+    )
     return priv_pem, pub_pem
 
 
@@ -269,9 +274,7 @@ async def _get(app, path, headers=None):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "path", ["/metrics", "/liveness", "/readiness", "/docs", "/openapi.json"]
-)
+@pytest.mark.parametrize("path", ["/metrics", "/liveness", "/readiness", "/docs", "/openapi.json"])
 async def test_excluded_paths_pass_without_token(monkeypatch, path):
     app = _auth_app(monkeypatch)
     resp = await _get(app, path)
@@ -497,7 +500,9 @@ def test_keygen_load_keypair_derives_public(monkeypatch, tmp_path):
 
     monkeypatch.setattr(settings, "AUTH_PUBLIC_KEY_PEM", loaded_pub)
     v = JWTVerifier(settings)
-    assert v.verify(mint_token(loaded_priv, subject="user-1", expires_minutes=30))["sub"] == "user-1"
+    assert (
+        v.verify(mint_token(loaded_priv, subject="user-1", expires_minutes=30))["sub"] == "user-1"
+    )
 
 
 # --------------------------------------------------------------------------- #
@@ -512,6 +517,7 @@ class _FakeResponse:
 
     def raise_for_status(self):
         import httpx
+
         if self.status_code >= 400:
             raise httpx.HTTPStatusError("error", request=None, response=None)
 
@@ -536,7 +542,8 @@ def _mock_discovery(monkeypatch, json_data=None, exc=None):
 
 def test_discover_jwks_uri_returns_uri(monkeypatch):
     captured = _mock_discovery(
-        monkeypatch, {"jwks_uri": "https://idp.example.com/keys", "issuer": "https://idp.example.com"}
+        monkeypatch,
+        {"jwks_uri": "https://idp.example.com/keys", "issuer": "https://idp.example.com"},
     )
     url = discover_jwks_uri("https://idp.example.com", verify_ssl=False, timeout=3.0)
     assert url == "https://idp.example.com/keys"
@@ -560,6 +567,7 @@ def test_discover_jwks_uri_missing_uri_raises(monkeypatch):
 
 def test_discover_jwks_uri_network_error_raises(monkeypatch):
     import httpx
+
     _mock_discovery(monkeypatch, exc=httpx.ConnectError("boom"))
     with pytest.raises(AuthConfigError, match="OIDC discovery failed"):
         discover_jwks_uri("https://idp.example.com")
@@ -576,7 +584,9 @@ def test_oidc_issuer_selects_jwks_mode_via_discovery(monkeypatch, rsa_keys):
     assert captured["url"] == "https://idp.example.com/.well-known/openid-configuration"
 
     # Stub the key lookup so verification runs without contacting the JWKS URL.
-    v._jwks_client = SimpleNamespace(get_signing_key_from_jwt=lambda token: SimpleNamespace(key=pub_pem))
+    v._jwks_client = SimpleNamespace(
+        get_signing_key_from_jwt=lambda token: SimpleNamespace(key=pub_pem)
+    )
     # Issuer defaults to AUTH_OIDC_ISSUER -> a matching iss verifies, a wrong one fails.
     assert v.verify(_rs256(priv_pem, iss="https://idp.example.com"))["sub"] == "user-1"
     with pytest.raises(TokenError, match="Invalid token issuer"):
@@ -586,7 +596,9 @@ def test_oidc_issuer_selects_jwks_mode_via_discovery(monkeypatch, rsa_keys):
 def test_explicit_jwks_url_takes_precedence_over_issuer(monkeypatch):
     # With both set, the explicit URL wins and no discovery request is made.
     called = {"n": 0}
-    monkeypatch.setattr(oidc_mod.httpx, "get", lambda *a, **k: called.__setitem__("n", called["n"] + 1))
+    monkeypatch.setattr(
+        oidc_mod.httpx, "get", lambda *a, **k: called.__setitem__("n", called["n"] + 1)
+    )
     monkeypatch.setattr(settings, "AUTH_JWKS_URL", "https://idp.example.com/explicit-keys")
     monkeypatch.setattr(settings, "AUTH_OIDC_ISSUER", "https://idp.example.com")
 
@@ -602,7 +614,9 @@ def test_explicit_auth_issuer_overrides_oidc_issuer_default(monkeypatch, rsa_key
     monkeypatch.setattr(settings, "AUTH_ISSUER", "https://explicit.example.com/")
 
     v = JWTVerifier(settings)
-    v._jwks_client = SimpleNamespace(get_signing_key_from_jwt=lambda token: SimpleNamespace(key=pub_pem))
+    v._jwks_client = SimpleNamespace(
+        get_signing_key_from_jwt=lambda token: SimpleNamespace(key=pub_pem)
+    )
     assert v.verify(_rs256(priv_pem, iss="https://explicit.example.com/"))["sub"] == "user-1"
     with pytest.raises(TokenError, match="Invalid token issuer"):
         v.verify(_rs256(priv_pem, iss="https://discovery.example.com"))

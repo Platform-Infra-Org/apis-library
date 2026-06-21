@@ -3,12 +3,15 @@
 Two guards must hold: validators are permissive when the allowlist set is empty,
 and permissive for omitted (``None``) coordinates.
 """
+
 import pytest
 from pydantic import ValidationError
 
-from tashtiot_apis_library.fastapi_template.config_api import schemas
-from tashtiot_apis_library.fastapi_template.config_api import InfraMetadata, RequiredInfraMetadata
-
+from tashtiot_apis_library.fastapi_template.config_api import (
+    InfraMetadata,
+    RequiredInfraMetadata,
+    schemas,
+)
 
 COORD_TO_ALLOWLIST = [
     ("space", schemas.LIVE_ALLOWED_SPACES),
@@ -37,8 +40,12 @@ class TestNoneIsPermissive:
     def test_all_omitted_is_valid(self):
         meta = InfraMetadata()
         assert meta.model_dump() == {
-            "space": None, "network": None, "region": None,
-            "island": None, "environment": None, "project": None,
+            "space": None,
+            "network": None,
+            "region": None,
+            "island": None,
+            "environment": None,
+            "project": None,
         }
 
 
@@ -59,18 +66,30 @@ class TestPopulatedAllowlistEnforced:
 
 class TestRequiredInfraMetadata:
     def _all_coords(self):
-        return dict(
-            space="core-infrastructure", network="backbone-net", region="us-east",
-            island="compute-island-a", environment="production", project="payment-gateway",
-        )
+        return {
+            "space": "core-infrastructure",
+            "network": "backbone-net",
+            "region": "us-east",
+            "island": "compute-island-a",
+            "environment": "production",
+            "project": "payment-gateway",
+        }
 
     def test_full_coords_valid(self):
         meta = RequiredInfraMetadata(**self._all_coords())
         assert meta.environment == "production"
 
-    @pytest.mark.parametrize("missing", [
-        "space", "network", "region", "island", "environment", "project",
-    ])
+    @pytest.mark.parametrize(
+        "missing",
+        [
+            "space",
+            "network",
+            "region",
+            "island",
+            "environment",
+            "project",
+        ],
+    )
     def test_missing_any_coordinate_is_error(self, missing):
         coords = self._all_coords()
         del coords[missing]

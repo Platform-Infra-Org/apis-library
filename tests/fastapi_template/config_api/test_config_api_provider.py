@@ -1,21 +1,25 @@
 """RemoteConfigProvider: proxying config/naming/registry to the upstream Config
 API (mocked via respx), in-memory caching, and the background allowlist poller."""
+
 import httpx
 import pytest
 import respx
 
-from tashtiot_apis_library.fastapi_template.config_api import schemas
-from tashtiot_apis_library.fastapi_template.config_api import InfraMetadata
+from tashtiot_apis_library.fastapi_template.config_api import InfraMetadata, schemas
 
 from .conftest import REMOTE_PREFIX, TOKEN_URL, UPSTREAM_BASE, FakeApp, make_provider
 from .upstream import register_token_route
 
 
 def _full_meta(**overrides):
-    base = dict(
-        space="core-infrastructure", network="backbone-net", region="us-east",
-        island="compute-island-a", environment="production", project="payment-gateway",
-    )
+    base = {
+        "space": "core-infrastructure",
+        "network": "backbone-net",
+        "region": "us-east",
+        "island": "compute-island-a",
+        "environment": "production",
+        "project": "payment-gateway",
+    }
     base.update(overrides)
     return InfraMetadata(**base)
 
@@ -99,8 +103,10 @@ class TestGetAllProjects:
     async def test_returns_registry_list(self, provider):
         projects = await provider.get_all_projects()
         assert projects == [
-            "payment-gateway", "authentication-service",
-            "notification-engine", "data-warehouse-pipeline",
+            "payment-gateway",
+            "authentication-service",
+            "notification-engine",
+            "data-warehouse-pipeline",
         ]
 
     @pytest.mark.asyncio
@@ -162,8 +168,10 @@ class TestCrawlAndSyncKeys:
         assert schemas.LIVE_ALLOWED_ENVIRONMENTS == {"staging", "production"}
         assert schemas.LIVE_ALLOWED_SPACES == {"core-infrastructure", "tenant-alpha"}
         assert schemas.LIVE_ALLOWED_PROJECTS == {
-            "payment-gateway", "authentication-service",
-            "notification-engine", "data-warehouse-pipeline",
+            "payment-gateway",
+            "authentication-service",
+            "notification-engine",
+            "data-warehouse-pipeline",
         }
         assert id(schemas.LIVE_ALLOWED_NETWORKS) == net_set_id
         assert id(schemas.LIVE_ALLOWED_PROJECTS) == proj_set_id

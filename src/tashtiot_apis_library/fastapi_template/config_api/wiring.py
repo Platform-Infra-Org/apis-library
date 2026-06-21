@@ -5,7 +5,8 @@ outbound auth), installs the dynamic OpenAPI enum patcher and the coordinate
 validation -> 422 handler, and registers the background allowlist poller. The
 service is left to define its own routes against the returned provider.
 """
-from typing import Any, Optional
+
+from typing import Optional
 
 import httpx
 from fastapi import FastAPI
@@ -82,6 +83,7 @@ def enable_remote_config_api(
     install_coordinate_validation_error_handler(app)
 
     if enable_polling:
+
         async def _poll() -> None:
             await provider.start_periodic_polling(app, interval_seconds=poll_interval)
 

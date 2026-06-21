@@ -4,6 +4,7 @@ Isolated in this subpackage so the autouse allowlist/token-cache resets don't
 bleed into the other fastapi_template tests. The upstream Config API and the SSO
 token endpoint are mocked with respx.
 """
+
 import copy
 from typing import Any
 
@@ -11,13 +12,11 @@ import pytest
 import pytest_asyncio
 import respx
 
-from tashtiot_apis_library.fastapi_template.config_api import schemas
-from tashtiot_apis_library.fastapi_template.config_api import RemoteConfigProvider
-from tashtiot_apis_library.fastapi_template.security import SSOConfig, sso_auth
 from tashtiot_apis_library.fastapi_template._internal.security import sso as sso_mod
+from tashtiot_apis_library.fastapi_template.config_api import RemoteConfigProvider, schemas
+from tashtiot_apis_library.fastapi_template.security import SSOConfig, sso_auth
 
 from .upstream import ALL_SEED_DOCS, register_token_route, register_upstream_routes
-
 
 UPSTREAM_BASE = "http://upstream.test"
 TOKEN_URL = "https://idp.test/oauth/token"
@@ -49,9 +48,12 @@ def seed_docs():
 def reset_live_allowlists():
     """The ``LIVE_ALLOWED_*`` sets are mutable module globals; reset around each test."""
     sets = [
-        schemas.LIVE_ALLOWED_NETWORKS, schemas.LIVE_ALLOWED_REGIONS,
-        schemas.LIVE_ALLOWED_ISLANDS, schemas.LIVE_ALLOWED_ENVIRONMENTS,
-        schemas.LIVE_ALLOWED_SPACES, schemas.LIVE_ALLOWED_PROJECTS,
+        schemas.LIVE_ALLOWED_NETWORKS,
+        schemas.LIVE_ALLOWED_REGIONS,
+        schemas.LIVE_ALLOWED_ISLANDS,
+        schemas.LIVE_ALLOWED_ENVIRONMENTS,
+        schemas.LIVE_ALLOWED_SPACES,
+        schemas.LIVE_ALLOWED_PROJECTS,
     ]
     for s in sets:
         s.clear()

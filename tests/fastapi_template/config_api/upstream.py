@@ -4,10 +4,10 @@ Mounts the upstream's ``/projects``, ``/config`` and ``/naming`` routes (plus th
 SSO token endpoint) with ``respx``, resolving from the seed documents exactly as
 the real upstream would (cascade merge / naming lookups / registry list).
 """
+
 from typing import Any, Dict, List, Optional
 
 import httpx
-
 
 ENTERPRISE_CONFIG_DOC = {
     "doc_type": "enterprise_configuration",
@@ -17,7 +17,10 @@ ENTERPRISE_CONFIG_DOC = {
             "config": {"space_policy_class": "tier-1-governed"},
             "network": {
                 "backbone-net": {
-                    "config": {"ntp_server": "pool.ntp.org", "dns_servers": ["10.0.0.1", "10.0.0.2"]},
+                    "config": {
+                        "ntp_server": "pool.ntp.org",
+                        "dns_servers": ["10.0.0.1", "10.0.0.2"],
+                    },
                     "region": {
                         "us-east": {
                             "config": {"aws_vpc_id": "vpc-0a1b2c3d"},
@@ -26,7 +29,9 @@ ENTERPRISE_CONFIG_DOC = {
                                     "config": {"cluster_size": 5},
                                     "environment": {
                                         "staging": {"config": {}},
-                                        "production": {"config": {"cluster_size": 20, "debug_mode": False}},
+                                        "production": {
+                                            "config": {"cluster_size": 20, "debug_mode": False}
+                                        },
                                     },
                                 }
                             },
@@ -69,6 +74,7 @@ ALL_SEED_DOCS = [ENTERPRISE_CONFIG_DOC, NAMING_DOC, PROJECT_REGISTRY_DOC]
 # --------------------------------------------------------------------------- #
 # Resolution — mirrors the real upstream's behaviour over the seed documents.
 # --------------------------------------------------------------------------- #
+
 
 def _find(docs: List[Dict[str, Any]], doc_type: str) -> Optional[Dict[str, Any]]:
     for doc in docs:
@@ -128,13 +134,17 @@ def list_projects(docs: List[Dict[str, Any]]) -> Optional[List[str]]:
 # respx wiring.
 # --------------------------------------------------------------------------- #
 
+
 def _config_handler(docs):
     def handler(request: httpx.Request) -> httpx.Response:
         params = dict(request.url.params)
         result = resolve_config(docs, params)
         if not result:
-            return httpx.Response(404, json={"detail": "No matching configuration metrics located."})
+            return httpx.Response(
+                404, json={"detail": "No matching configuration metrics located."}
+            )
         return httpx.Response(200, json={"metadata": params, "configurations": result})
+
     return handler
 
 
@@ -145,6 +155,7 @@ def _naming_handler(docs):
         if not parts:
             return httpx.Response(404, json={"detail": "Target translation guidelines missing."})
         return httpx.Response(200, json={"metadata": params, "naming_parts": parts})
+
     return handler
 
 
@@ -154,18 +165,23 @@ def _projects_handler(docs):
         if not projects:
             return httpx.Response(404, json={"detail": "The project inventory catalog is empty."})
         return httpx.Response(200, json={"projects": projects})
+
     return handler
 
 
 def register_upstream_routes(router, docs, base_url: str, prefix: str):
     base = base_url.rstrip("/")
-    router.get(f"{base}{prefix}/projects", name="projects").mock(side_effect=_projects_handler(docs))
+    router.get(f"{base}{prefix}/projects", name="projects").mock(
+        side_effect=_projects_handler(docs)
+    )
     router.get(f"{base}{prefix}/config", name="config").mock(side_effect=_config_handler(docs))
     router.get(f"{base}{prefix}/naming", name="naming").mock(side_effect=_naming_handler(docs))
     return router
 
 
-def register_token_route(router, token_url: str, *, name: str = "token", access_token: str = "sso-token-abc"):
+def register_token_route(
+    router, token_url: str, *, name: str = "token", access_token: str = "sso-token-abc"
+):
     router.post(token_url, name=name).mock(
         return_value=httpx.Response(
             200, json={"access_token": access_token, "token_type": "Bearer", "expires_in": 3600}

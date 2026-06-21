@@ -54,10 +54,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
         self._exclude = _build_exclude_paths(settings)
 
     def _is_excluded(self, path: str) -> bool:
-        return any(
-            path.startswith(prefix) or re.match(prefix, path)
-            for prefix in self._exclude
-        )
+        return any(path.startswith(prefix) or re.match(prefix, path) for prefix in self._exclude)
 
     @staticmethod
     def _extract_bearer(header: Optional[str]) -> Optional[str]:

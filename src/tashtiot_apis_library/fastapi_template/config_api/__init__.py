@@ -10,22 +10,23 @@ Outbound auth to the upstream is package-side but selectable via the
 ``CONFIG_REMOTE_*`` settings (:class:`ConfigRemoteSettings`): SSO
 ``client_credentials``, a static bearer, or none.
 """
+
 from .conf import ConfigRemoteSettings
 from .errors import install_coordinate_validation_error_handler
 from .openapi import make_config_openapi
 from .provider import RemoteConfigProvider
 from .schemas import (
+    LIVE_ALLOWED_ENVIRONMENTS,
+    LIVE_ALLOWED_ISLANDS,
+    LIVE_ALLOWED_NETWORKS,
+    LIVE_ALLOWED_PROJECTS,
+    LIVE_ALLOWED_REGIONS,
+    LIVE_ALLOWED_SPACES,
     AllProjectsResponse,
     ConfigResolutionResponse,
     InfraMetadata,
     NamingConventionResponse,
     RequiredInfraMetadata,
-    LIVE_ALLOWED_NETWORKS,
-    LIVE_ALLOWED_REGIONS,
-    LIVE_ALLOWED_ISLANDS,
-    LIVE_ALLOWED_ENVIRONMENTS,
-    LIVE_ALLOWED_SPACES,
-    LIVE_ALLOWED_PROJECTS,
 )
 from .wiring import enable_remote_config_api
 

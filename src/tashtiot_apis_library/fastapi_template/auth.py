@@ -28,9 +28,7 @@ __all__ = [
 _VERIFIER_EXPORTS = frozenset({"JWTVerifier", "verify_token", "AuthMode"})
 
 # Names served from the keygen module (the signing-side companion to JWTVerifier).
-_KEYGEN_EXPORTS = frozenset(
-    {"generate_keypair", "mint_token", "load_keypair", "derive_public_pem"}
-)
+_KEYGEN_EXPORTS = frozenset({"generate_keypair", "mint_token", "load_keypair", "derive_public_pem"})
 
 
 def __getattr__(name: str):

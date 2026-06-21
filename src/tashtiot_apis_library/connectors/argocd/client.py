@@ -37,8 +37,7 @@ def _handle_response(response_json: Mapping[str, Any], status_code: int) -> None
         raise ArgoCDError(
             status_code=status_code,
             detail="Don't have permission to access this resource, "
-            "or this resource doesn't exist."
-            + (f" ArgoCD message: {message}" if message else ""),
+            "or this resource doesn't exist." + (f" ArgoCD message: {message}" if message else ""),
         )
 
     if status_code >= 400:

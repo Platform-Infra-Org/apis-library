@@ -62,9 +62,7 @@ def _select_mode(settings: Any) -> AuthMode:
             f"material is set ({', '.join(configured)}). Configure exactly one."
         )
     if not configured:
-        logger.warning(
-            "Authentication is enabled but no verification material is configured."
-        )
+        logger.warning("Authentication is enabled but no verification material is configured.")
         raise AuthConfigError(
             "Authentication is enabled but no verification material is configured. "
             "Set one of AUTH_JWKS_URL, AUTH_PUBLIC_KEY_PEM, AUTH_PUBLIC_KEY_PATH, "

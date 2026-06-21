@@ -3,8 +3,12 @@ from typing import Callable
 from fastapi import FastAPI
 
 from .schemas import (
-    LIVE_ALLOWED_NETWORKS, LIVE_ALLOWED_REGIONS, LIVE_ALLOWED_ISLANDS,
-    LIVE_ALLOWED_ENVIRONMENTS, LIVE_ALLOWED_SPACES, LIVE_ALLOWED_PROJECTS,
+    LIVE_ALLOWED_ENVIRONMENTS,
+    LIVE_ALLOWED_ISLANDS,
+    LIVE_ALLOWED_NETWORKS,
+    LIVE_ALLOWED_PROJECTS,
+    LIVE_ALLOWED_REGIONS,
+    LIVE_ALLOWED_SPACES,
 )
 
 
@@ -43,17 +47,17 @@ def make_config_openapi(app: FastAPI, config_path: str, naming_path: str) -> Cal
                 for param in path_item.get(method, {}).get("parameters", []):
                     name = param.get("name")
                     if name == "space" and LIVE_ALLOWED_SPACES:
-                        param["schema"]["enum"] = sorted(list(LIVE_ALLOWED_SPACES))
+                        param["schema"]["enum"] = sorted(LIVE_ALLOWED_SPACES)
                     elif name == "network" and LIVE_ALLOWED_NETWORKS:
-                        param["schema"]["enum"] = sorted(list(LIVE_ALLOWED_NETWORKS))
+                        param["schema"]["enum"] = sorted(LIVE_ALLOWED_NETWORKS)
                     elif name == "region" and LIVE_ALLOWED_REGIONS:
-                        param["schema"]["enum"] = sorted(list(LIVE_ALLOWED_REGIONS))
+                        param["schema"]["enum"] = sorted(LIVE_ALLOWED_REGIONS)
                     elif name == "island" and LIVE_ALLOWED_ISLANDS:
-                        param["schema"]["enum"] = sorted(list(LIVE_ALLOWED_ISLANDS))
+                        param["schema"]["enum"] = sorted(LIVE_ALLOWED_ISLANDS)
                     elif name == "environment" and LIVE_ALLOWED_ENVIRONMENTS:
-                        param["schema"]["enum"] = sorted(list(LIVE_ALLOWED_ENVIRONMENTS))
+                        param["schema"]["enum"] = sorted(LIVE_ALLOWED_ENVIRONMENTS)
                     elif name == "project" and LIVE_ALLOWED_PROJECTS:
-                        param["schema"]["enum"] = sorted(list(LIVE_ALLOWED_PROJECTS))
+                        param["schema"]["enum"] = sorted(LIVE_ALLOWED_PROJECTS)
 
         app.openapi_schema = openapi_schema
         return app.openapi_schema

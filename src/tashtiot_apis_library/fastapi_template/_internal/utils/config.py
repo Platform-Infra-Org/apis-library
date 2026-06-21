@@ -32,7 +32,7 @@ class ApplicationSettings(BaseSettings):
     RELOAD_INCLUDES: list[str] = Field(
         default=[".env"],
         description="List of paths to files that triggers reloading.",
-        examples=[["*.py"]]
+        examples=[["*.py"]],
     )
 
     APP_NAME: str = Field(
@@ -80,7 +80,15 @@ class ApplicationSettings(BaseSettings):
     SWAGGER_OPENAPI_JSON_URL: str = OPENAPI_JSON_URL
 
     LOG_REQUEST_EXCLUDE_PATHS: list[str] = Field(
-        default=["/health", "/metrics", "/static", "/docs", "/redoc", "/openapi.json", "/.well-known"],
+        default=[
+            "/health",
+            "/metrics",
+            "/static",
+            "/docs",
+            "/redoc",
+            "/openapi.json",
+            "/.well-known",
+        ],
         description="List of paths to ignore for logging.",
         examples=[["/health", "/metrics"]],
     )
@@ -193,8 +201,15 @@ class ApplicationSettings(BaseSettings):
 
     AUTH_EXCLUDE_PATHS: list[str] = Field(
         default=[
-            "/health", "/metrics", "/static", "/docs", "/redoc",
-            "/openapi.json", "/.well-known", "/liveness", "/readiness",
+            "/health",
+            "/metrics",
+            "/static",
+            "/docs",
+            "/redoc",
+            "/openapi.json",
+            "/.well-known",
+            "/liveness",
+            "/readiness",
         ],
         description="Path prefixes/regexes that bypass authentication. Matched like LOG_REQUEST_EXCLUDE_PATHS.",
         examples=[["/health", "/metrics"]],
@@ -205,7 +220,10 @@ class ApplicationSettings(BaseSettings):
     AUTH_SSO_TOKEN_URL: Optional[str] = Field(
         default=None,
         description="OAuth2 token endpoint for the client_credentials grant. Required to use the SSO token client.",
-        examples=["https://idp.example.com/oauth/token", "https://login.microsoftonline.com/<tenant>/oauth2/v2.0/token"],
+        examples=[
+            "https://idp.example.com/oauth/token",
+            "https://login.microsoftonline.com/<tenant>/oauth2/v2.0/token",
+        ],
     )
 
     AUTH_SSO_CLIENT_ID: Optional[str] = Field(
@@ -263,4 +281,3 @@ class ApplicationSettings(BaseSettings):
         description="Refresh the cached access token this many seconds before its expiry.",
         examples=[30, 60],
     )
-

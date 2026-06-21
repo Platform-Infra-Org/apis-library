@@ -1,10 +1,13 @@
 """make_config_openapi injects the live allowlists as enum dropdowns."""
+
 import pytest
 from fastapi import APIRouter, Depends, FastAPI
 
-from tashtiot_apis_library.fastapi_template.config_api import schemas
 from tashtiot_apis_library.fastapi_template.config_api import (
-    InfraMetadata, RequiredInfraMetadata, make_config_openapi,
+    InfraMetadata,
+    RequiredInfraMetadata,
+    make_config_openapi,
+    schemas,
 )
 
 API_PREFIX = "/api/v1/infra"

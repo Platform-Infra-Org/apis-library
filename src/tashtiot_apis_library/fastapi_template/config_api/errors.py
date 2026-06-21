@@ -16,6 +16,7 @@ This is safe to register app-wide: ``ResponseValidationError`` (server-side
 response-model failures, which *should* stay 500) is not a subclass of
 ``pydantic.ValidationError``, so it is never caught here.
 """
+
 from fastapi import FastAPI, Request
 from fastapi.exception_handlers import request_validation_exception_handler
 from fastapi.exceptions import RequestValidationError
@@ -36,6 +37,4 @@ def install_coordinate_validation_error_handler(app: FastAPI) -> None:
             err = dict(err)
             err["loc"] = ("query", *err.get("loc", ()))
             errors.append(err)
-        return await request_validation_exception_handler(
-            request, RequestValidationError(errors)
-        )
+        return await request_validation_exception_handler(request, RequestValidationError(errors))

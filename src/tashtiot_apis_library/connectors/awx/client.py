@@ -9,8 +9,6 @@ from ...fastapi_template.utils import BaseAPI
 from ..errors import AWXError
 from .models import (
     AWXJob,
-    AWXLaunchJobRequest,
-    AWXLaunchWorkflowRequest,
     AWXWorkflowJob,
 )
 

@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Literal
+from typing import Any, Dict, List, Literal, Optional
 
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from ..response_schemas import OperationResponse
 
@@ -25,14 +25,11 @@ __all__ = [
 
 class ArgoOperationResponse(OperationResponse):
     """Response schema for ArgoCD operations.
-    
+
     Extends OperationResponse with Argo-specific app_name field.
     """
-    
-    app_name: str = Field(
-        ...,
-        description="ArgoCD application name"
-    )
+
+    app_name: str = Field(..., description="ArgoCD application name")
 
 
 class ArgoSyncInfo(BaseModel):
@@ -86,7 +83,9 @@ class ArgoApplicationStatus(BaseModel):
         return self.reconciled_at
 
     @property
-    def operationState(self) -> Optional[ArgoOperationState]:  # pragma: no cover - convenience alias
+    def operationState(
+        self,
+    ) -> Optional[ArgoOperationState]:  # pragma: no cover - convenience alias
         return self.operation_state
 
 

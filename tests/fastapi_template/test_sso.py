@@ -10,9 +10,11 @@ import jwt
 import pytest
 import respx
 
-from tashtiot_apis_library.fastapi_template.utils import settings
-from tashtiot_apis_library.fastapi_template.errors import AuthConfigError, SSOError, TokenError
+# White-box access to private module state (caches) -- no public re-export by design.
+from tashtiot_apis_library.fastapi_template._internal.security import sso as sso_mod
+from tashtiot_apis_library.fastapi_template._internal.security import verifier as verifier_mod
 from tashtiot_apis_library.fastapi_template.auth import verify_token
+from tashtiot_apis_library.fastapi_template.errors import AuthConfigError, SSOError, TokenError
 from tashtiot_apis_library.fastapi_template.security import (
     SSOClientCredentialsAuth,
     SSOConfig,
@@ -21,9 +23,7 @@ from tashtiot_apis_library.fastapi_template.security import (
     sso_auth,
     sso_authenticated_api,
 )
-# White-box access to private module state (caches) -- no public re-export by design.
-from tashtiot_apis_library.fastapi_template._internal.security import sso as sso_mod
-from tashtiot_apis_library.fastapi_template._internal.security import verifier as verifier_mod
+from tashtiot_apis_library.fastapi_template.utils import settings
 
 TOKEN_URL = "https://idp.example.com/oauth/token"
 DOWNSTREAM = "https://downstream.example.com"
@@ -215,8 +215,8 @@ async def test_auth_refreshes_once_on_401():
         resp = await client.get(f"{DOWNSTREAM}/protected")
 
     assert resp.status_code == 200
-    assert api_route.call_count == 2          # original + retry
-    assert token_route.call_count == 2        # initial fetch + forced refresh
+    assert api_route.call_count == 2  # original + retry
+    assert token_route.call_count == 2  # initial fetch + forced refresh
 
 
 @pytest.mark.asyncio
@@ -290,7 +290,9 @@ async def test_sso_authenticated_api_uses_explicit_config_not_singleton():
     alt_route = respx.post(ALT_TOKEN_URL).mock(
         return_value=httpx.Response(200, json={"access_token": "alt-tok", "expires_in": 3600})
     )
-    api_route = respx.get(f"{DOWNSTREAM}/data").mock(return_value=httpx.Response(200, json={"ok": True}))
+    api_route = respx.get(f"{DOWNSTREAM}/data").mock(
+        return_value=httpx.Response(200, json={"ok": True})
+    )
 
     cfg = SSOConfig(token_url=ALT_TOKEN_URL, client_id="alt", client_secret="alt-secret")
     async with sso_authenticated_api(DOWNSTREAM, config=cfg) as client:

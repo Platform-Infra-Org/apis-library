@@ -7,10 +7,13 @@ from fastapi import HTTPException
 from loguru import logger
 
 from ..utils import BaseAPI
-
 from .schemas import (
-    LIVE_ALLOWED_NETWORKS, LIVE_ALLOWED_REGIONS, LIVE_ALLOWED_ISLANDS,
-    LIVE_ALLOWED_ENVIRONMENTS, LIVE_ALLOWED_SPACES, LIVE_ALLOWED_PROJECTS,
+    LIVE_ALLOWED_ENVIRONMENTS,
+    LIVE_ALLOWED_ISLANDS,
+    LIVE_ALLOWED_NETWORKS,
+    LIVE_ALLOWED_PROJECTS,
+    LIVE_ALLOWED_REGIONS,
+    LIVE_ALLOWED_SPACES,
     InfraMetadata,
 )
 
@@ -59,12 +62,16 @@ class RemoteConfigProvider:
         """
         clean = {k: v for k, v in params.items() if v is not None}
         try:
-            api = BaseAPI(self._base_url, auth=self._auth, timeout=self._timeout, verify=self._verify)
+            api = BaseAPI(
+                self._base_url, auth=self._auth, timeout=self._timeout, verify=self._verify
+            )
             async with api as client:
                 return await client.get(path, params=clean)
         except httpx.HTTPError as exc:
             logger.error(f"Upstream Config API request to {path} failed: {exc}")
-            raise HTTPException(status_code=502, detail="Upstream Config API is unreachable.") from exc
+            raise HTTPException(
+                status_code=502, detail="Upstream Config API is unreachable."
+            ) from exc
 
     @staticmethod
     def _ensure_ok(response: httpx.Response) -> None:
@@ -143,8 +150,12 @@ class RemoteConfigProvider:
         response = await self._get(
             f"{self._prefix}/config",
             {
-                "space": meta.space, "network": meta.network, "region": meta.region,
-                "island": meta.island, "environment": meta.environment, "project": meta.project,
+                "space": meta.space,
+                "network": meta.network,
+                "region": meta.region,
+                "island": meta.island,
+                "environment": meta.environment,
+                "project": meta.project,
             },
         )
         if response.status_code == 404:
@@ -168,8 +179,12 @@ class RemoteConfigProvider:
         response = await self._get(
             f"{self._prefix}/naming",
             {
-                "space": meta.space, "network": meta.network, "region": meta.region,
-                "island": meta.island, "environment": meta.environment, "project": meta.project,
+                "space": meta.space,
+                "network": meta.network,
+                "region": meta.region,
+                "island": meta.island,
+                "environment": meta.environment,
+                "project": meta.project,
             },
         )
         if response.status_code == 404:

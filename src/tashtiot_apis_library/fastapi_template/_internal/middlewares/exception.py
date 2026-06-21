@@ -1,10 +1,10 @@
 """Exception handlers used by the FastAPI Template application."""
 
 from fastapi import HTTPException, Request
+from fastapi.exception_handlers import request_validation_exception_handler
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from loguru import logger
-from fastapi.exception_handlers import request_validation_exception_handler
 
 from ..models import ExceptionHandlerConfig
 
@@ -25,7 +25,10 @@ async def http_exception_handler(request: Request, exc: HTTPException) -> JSONRe
     logger.opt(exception=exc).info(f"HTTP error {exc.status_code}: {exc.detail}")
     return JSONResponse(status_code=exc.status_code, content=_http_exception_message(exc))
 
-async def validation_exception_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
+
+async def validation_exception_handler(
+    request: Request, exc: RequestValidationError
+) -> JSONResponse:
     logger.opt(exception=exc).info(f"Validation error: {exc.errors()}")
     return await request_validation_exception_handler(request, exc)
 
@@ -37,6 +40,8 @@ async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONR
 
 handlers = [
     ExceptionHandlerConfig(exception_class=HTTPException, handler=http_exception_handler),
-    ExceptionHandlerConfig(exception_class=RequestValidationError, handler=validation_exception_handler),
+    ExceptionHandlerConfig(
+        exception_class=RequestValidationError, handler=validation_exception_handler
+    ),
     ExceptionHandlerConfig(exception_class=Exception, handler=unhandled_exception_handler),
 ]

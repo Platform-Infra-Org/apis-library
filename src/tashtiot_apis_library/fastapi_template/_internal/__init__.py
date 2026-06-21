@@ -4,15 +4,16 @@ import asyncio
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, AsyncGenerator, Callable, Coroutine, List
-from fastapi.staticfiles import StaticFiles
+
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 
 from .middlewares import add_middlewares
-
 from .routes import add_routers
 from .utils import logger_config, settings
 
 __all__ = ["general_create_app", "settings", "logger_config"]
+
 
 def general_create_app(
     *,
@@ -94,6 +95,7 @@ def general_create_app(
         return app.openapi()
 
     if enable_root_route:
+
         @app.get("/", response_model=dict, status_code=200)
         def read_root():
             return {"message": f"Welcome to {settings.APP_NAME}!"}

@@ -1,12 +1,14 @@
 # tests/test_base_api.py
-import pytest
 import httpx
+import pytest
 import respx
+
 from tashtiot_apis_library.fastapi_template.utils import BaseAPI
 
 # --------------------------- tests for BaseAPI ---------------------------
 
 # --------------------------- ctx manager tests ---------------------------
+
 
 @pytest.mark.asyncio
 async def test_base_api_context_manager_creates_client():
@@ -18,7 +20,9 @@ async def test_base_api_context_manager_creates_client():
 
     assert api._client is None
 
+
 # --------------------------- property tests ---------------------------
+
 
 @pytest.mark.asyncio
 async def test_base_api_property_returns_temp_client():
@@ -28,7 +32,9 @@ async def test_base_api_property_returns_temp_client():
     assert temp_client.base_url == httpx.URL("https://example.com")
     assert api._client is None
 
+
 # --------------------------- request method tests ---------------------------
+
 
 @pytest.mark.asyncio
 async def test_base_api_performs_get_request():
@@ -41,6 +47,7 @@ async def test_base_api_performs_get_request():
             assert response.json() == {"message": "ok"}
             assert route.called
 
+
 @pytest.mark.asyncio
 async def test_base_api_performs_post_request():
     api = BaseAPI(base_url="https://example.com")
@@ -51,6 +58,7 @@ async def test_base_api_performs_post_request():
             assert response.status_code == 201
             assert response.json() == {"status": "created"}
             assert route.called
+
 
 @pytest.mark.asyncio
 async def test_base_api_performs_put_request():
@@ -63,6 +71,7 @@ async def test_base_api_performs_put_request():
             assert response.json() == {"status": "updated"}
             assert route.called
 
+
 @pytest.mark.asyncio
 async def test_base_api_performs_delete_request():
     api = BaseAPI(base_url="https://example.com")
@@ -72,6 +81,7 @@ async def test_base_api_performs_delete_request():
             response = await client.delete("/remove")
             assert response.status_code == 204
             assert route.called
+
 
 @pytest.mark.asyncio
 async def test_base_api_file_upload():
@@ -85,6 +95,7 @@ async def test_base_api_file_upload():
             assert response.json() == {"uploaded": True}
             assert route.called
 
+
 @pytest.mark.asyncio
 async def test_base_api_file_download():
     api = BaseAPI(base_url="https://example.com")
@@ -95,6 +106,7 @@ async def test_base_api_file_download():
             assert response.status_code == 200
             assert response.content == b"file content"
             assert route.called
+
 
 @pytest.mark.asyncio
 async def test_base_api_custom_params():
@@ -108,6 +120,7 @@ async def test_base_api_custom_params():
             assert route.called
             assert route.calls[0].request.url.params["q"] == "test"
 
+
 @pytest.mark.asyncio
 async def test_base_api_custom_headers():
     api = BaseAPI(base_url="https://example.com", headers={"X-Test": "value"})
@@ -117,6 +130,7 @@ async def test_base_api_custom_headers():
             await client.get("/headers")
             # Verify headers sent
             assert route.calls[0].request.headers["X-Test"] == "value"
+
 
 @pytest.mark.asyncio
 async def test_base_api_auth_basic():
@@ -128,6 +142,7 @@ async def test_base_api_auth_basic():
             auth_header = route.calls[0].request.headers.get("Authorization")
             assert auth_header is not None
             assert "Basic " in auth_header
+
 
 @pytest.mark.asyncio
 async def test_base_api_timeout():

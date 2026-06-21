@@ -151,9 +151,7 @@ class SSOTokenClient:
 
         style = (config.auth_style or "post").lower()
         if style not in ("post", "basic"):
-            raise AuthConfigError(
-                f"AUTH_SSO_AUTH_STYLE must be 'post' or 'basic', got {style!r}."
-            )
+            raise AuthConfigError(f"AUTH_SSO_AUTH_STYLE must be 'post' or 'basic', got {style!r}.")
         self._config = config
         self._auth_style = style
 
@@ -176,9 +174,7 @@ class SSOTokenClient:
             skew = self._config.expiry_skew
             self._token = token_response.access_token
             self._expires_at = time.monotonic() + max(ttl - skew, 0)
-            logger.debug(
-                "Acquired SSO access token (ttl={}s, skew={}s).", ttl, skew
-            )
+            logger.debug("Acquired SSO access token (ttl={}s, skew={}s).", ttl, skew)
             return self._token
 
     async def auth_header(self) -> Dict[str, str]:
@@ -217,9 +213,7 @@ class SSOTokenClient:
             async with api as client:
                 # Post to the absolute URL so the exact token endpoint is hit
                 # (an empty relative path would have httpx append a trailing slash).
-                response = await client.post(
-                    config.token_url, **self._request_kwargs()
-                )
+                response = await client.post(config.token_url, **self._request_kwargs())
         except httpx.HTTPError as exc:
             logger.error("SSO token request to {} failed: {}", config.token_url, exc)
             raise SSOError(f"SSO token request failed: {exc}") from exc
@@ -232,8 +226,7 @@ class SSOTokenClient:
                 response.text[:500],
             )
             raise SSOError(
-                f"SSO token endpoint returned {response.status_code}: "
-                f"{response.text[:500]}"
+                f"SSO token endpoint returned {response.status_code}: {response.text[:500]}"
             )
         try:
             return TokenResponse.model_validate(response.json())
@@ -256,9 +249,7 @@ class SSOClientCredentialsAuth(httpx.Auth):
         self._token_client = token_client
 
     def sync_auth_flow(self, request):  # pragma: no cover - library is async-only
-        raise RuntimeError(
-            "SSOClientCredentialsAuth is async-only; use an httpx.AsyncClient."
-        )
+        raise RuntimeError("SSOClientCredentialsAuth is async-only; use an httpx.AsyncClient.")
 
     async def async_auth_flow(self, request):
         token = await self._token_client.get_token()
@@ -324,7 +315,11 @@ def sso_auth(source: Any = None) -> SSOClientCredentialsAuth:
 
 
 def sso_authenticated_api(
-    base_url: str, *, config: Optional[SSOConfig] = None, settings: Any = None, **base_api_kwargs: Any
+    base_url: str,
+    *,
+    config: Optional[SSOConfig] = None,
+    settings: Any = None,
+    **base_api_kwargs: Any,
 ):
     """Return a :class:`BaseAPI` whose every request carries a fresh SSO token.
 
@@ -342,7 +337,9 @@ def sso_authenticated_api(
     from ..database import BaseAPI
 
     # The object handed to the token client (identity drives token-cache sharing).
-    source = config if config is not None else (settings if settings is not None else default_settings)
+    source = (
+        config if config is not None else (settings if settings is not None else default_settings)
+    )
     # A normalised view used only to derive timeout/verify defaults.
     resolved = source if isinstance(source, SSOConfig) else SSOConfig.from_settings(source)
     base_api_kwargs.setdefault("timeout", resolved.timeout)

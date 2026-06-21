@@ -48,8 +48,6 @@ def discover_jwks_uri(issuer: str, *, verify_ssl: bool = True, timeout: float = 
     jwks_uri = document.get("jwks_uri")
     if not jwks_uri:
         logger.warning("OIDC discovery document at {} has no 'jwks_uri'.", well_known)
-        raise AuthConfigError(
-            f"OIDC discovery document at {well_known} has no 'jwks_uri'."
-        )
+        raise AuthConfigError(f"OIDC discovery document at {well_known} has no 'jwks_uri'.")
     logger.debug("OIDC discovery for {} resolved jwks_uri={}.", issuer, jwks_uri)
     return jwks_uri

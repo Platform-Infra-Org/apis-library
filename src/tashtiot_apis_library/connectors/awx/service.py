@@ -8,8 +8,7 @@ from typing import Any, Dict, Optional
 from loguru import logger
 
 from .client import AWXClient
-from .models import AWXJob, AWXJobStatus, AWXWorkflowJob, AWXOperationResponse
-from ..errors import AWXError
+from .models import AWXOperationResponse
 
 __all__ = ["AWX", "logger"]
 
@@ -52,7 +51,7 @@ class AWX:
             inventory=inventory,
             limit=limit,
         )
-        
+
         status = job.status.value if hasattr(job.status, "value") else str(job.status)
 
         return AWXOperationResponse(
@@ -111,7 +110,7 @@ class AWX:
         """
         logger.debug(f"Getting status for job {job_id}")
         job = await self.client.get_job_status(job_id)
-        
+
         status = job.status.value if hasattr(job.status, "value") else str(job.status)
 
         return AWXOperationResponse(
@@ -132,7 +131,7 @@ class AWX:
         """
         logger.debug(f"Getting status for workflow job {workflow_job_id}")
         job = await self.client.get_workflow_job_status(workflow_job_id)
-        
+
         status = job.status.value if hasattr(job.status, "value") else str(job.status)
 
         return AWXOperationResponse(
@@ -200,9 +199,7 @@ class AWX:
         Raises:
             TimeoutError: If workflow doesn't complete within timeout
         """
-        logger.info(
-            f"Waiting for workflow job {workflow_job_id} to complete (timeout={timeout}s)"
-        )
+        logger.info(f"Waiting for workflow job {workflow_job_id} to complete (timeout={timeout}s)")
 
         elapsed = 0
         while elapsed < timeout:

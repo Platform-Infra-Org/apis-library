@@ -3,6 +3,7 @@
 This module provides a reusable FastAPI application factory with built-in
 middleware, monitoring, and documentation support.
 """
+
 from ._internal import general_create_app, settings
 
 __all__ = ["general_create_app", "settings", "enable_remote_config_api"]

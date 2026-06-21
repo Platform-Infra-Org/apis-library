@@ -35,9 +35,7 @@ def add_middlewares(
         verifier = get_verifier(settings)  # raises AuthConfigError on misconfig
         app.add_middleware(AuthMiddleware, verifier=verifier)
     elif enable_auth and not settings.AUTH_ENABLED:
-        logger.debug(
-            "enable_auth=True but AUTH_ENABLED is false; auth middleware not registered."
-        )
+        logger.debug("enable_auth=True but AUTH_ENABLED is false; auth middleware not registered.")
 
     if enable_request_timing:
         app.add_middleware(TimeRequestsMiddleware)

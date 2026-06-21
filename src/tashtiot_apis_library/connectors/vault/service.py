@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from typing import Mapping, Union
 
-from pydantic import BaseModel
 from loguru import logger
+from pydantic import BaseModel
 
 from .client import VaultClient
 from .models import VaultSecret, VaultSecretPayload

@@ -47,10 +47,14 @@ __all__ = [
 def derive_public_pem(private_pem: str) -> str:
     """Return the SubjectPublicKeyInfo PEM derived from a private key PEM."""
     private_key = serialization.load_pem_private_key(private_pem.encode(), password=None)
-    return private_key.public_key().public_bytes(
-        serialization.Encoding.PEM,
-        serialization.PublicFormat.SubjectPublicKeyInfo,
-    ).decode()
+    return (
+        private_key.public_key()
+        .public_bytes(
+            serialization.Encoding.PEM,
+            serialization.PublicFormat.SubjectPublicKeyInfo,
+        )
+        .decode()
+    )
 
 
 def generate_keypair(key_size: int = 2048) -> Tuple[str, str]:
@@ -64,9 +68,7 @@ def generate_keypair(key_size: int = 2048) -> Tuple[str, str]:
     return private_pem, derive_public_pem(private_pem)
 
 
-def load_keypair(
-    private_path: str, public_path: Optional[str] = None
-) -> Tuple[str, str]:
+def load_keypair(private_path: str, public_path: Optional[str] = None) -> Tuple[str, str]:
     """Load an existing private key (required, used to sign) and its public key.
 
     The public key is read from ``public_path`` when given, otherwise derived
@@ -135,7 +137,9 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--out-dir", default=".", help="Directory for the .pem files.")
     parser.add_argument("--private-name", default="jwt_private.pem", help="Private key filename.")
     parser.add_argument("--public-name", default="jwt_public.pem", help="Public key filename.")
-    parser.add_argument("--no-write", action="store_true", help="Print only; do not write key files.")
+    parser.add_argument(
+        "--no-write", action="store_true", help="Print only; do not write key files."
+    )
     parser.add_argument(
         "--private-key",
         default=None,
@@ -155,7 +159,9 @@ def main(argv: Optional[list] = None) -> None:
     args = parser.parse_args(argv)
 
     if args.public_key is not None and args.private_key is None:
-        parser.error("--public-key requires --private-key (the private key is needed to sign the JWT).")
+        parser.error(
+            "--public-key requires --private-key (the private key is needed to sign the JWT)."
+        )
 
     # Reuse existing keys when given, else generate a fresh pair. Existing keys
     # are never written back (they already live on disk); only generated keys are.

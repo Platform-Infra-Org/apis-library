@@ -1,16 +1,14 @@
-from typing import Callable, Type, Awaitable, Union
-from pydantic import BaseModel
+from typing import Awaitable, Callable, Type, Union
 
-from fastapi import Request, HTTPException
+from fastapi import HTTPException, Request
 from fastapi.exceptions import ValidationException, WebSocketException
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 
 exception_type = Union[
-    Type[Exception],
-    Type[HTTPException],
-    Type[ValidationException],
-    Type[WebSocketException]
+    Type[Exception], Type[HTTPException], Type[ValidationException], Type[WebSocketException]
 ]
+
 
 class ExceptionHandlerConfig(BaseModel):
     exception_class: exception_type
