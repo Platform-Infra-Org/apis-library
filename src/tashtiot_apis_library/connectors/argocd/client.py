@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 from typing import Any, Mapping, Union
 
+import httpx
 from pydantic import BaseModel
 
 from tashtiot_apis_library.fastapi_template.utils import BaseAPI
@@ -51,24 +52,47 @@ def _handle_response(response_json: Mapping[str, Any], status_code: int) -> None
 class ArgoCDClient:
     """Low level client responsible for calling Argo CD endpoints."""
 
-    def __init__(self, base_url: str, api_key: str) -> None:
+    def __init__(
+        self,
+        base_url: str,
+        api_key: str,
+    ) -> None:
         headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
         self.api = BaseAPI(base_url.rstrip("/"), headers=headers).client
 
+    @staticmethod
+    async def login(base_url: str, username: str, password: str) -> str:
+        async with httpx.AsyncClient(base_url=base_url.rstrip("/"), verify=False, timeout=30.0) as client:
+            response = await client.post("/api/v1/session", json={"username": username, "password": password})
+            if response.status_code != 200:
+                raise ArgoCDError(status_code=response.status_code, detail=f"ArgoCD login failed: {response.text}")
+            return response.json()["token"]
+
     async def sync_app(self, app_name: str) -> None:
         uri = f"/api/v1/applications/{app_name}/sync"
-
         response = await self.api.post(uri, json={})
         response_json = response.json()
         _handle_response(response_json, response.status_code)
 
     async def get_app(self, app_name: str) -> ArgoApplication:
         uri = f"/api/v1/applications/{app_name}"
-
         response = await self.api.get(uri)
         response_json = response.json()
         _handle_response(response_json, response.status_code)
         return ArgoApplication.model_validate(response_json)
+
+    async def create_app(self, app_body: dict[str, Any], validate: bool = True) -> None:
+        uri = "/api/v1/applications"
+        params = {} if validate else {"validate": "false"}
+        response = await self.api.post(uri, json=app_body, params=params)
+        response_json = response.json()
+        _handle_response(response_json, response.status_code)
+
+    async def delete_app(self, app_name: str, namespace: str) -> None:
+        uri = f"/api/v1/applications/{app_name}"
+        response = await self.api.delete(uri, params={"appNamespace": namespace})
+        response_json = response.json()
+        _handle_response(response_json, response.status_code)
 
     async def patch_app(
         self,

@@ -91,6 +91,7 @@ class GitClient:
         repo_slug: str,
         default_ref: str = "main",
         ssh_key_file_path: str = "/etc/.ssh/private_key",
+        ssh_port: int = 7999,
     ) -> None:
         headers = {
             "Authorization": f"Bearer {token}",
@@ -100,7 +101,13 @@ class GitClient:
         self.repo_slug = repo_slug
         self._default_ref = default_ref
         self.project_key = project_key
-        self.ssh_host = f'{base_url.replace("https://", "").split("/")[0]}:7995'
+        # Strip both http:// and https:// before parsing the hostname.
+        # The original code only stripped "https://", so an http:// base_url produced
+        # "http:" as the hostname component, making ssh_host = "http::7999" — an invalid address.
+        # We also split off any port that may already be embedded in the base_url hostname
+        # so we can replace it cleanly with the caller-supplied ssh_port.
+        _host = base_url.replace("https://", "").replace("http://", "").split("/")[0]
+        self.ssh_host = f'{_host.split(":")[0]}:{ssh_port}'
 
         self._git_env = os.environ.copy()
         self._git_env["GIT_SSH_COMMAND"] = f"ssh -i {ssh_key_file_path} -o StrictHostKeyChecking=no"
@@ -117,9 +124,14 @@ class GitClient:
         meta_data = _safe_json(meta_response)
         _handle_response(meta_data, meta_response.status_code)
         
-        # Get raw content
+        # Get raw content.
+        # Previously this call included headers={"Accept": "application/octet-stream"}.
+        # Bitbucket Server 8.19.5 returns 406 for that header on the browse endpoint,
+        # so we let the client's default Accept: application/json take effect instead.
+        # The response comes back as a JSON lines object; content_bytes below will be
+        # the JSON bytes, which is sufficient for existence checks and base64 encoding.
         raw_params = {"at": ref, "raw": 1}
-        raw_response = await self.api.get(endpoint, params=raw_params, headers={"Accept": "application/octet-stream"})
+        raw_response = await self.api.get(endpoint, params=raw_params)
         _handle_response(_safe_json(raw_response), raw_response.status_code)
         content_bytes = raw_response.content
         

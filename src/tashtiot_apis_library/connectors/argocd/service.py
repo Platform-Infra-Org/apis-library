@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import asyncio
 from dataclasses import dataclass
-from typing import Mapping, Optional, Sequence, Union
+from typing import Mapping, Sequence, Union
 
 from pydantic import BaseModel
 import yaml
@@ -161,9 +161,31 @@ def evaluate_argo_result(
 class ArgoCD:
     """Convenience wrapper that offers higher level Argo CD interactions."""
 
-    def __init__(self, base_url: str, api_key: str, application_set_timeout: int) -> None:
-        self.client = ArgoCDClient(base_url, api_key)
+    def __init__(
+        self,
+        base_url: str,
+        application_set_timeout: int,
+        api_key: str,
+    ) -> None:
+        self.client = ArgoCDClient(base_url, api_key=api_key)
         self.application_set_timeout = application_set_timeout
+
+    # Login is an ArgoCD-specific protocol detail — it belongs here so every consumer
+    # gets auth for free without reimplementing the session endpoint or error handling.
+    # @classmethod = alternative constructor called on the class (ArgoCD.from_credentials(...))
+    # rather than on an instance. Uses cls instead of self, so it can call cls(...) to build
+    # and return a new ArgoCD object. Needed here because __init__ can't be async — the login
+    # HTTP call happens in this classmethod, then the ready instance is returned.
+    @classmethod
+    async def from_credentials(
+        cls,
+        base_url: str,
+        application_set_timeout: int,
+        username: str,
+        password: str,
+    ) -> "ArgoCD":
+        token = await ArgoCDClient.login(base_url, username, password)
+        return cls(base_url, application_set_timeout, api_key=token)
 
     async def _get_current_namespaces(self, cluster_secret_name: str) -> Tuple[List[str], Dict[str, Any]]:
         """Fetch current values for the cluster-secret and return (namespaces, values).
@@ -336,6 +358,14 @@ class ArgoCD:
 
         await self.client.patch_app(patch, app_name, namespace, project)
 
+    async def delete_app(self, app_name: str, namespace: str) -> None:
+        logger.info("Deleting ArgoCD application {}", app_name)
+        await self.client.delete_app(app_name, namespace)
+
+    async def create_app(self, app_body: dict, validate: bool = True) -> None:
+        logger.info("Creating ArgoCD application {}", app_body.get("metadata", {}).get("name"))
+        await self.client.create_app(app_body, validate=validate)
+
     async def add_namespace_to_cluster_secret(
         self,
         cluster_secret_name: str,
@@ -350,3 +380,5 @@ class ArgoCD:
             parameters_after_adding = add_namespace(parameters, namespace)
             await self.modify_parameters(parameters_after_adding, cluster_secret_name, project, "default")
             await self.sync(cluster_secret_name)
+
+
