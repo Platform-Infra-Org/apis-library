@@ -17,7 +17,7 @@ app = general_create_app()
 provider = enable_remote_config_api(
     app,
     base_url="https://config-api.example.com",  # where the upstream lives
-    remote_prefix="/api/v1",                     # upstream prefix serving /projects, /config, /naming
+    remote_prefix="/api/v1",                     # upstream prefix serving /projects, /config, /naming, /coordinates
     config_path="/config",                       # your route whose coordinate params get enum dropdowns
     naming_path="/naming",
 )

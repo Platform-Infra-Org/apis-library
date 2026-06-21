@@ -36,6 +36,10 @@ change), and modernizes packaging, tooling, and documentation.
   in-memory caching, a background allowlist poller, live OpenAPI `enum` dropdowns, a
   coordinate-validation→422 handler, and selectable `CONFIG_REMOTE_*` outbound auth (`sso`/`bearer`/
   `none`).
+- Coordinate discovery: `RemoteConfigProvider.get_coordinate_catalog()` proxies the upstream
+  `/coordinates` route and returns a `CoordinateCatalogResponse` — the valid values per coordinate
+  level (`space`/`network`/`region`/`island`/`environment`) plus the project list — for clients to
+  discover allowed coordinates.
 
 **Public API**
 - New public modules `fastapi_template.auth` (inbound JWT) and `fastapi_template.security` (outbound
