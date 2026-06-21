@@ -1,13 +1,13 @@
 """Generate RSA key material and signed JWTs for exercising inbound auth.
 
-This is the *signing* counterpart to :mod:`.verifier`. The verifier checks
+This is the *signing* counterpart to `.verifier`. The verifier checks
 incoming bearer tokens against configured material; in offline local-pubkey
 mode (``AUTH_PUBLIC_KEY_PEM`` / ``AUTH_PUBLIC_KEY_PATH``) it verifies the
 signature with a public key while tokens are signed with the matching private
 key. The helpers here produce all three: the private key (sign side), the
 public key (verify side), and a ready-to-use token.
 
-Use it as a library::
+Use it as a library:
 
     from tashtiot_apis_library.fastapi_template.auth import (
         generate_keypair, mint_token,
@@ -16,7 +16,7 @@ Use it as a library::
     private_pem, public_pem = generate_keypair()
     token = mint_token(private_pem, subject="local-dev")
 
-or as a CLI::
+or as a CLI:
 
     python -m tashtiot_apis_library.fastapi_template._internal.security.keygen
     python -m ...keygen --sub svc --aud my-api --iss https://idp/

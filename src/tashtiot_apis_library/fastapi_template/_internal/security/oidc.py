@@ -1,6 +1,6 @@
 """OIDC discovery for inbound JWT verification.
 
-The :mod:`.verifier` JWKS mode needs the provider's ``jwks_uri`` to fetch signing
+The `.verifier` JWKS mode needs the provider's ``jwks_uri`` to fetch signing
 keys. Rather than make every operator look that URL up, this resolves it from the
 issuer's well-known document (OpenID Connect Discovery / RFC 8414), so configuring
 ``AUTH_OIDC_ISSUER`` alone is enough to verify tokens against any standards-

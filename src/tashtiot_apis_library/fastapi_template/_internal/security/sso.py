@@ -1,15 +1,15 @@
 """Outbound SSO authentication via the OAuth2 client_credentials grant.
 
-This is the *client* (token-requesting) counterpart to :mod:`.verifier` (which
+This is the *client* (token-requesting) counterpart to `.verifier` (which
 *verifies* inbound tokens). A service built on this library uses it to obtain a
 bearer token for calling other protected services, with credentials supplied via
 the ``AUTH_SSO_*`` settings.
 
 Three pieces, layered like the connectors (model -> client -> high level):
 
-* :class:`TokenResponse` -- the parsed token endpoint response.
-* :class:`SSOTokenClient` -- fetches, caches, and refreshes the access token.
-* :class:`SSOClientCredentialsAuth` -- an :class:`httpx.Auth` that injects the
+* [`TokenResponse`][tashtiot_apis_library.fastapi_template._internal.security.sso.TokenResponse] -- the parsed token endpoint response.
+* [`SSOTokenClient`][tashtiot_apis_library.fastapi_template._internal.security.sso.SSOTokenClient] -- fetches, caches, and refreshes the access token.
+* [`SSOClientCredentialsAuth`][tashtiot_apis_library.fastapi_template._internal.security.sso.SSOClientCredentialsAuth] -- an `httpx.Auth` that injects the
   bearer on every request and refreshes it on ``401``.
 
 ``client_credentials`` issues no OAuth2 refresh token (RFC 6749 section 4.4.3):
@@ -20,7 +20,7 @@ Downstream audience (``aud``) is provider-specific and decided at the token
 endpoint, not at the call site:
 
 * Auth0-style providers honor the ``audience`` request parameter -> set
-  ``AUTH_SSO_AUDIENCE`` (sent below in :meth:`SSOTokenClient._request_kwargs`).
+  ``AUTH_SSO_AUDIENCE`` (sent below in `SSOTokenClient._request_kwargs`).
 * **Keycloak ignores the ``audience`` parameter.** Configure an Audience protocol
   mapper on a Keycloak client scope and request that scope via ``AUTH_SSO_SCOPE``;
   the issued token then carries the right ``aud``. See the README's "Outbound SSO"
@@ -58,8 +58,8 @@ _DEFAULT_TTL_SECONDS = 60
 class SSOConfig(BaseModel):
     """Client-side OAuth2 ``client_credentials`` configuration.
 
-    Pass an explicit instance to the SSO helpers (:func:`sso_authenticated_api`,
-    :func:`sso_auth`, :class:`SSOTokenClient`) to mint tokens for a specific
+    Pass an explicit instance to the SSO helpers ([`sso_authenticated_api`][tashtiot_apis_library.fastapi_template._internal.security.sso.sso_authenticated_api],
+    [`sso_auth`][tashtiot_apis_library.fastapi_template._internal.security.sso.sso_auth], [`SSOTokenClient`][tashtiot_apis_library.fastapi_template._internal.security.sso.SSOTokenClient]) to mint tokens for a specific
     identity/audience **independently of the package settings singleton** -- so a
     single process can talk to several upstreams that each require a different
     audience or even a different SSO. Build one instance per remote and reuse it,
@@ -67,7 +67,7 @@ class SSOConfig(BaseModel):
 
     The required fields default to ``None`` rather than being mandatory so a
     partially-configured instance still constructs and is validated by
-    :class:`SSOTokenClient` (which raises a clear :class:`AuthConfigError`),
+    [`SSOTokenClient`][tashtiot_apis_library.fastapi_template._internal.security.sso.SSOTokenClient] (which raises a clear [`AuthConfigError`][tashtiot_apis_library.fastapi_template._internal.security.errors.AuthConfigError]),
     mirroring the settings-driven path.
     """
 
@@ -83,10 +83,10 @@ class SSOConfig(BaseModel):
 
     @classmethod
     def from_settings(cls, settings: Any) -> "SSOConfig":
-        """Build an :class:`SSOConfig` from a settings object's ``AUTH_SSO_*`` knobs.
+        """Build an [`SSOConfig`][tashtiot_apis_library.fastapi_template._internal.security.sso.SSOConfig] from a settings object's ``AUTH_SSO_*`` knobs.
 
         This is the bridge that keeps the legacy singleton-driven path working: a
-        settings object is just one source of an :class:`SSOConfig`.
+        settings object is just one source of an [`SSOConfig`][tashtiot_apis_library.fastapi_template._internal.security.sso.SSOConfig].
         """
         return cls(
             token_url=settings.AUTH_SSO_TOKEN_URL,
@@ -115,9 +115,9 @@ class TokenResponse(BaseModel):
 class SSOTokenClient:
     """Fetches and caches an access token via the client_credentials grant.
 
-    Built once per settings object (see :func:`get_sso_token_client`) so the token
+    Built once per settings object (see [`get_sso_token_client`][tashtiot_apis_library.fastapi_template._internal.security.sso.get_sso_token_client]) so the token
     cache is shared across callers. Concurrent refreshes are serialised with an
-    :class:`asyncio.Lock` so a token expiry does not stampede the provider.
+    `asyncio.Lock` so a token expiry does not stampede the provider.
     """
 
     def __init__(self, config: Any) -> None:
@@ -238,7 +238,7 @@ class SSOTokenClient:
 class SSOClientCredentialsAuth(httpx.Auth):
     """httpx auth that injects (and refreshes) an SSO bearer token per request.
 
-    Plug into any async httpx client -- including :class:`BaseAPI` via
+    Plug into any async httpx client -- including [`BaseAPI`][tashtiot_apis_library.fastapi_template._internal.database.basic_api.BaseAPI] via
     ``BaseAPI(url, auth=...)`` -- to authenticate outbound calls. On a ``401`` it
     forces one token refresh and retries the request once.
     """
@@ -271,7 +271,7 @@ class SSOClientCredentialsAuth(httpx.Auth):
 class StaticBearerAuth(httpx.Auth):
     """httpx auth that attaches a fixed bearer token on every request.
 
-    Unlike :class:`SSOClientCredentialsAuth` there is no token endpoint and no
+    Unlike [`SSOClientCredentialsAuth`][tashtiot_apis_library.fastapi_template._internal.security.sso.SSOClientCredentialsAuth] there is no token endpoint and no
     refresh -- the token is supplied verbatim. Handy for upstreams secured by a
     long-lived service token. Works for both sync and async clients.
     """
@@ -288,13 +288,13 @@ _token_client_cache: Dict[int, SSOTokenClient] = {}
 
 
 def get_sso_token_client(source: Any = None) -> SSOTokenClient:
-    """Return a memoized :class:`SSOTokenClient` for ``source``.
+    """Return a memoized [`SSOTokenClient`][tashtiot_apis_library.fastapi_template._internal.security.sso.SSOTokenClient] for ``source``.
 
-    ``source`` may be an explicit :class:`SSOConfig` (client-side config), a
+    ``source`` may be an explicit [`SSOConfig`][tashtiot_apis_library.fastapi_template._internal.security.sso.SSOConfig] (client-side config), a
     settings object exposing ``AUTH_SSO_*`` (legacy singleton path), or ``None``
     to use the package ``settings``. Memoizing by object identity keeps the token
     cache shared across all callers passing the same object -- so build one
-    :class:`SSOConfig` per remote and reuse it.
+    [`SSOConfig`][tashtiot_apis_library.fastapi_template._internal.security.sso.SSOConfig] per remote and reuse it.
     """
     if source is None:
         source = default_settings
@@ -306,10 +306,10 @@ def get_sso_token_client(source: Any = None) -> SSOTokenClient:
 
 
 def sso_auth(source: Any = None) -> SSOClientCredentialsAuth:
-    """Return an :class:`httpx.Auth` backed by the shared SSO token client.
+    """Return an `httpx.Auth` backed by the shared SSO token client.
 
-    ``source`` is an :class:`SSOConfig`, a settings object, or ``None`` (package
-    settings) -- see :func:`get_sso_token_client`.
+    ``source`` is an [`SSOConfig`][tashtiot_apis_library.fastapi_template._internal.security.sso.SSOConfig], a settings object, or ``None`` (package
+    settings) -- see [`get_sso_token_client`][tashtiot_apis_library.fastapi_template._internal.security.sso.get_sso_token_client].
     """
     return SSOClientCredentialsAuth(get_sso_token_client(source))
 
@@ -321,10 +321,10 @@ def sso_authenticated_api(
     settings: Any = None,
     **base_api_kwargs: Any,
 ):
-    """Return a :class:`BaseAPI` whose every request carries a fresh SSO token.
+    """Return a [`BaseAPI`][tashtiot_apis_library.fastapi_template._internal.database.basic_api.BaseAPI] whose every request carries a fresh SSO token.
 
     The connector-style outbound client (``async with`` it for a reusable
-    ``httpx.AsyncClient``) with automatic per-request token injection/refresh::
+    ``httpx.AsyncClient``) with automatic per-request token injection/refresh:
 
         cfg = SSOConfig(token_url=..., client_id=..., client_secret=..., audience=...)
         async with sso_authenticated_api("https://downstream.example.com", config=cfg) as client:
@@ -332,7 +332,7 @@ def sso_authenticated_api(
 
     Pass ``config`` (client-side, preferred) to target a specific identity/audience;
     omit it to fall back to ``settings`` (or the package singleton). Extra keyword
-    args pass through to :class:`BaseAPI` (e.g. ``headers``, ``timeout``, ``verify``).
+    args pass through to [`BaseAPI`][tashtiot_apis_library.fastapi_template._internal.database.basic_api.BaseAPI] (e.g. ``headers``, ``timeout``, ``verify``).
     """
     from ..database import BaseAPI
 

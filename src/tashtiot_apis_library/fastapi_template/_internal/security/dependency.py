@@ -1,6 +1,6 @@
 """Reusable FastAPI dependency for reading the authenticated identity.
 
-Routes that want the verified JWT claims can declare::
+Routes that want the verified JWT claims can declare:
 
     from tashtiot_apis_library.fastapi_template.auth import get_current_claims
 
@@ -9,7 +9,7 @@ Routes that want the verified JWT claims can declare::
         return claims
 
 This module intentionally does not import PyJWT -- it only reads the claims that
-:class:`AuthMiddleware` placed on ``request.state.user``.
+`AuthMiddleware` placed on ``request.state.user``.
 """
 
 from __future__ import annotations

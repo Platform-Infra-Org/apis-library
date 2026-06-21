@@ -14,7 +14,7 @@ __all__ = ["Vault", "logger"]
 
 
 class Vault:
-    """Higher level wrapper around :class:`VaultClient`."""
+    """Higher level wrapper around `VaultClient`."""
 
     def __init__(self, base_url: str, token: str) -> None:
         self.client = VaultClient(base_url, token)

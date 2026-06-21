@@ -1,7 +1,7 @@
 """Public inbound-JWT auth helpers for the FastAPI template.
 
 The stable public home for inbound JWT verification and dev key/token minting
-(mirroring ``security.py`` for outbound SSO and ``errors.py`` for auth errors)::
+(mirroring ``security.py`` for outbound SSO and ``errors.py`` for auth errors):
 
     from tashtiot_apis_library.fastapi_template.auth import get_current_claims, verify_token
 

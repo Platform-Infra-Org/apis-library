@@ -43,9 +43,9 @@ def enable_remote_config_api(
         ``enum`` dropdowns injected.
     settings:
         Package-side ``CONFIG_REMOTE_*`` settings driving the outbound auth method;
-        defaults to a freshly-read :class:`ConfigRemoteSettings`.
+        defaults to a freshly-read [`ConfigRemoteSettings`][tashtiot_apis_library.fastapi_template.config_api.conf.ConfigRemoteSettings].
     auth:
-        Explicit outbound :class:`httpx.Auth` that overrides ``settings`` (escape
+        Explicit outbound `httpx.Auth` that overrides ``settings`` (escape
         hatch / tests). When given, ``settings`` is not consulted for auth.
     enable_polling:
         Register the background allowlist poller (the task is appended to

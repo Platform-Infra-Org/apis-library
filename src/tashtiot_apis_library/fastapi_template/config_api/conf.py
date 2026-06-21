@@ -2,7 +2,7 @@
 
 The provider itself lives in the library, so the knobs governing **how it
 authenticates to its upstream** live here too -- but the method is selectable.
-Unlike the generic, now client-side SSO (:class:`SSOConfig`), these are read from
+Unlike the generic, now client-side SSO ([`SSOConfig`][tashtiot_apis_library.fastapi_template._internal.security.sso.SSOConfig]), these are read from
 the environment via ``CONFIG_REMOTE_*`` so a deployment can pick SSO, a static
 bearer, or no auth without code changes.
 """
@@ -29,7 +29,7 @@ class ConfigRemoteSettings(BaseSettings):
     ``CONFIG_REMOTE_AUTH_METHOD`` selects the strategy:
 
     * ``"sso"`` -- OAuth2 ``client_credentials`` bearer minted from the
-      ``CONFIG_REMOTE_SSO_*`` knobs (client-side :class:`SSOConfig`).
+      ``CONFIG_REMOTE_SSO_*`` knobs (client-side [`SSOConfig`][tashtiot_apis_library.fastapi_template._internal.security.sso.SSOConfig]).
     * ``"bearer"`` -- a fixed ``CONFIG_REMOTE_BEARER_TOKEN``.
     * ``"none"`` -- no auth (plain HTTP; e.g. in-cluster / mesh-secured / local dev).
     """
@@ -81,7 +81,7 @@ class ConfigRemoteSettings(BaseSettings):
     )
 
     def sso_config(self) -> SSOConfig:
-        """Build the client-side :class:`SSOConfig` from the ``CONFIG_REMOTE_SSO_*`` knobs."""
+        """Build the client-side [`SSOConfig`][tashtiot_apis_library.fastapi_template._internal.security.sso.SSOConfig] from the ``CONFIG_REMOTE_SSO_*`` knobs."""
         return SSOConfig(
             token_url=self.CONFIG_REMOTE_SSO_TOKEN_URL,
             client_id=self.CONFIG_REMOTE_SSO_CLIENT_ID,
@@ -98,7 +98,7 @@ class ConfigRemoteSettings(BaseSettings):
         """Resolve ``(auth, base_api_kwargs)`` for the configured method.
 
         ``base_api_kwargs`` carries any ``timeout``/``verify`` defaults that should
-        flow into the provider's outbound client. Raises :class:`AuthConfigError`
+        flow into the provider's outbound client. Raises [`AuthConfigError`][tashtiot_apis_library.fastapi_template._internal.security.errors.AuthConfigError]
         when the chosen method is missing its required configuration.
         """
         method = (self.CONFIG_REMOTE_AUTH_METHOD or "sso").lower()

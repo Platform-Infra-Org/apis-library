@@ -112,7 +112,7 @@ def evaluate_argo_result(
     app_status: Optional[Union[ArgoApplicationStatus, Mapping[str, object]]],
 ) -> ArgoApplicationEvaluation:
     """
-    Evaluate ArgoCD Application status and return an :class:`ArgoApplicationEvaluation`.
+    Evaluate ArgoCD Application status and return an `ArgoApplicationEvaluation`.
     """
     status = _load_status(app_status)
     sync_status = status.sync.status if status.sync else None

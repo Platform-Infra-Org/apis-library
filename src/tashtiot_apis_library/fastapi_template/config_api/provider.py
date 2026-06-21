@@ -28,10 +28,10 @@ class RemoteConfigProvider:
     parameters and returns the upstream's resolved payload.
 
     **Pluggable auth.** Outbound requests authenticate via the injected
-    ``auth`` (an :class:`httpx.Auth`), so the caller chooses the method --
+    ``auth`` (an `httpx.Auth`), so the caller chooses the method --
     client-side SSO (``sso_auth(config=...)``), a static bearer
-    (:class:`StaticBearerAuth`), or ``None`` for anonymous access. The library's
-    :func:`enable_remote_config_api` resolves this from the package-side
+    ([`StaticBearerAuth`][tashtiot_apis_library.fastapi_template._internal.security.sso.StaticBearerAuth]), or ``None`` for anonymous access. The library's
+    [`enable_remote_config_api`][tashtiot_apis_library.fastapi_template.config_api.wiring.enable_remote_config_api] resolves this from the package-side
     ``CONFIG_REMOTE_*`` settings; tests/callers may pass an ``auth`` directly.
     """
 
