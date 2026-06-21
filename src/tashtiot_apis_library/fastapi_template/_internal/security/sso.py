@@ -37,6 +37,7 @@ import httpx
 from loguru import logger
 from pydantic import BaseModel, ConfigDict
 
+from ..database import BaseAPI
 from ..utils import settings as default_settings
 from .errors import AuthConfigError, SSOError
 
@@ -201,8 +202,6 @@ class SSOTokenClient:
     async def _fetch(self) -> TokenResponse:
         config = self._config
         # Use the same outbound HTTP wrapper the connectors use.
-        from ..database import BaseAPI
-
         api = BaseAPI(
             config.token_url,
             timeout=config.timeout,
@@ -238,7 +237,7 @@ class SSOTokenClient:
 class SSOClientCredentialsAuth(httpx.Auth):
     """httpx auth that injects (and refreshes) an SSO bearer token per request.
 
-    Plug into any async httpx client -- including [`BaseAPI`][tashtiot_apis_library.fastapi_template._internal.database.basic_api.BaseAPI] via
+    Plug into any async httpx client -- including [`BaseAPI`][BaseAPI] via
     ``BaseAPI(url, auth=...)`` -- to authenticate outbound calls. On a ``401`` it
     forces one token refresh and retries the request once.
     """
@@ -321,7 +320,7 @@ def sso_authenticated_api(
     settings: Any = None,
     **base_api_kwargs: Any,
 ):
-    """Return a [`BaseAPI`][tashtiot_apis_library.fastapi_template._internal.database.basic_api.BaseAPI] whose every request carries a fresh SSO token.
+    """Return a [`BaseAPI`][BaseAPI] whose every request carries a fresh SSO token.
 
     The connector-style outbound client (``async with`` it for a reusable
     ``httpx.AsyncClient``) with automatic per-request token injection/refresh:
@@ -332,10 +331,8 @@ def sso_authenticated_api(
 
     Pass ``config`` (client-side, preferred) to target a specific identity/audience;
     omit it to fall back to ``settings`` (or the package singleton). Extra keyword
-    args pass through to [`BaseAPI`][tashtiot_apis_library.fastapi_template._internal.database.basic_api.BaseAPI] (e.g. ``headers``, ``timeout``, ``verify``).
+    args pass through to [`BaseAPI`][BaseAPI] (e.g. ``headers``, ``timeout``, ``verify``).
     """
-    from ..database import BaseAPI
-
     # The object handed to the token client (identity drives token-cache sharing).
     source = (
         config if config is not None else (settings if settings is not None else default_settings)
