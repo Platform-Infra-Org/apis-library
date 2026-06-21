@@ -45,6 +45,7 @@ plugins:
             show_signature_annotations: true
             merge_init_into_class: true
             filters: ["!^_"]
+            scoped_crossrefs: true     # resolve [`Name`][Name] cross-refs up the scope chain
 
 markdown_extensions:
   - admonition

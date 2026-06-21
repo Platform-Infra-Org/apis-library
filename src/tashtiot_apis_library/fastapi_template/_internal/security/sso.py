@@ -7,9 +7,9 @@ the ``AUTH_SSO_*`` settings.
 
 Three pieces, layered like the connectors (model -> client -> high level):
 
-* [`TokenResponse`][tashtiot_apis_library.fastapi_template._internal.security.sso.TokenResponse] -- the parsed token endpoint response.
-* [`SSOTokenClient`][tashtiot_apis_library.fastapi_template._internal.security.sso.SSOTokenClient] -- fetches, caches, and refreshes the access token.
-* [`SSOClientCredentialsAuth`][tashtiot_apis_library.fastapi_template._internal.security.sso.SSOClientCredentialsAuth] -- an `httpx.Auth` that injects the
+* [`TokenResponse`][TokenResponse] -- the parsed token endpoint response.
+* [`SSOTokenClient`][SSOTokenClient] -- fetches, caches, and refreshes the access token.
+* [`SSOClientCredentialsAuth`][SSOClientCredentialsAuth] -- an `httpx.Auth` that injects the
   bearer on every request and refreshes it on ``401``.
 
 ``client_credentials`` issues no OAuth2 refresh token (RFC 6749 section 4.4.3):
@@ -58,8 +58,8 @@ _DEFAULT_TTL_SECONDS = 60
 class SSOConfig(BaseModel):
     """Client-side OAuth2 ``client_credentials`` configuration.
 
-    Pass an explicit instance to the SSO helpers ([`sso_authenticated_api`][tashtiot_apis_library.fastapi_template._internal.security.sso.sso_authenticated_api],
-    [`sso_auth`][tashtiot_apis_library.fastapi_template._internal.security.sso.sso_auth], [`SSOTokenClient`][tashtiot_apis_library.fastapi_template._internal.security.sso.SSOTokenClient]) to mint tokens for a specific
+    Pass an explicit instance to the SSO helpers ([`sso_authenticated_api`][sso_authenticated_api],
+    [`sso_auth`][sso_auth], [`SSOTokenClient`][SSOTokenClient]) to mint tokens for a specific
     identity/audience **independently of the package settings singleton** -- so a
     single process can talk to several upstreams that each require a different
     audience or even a different SSO. Build one instance per remote and reuse it,
@@ -67,7 +67,7 @@ class SSOConfig(BaseModel):
 
     The required fields default to ``None`` rather than being mandatory so a
     partially-configured instance still constructs and is validated by
-    [`SSOTokenClient`][tashtiot_apis_library.fastapi_template._internal.security.sso.SSOTokenClient] (which raises a clear [`AuthConfigError`][tashtiot_apis_library.fastapi_template._internal.security.errors.AuthConfigError]),
+    [`SSOTokenClient`][SSOTokenClient] (which raises a clear [`AuthConfigError`][AuthConfigError]),
     mirroring the settings-driven path.
     """
 
@@ -83,10 +83,10 @@ class SSOConfig(BaseModel):
 
     @classmethod
     def from_settings(cls, settings: Any) -> "SSOConfig":
-        """Build an [`SSOConfig`][tashtiot_apis_library.fastapi_template._internal.security.sso.SSOConfig] from a settings object's ``AUTH_SSO_*`` knobs.
+        """Build an [`SSOConfig`][SSOConfig] from a settings object's ``AUTH_SSO_*`` knobs.
 
         This is the bridge that keeps the legacy singleton-driven path working: a
-        settings object is just one source of an [`SSOConfig`][tashtiot_apis_library.fastapi_template._internal.security.sso.SSOConfig].
+        settings object is just one source of an [`SSOConfig`][SSOConfig].
         """
         return cls(
             token_url=settings.AUTH_SSO_TOKEN_URL,
@@ -115,7 +115,7 @@ class TokenResponse(BaseModel):
 class SSOTokenClient:
     """Fetches and caches an access token via the client_credentials grant.
 
-    Built once per settings object (see [`get_sso_token_client`][tashtiot_apis_library.fastapi_template._internal.security.sso.get_sso_token_client]) so the token
+    Built once per settings object (see [`get_sso_token_client`][get_sso_token_client]) so the token
     cache is shared across callers. Concurrent refreshes are serialised with an
     `asyncio.Lock` so a token expiry does not stampede the provider.
     """
@@ -271,7 +271,7 @@ class SSOClientCredentialsAuth(httpx.Auth):
 class StaticBearerAuth(httpx.Auth):
     """httpx auth that attaches a fixed bearer token on every request.
 
-    Unlike [`SSOClientCredentialsAuth`][tashtiot_apis_library.fastapi_template._internal.security.sso.SSOClientCredentialsAuth] there is no token endpoint and no
+    Unlike [`SSOClientCredentialsAuth`][SSOClientCredentialsAuth] there is no token endpoint and no
     refresh -- the token is supplied verbatim. Handy for upstreams secured by a
     long-lived service token. Works for both sync and async clients.
     """
@@ -288,13 +288,13 @@ _token_client_cache: Dict[int, SSOTokenClient] = {}
 
 
 def get_sso_token_client(source: Any = None) -> SSOTokenClient:
-    """Return a memoized [`SSOTokenClient`][tashtiot_apis_library.fastapi_template._internal.security.sso.SSOTokenClient] for ``source``.
+    """Return a memoized [`SSOTokenClient`][SSOTokenClient] for ``source``.
 
-    ``source`` may be an explicit [`SSOConfig`][tashtiot_apis_library.fastapi_template._internal.security.sso.SSOConfig] (client-side config), a
+    ``source`` may be an explicit [`SSOConfig`][SSOConfig] (client-side config), a
     settings object exposing ``AUTH_SSO_*`` (legacy singleton path), or ``None``
     to use the package ``settings``. Memoizing by object identity keeps the token
     cache shared across all callers passing the same object -- so build one
-    [`SSOConfig`][tashtiot_apis_library.fastapi_template._internal.security.sso.SSOConfig] per remote and reuse it.
+    [`SSOConfig`][SSOConfig] per remote and reuse it.
     """
     if source is None:
         source = default_settings
@@ -308,8 +308,8 @@ def get_sso_token_client(source: Any = None) -> SSOTokenClient:
 def sso_auth(source: Any = None) -> SSOClientCredentialsAuth:
     """Return an `httpx.Auth` backed by the shared SSO token client.
 
-    ``source`` is an [`SSOConfig`][tashtiot_apis_library.fastapi_template._internal.security.sso.SSOConfig], a settings object, or ``None`` (package
-    settings) -- see [`get_sso_token_client`][tashtiot_apis_library.fastapi_template._internal.security.sso.get_sso_token_client].
+    ``source`` is an [`SSOConfig`][SSOConfig], a settings object, or ``None`` (package
+    settings) -- see [`get_sso_token_client`][get_sso_token_client].
     """
     return SSOClientCredentialsAuth(get_sso_token_client(source))
 

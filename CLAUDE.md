@@ -48,7 +48,7 @@ python -m build                      # build sdist+wheel (what CI does before pu
   stage hook); `.woodpecker/check.yaml` runs ruff + pytest + ty (advisory) on push/PR. The tag-only
   `build.yaml` publish pipeline is unchanged.
 
-Python >= 3.9.
+Python >= 3.10.
 
 ### Tests (single suite)
 - All tests live in the top-level `tests/` tree (`tests/connectors/`, `tests/fastapi_template/`),

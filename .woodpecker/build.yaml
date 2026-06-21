@@ -4,7 +4,7 @@ when:
 steps:
 # ========================================== BUILD AND PUBLISH ==============================================================
 - name: Build and publish package
-  image: harbor.app.com/devops-infra/generic-python39:1.0.0
+  image: harbor.app.com/devops-infra/generic-python311:1.0.0
   environment:
     ARTIFACTORY_USERNAME: dev_admin
     ARTIFACTORY_PASSWORD: 

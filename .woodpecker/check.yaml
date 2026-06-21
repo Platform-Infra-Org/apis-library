@@ -5,7 +5,7 @@ when:
 
 steps:
   - name: lint-type-test
-    image: harbor.app.com/devops-infra/generic-python39:1.0.0
+    image: harbor.app.com/devops-infra/generic-python311:1.0.0
     commands:
       - pip install --upgrade pip uv
       # Fast install of the project + dev tools (ruff, ty, pytest) into the image.

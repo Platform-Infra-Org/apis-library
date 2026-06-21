@@ -63,6 +63,6 @@ dev setup, tooling, and conventions.
 | Understand the connector pattern | [Explanation: Architecture](explanation/architecture.md) |
 
 !!! note "Requirements"
-    Python ≥ 3.9. The package depends on FastAPI, httpx, Pydantic v2, Loguru, and PyJWT; the heavy
+    Python ≥ 3.10. The package depends on FastAPI, httpx, Pydantic v2, Loguru, and PyJWT; the heavy
     auth and caching dependencies are imported lazily, so features you don't use cost nothing at
     import time.

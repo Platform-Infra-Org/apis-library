@@ -1,7 +1,7 @@
 # Your first app
 
 In this tutorial you'll build and run a FastAPI service using the library's application factory,
-then explore the features it wires up for you out of the box. You need Python ≥ 3.9 and about five
+then explore the features it wires up for you out of the box. You need Python ≥ 3.10 and about five
 minutes.
 
 ## 1. Install

@@ -8,7 +8,7 @@ Verification mode is auto-selected from settings:
   ``jwks_uri`` discovered from ``AUTH_OIDC_ISSUER`` (generic OIDC).
 
 Exactly one set of material may be configured; configuring more than one (or
-none, while auth is enabled) raises [`AuthConfigError`][tashtiot_apis_library.fastapi_template._internal.security.errors.AuthConfigError] at startup.
+none, while auth is enabled) raises [`AuthConfigError`][AuthConfigError] at startup.
 """
 
 from __future__ import annotations
@@ -210,7 +210,7 @@ _verifier_cache: Dict[int, JWTVerifier] = {}
 def get_verifier(settings: Any) -> JWTVerifier:
     """Return a memoized verifier for the given settings instance.
 
-    Building it here (at app creation) surfaces [`AuthConfigError`][tashtiot_apis_library.fastapi_template._internal.security.errors.AuthConfigError] before
+    Building it here (at app creation) surfaces [`AuthConfigError`][AuthConfigError] before
     the first request rather than on it.
     """
     cached = _verifier_cache.get(id(settings))

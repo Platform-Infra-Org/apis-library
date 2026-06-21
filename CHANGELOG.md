@@ -57,6 +57,8 @@ change), and modernizes packaging, tooling, and documentation.
 
 ### Changed
 
+- **Requires Python ≥ 3.10** (previously 3.9). This is a breaking change for consumers still on 3.9;
+  folded into this unreleased 1.0.0 rather than a separate major bump.
 - **Public API surface reorganized by concern**: `fastapi_template.utils` now holds only the infra
   utilities (`BaseAPI`, `settings`); inbound JWT lives in `auth`, outbound SSO in `security`, auth
   errors in `errors`. (See **Removed** for the breaking move.)

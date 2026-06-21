@@ -7,7 +7,7 @@ and OpenAPI enum dropdowns track live ``LIVE_ALLOWED_*`` allowlists), the
 background allowlist poller, and a one-call wiring helper.
 
 Outbound auth to the upstream is package-side but selectable via the
-``CONFIG_REMOTE_*`` settings ([`ConfigRemoteSettings`][tashtiot_apis_library.fastapi_template.config_api.conf.ConfigRemoteSettings]): SSO
+``CONFIG_REMOTE_*`` settings ([`ConfigRemoteSettings`][ConfigRemoteSettings]): SSO
 ``client_credentials``, a static bearer, or none.
 """
 
