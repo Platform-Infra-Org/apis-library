@@ -53,7 +53,10 @@ change), and modernizes packaging, tooling, and documentation.
 
 **Documentation**
 - A MkDocs (Material + mkdocstrings) documentation site organized by Diátaxis — tutorials, how-to
-  guides, reference (configuration, CLI, auto-generated API), explanation, and contributing.
+  guides, reference, explanation, and contributing.
+- A comprehensive auto-generated **API reference** covering the connector services/clients/models,
+  the FastAPI app factory, inbound auth, outbound SSO, the Remote Config API, errors, and schemas,
+  with cross-references between documented symbols.
 
 ### Changed
 
