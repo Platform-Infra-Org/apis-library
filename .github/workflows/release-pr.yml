@@ -135,10 +135,42 @@ jobs:
             dist/*.whl
             dist/sbom.cdx.json
 
-      # Runs last, after the CHANGELOG commit, so the published site reflects the
-      # released version (the docs include CHANGELOG.md via a snippet). gh-deploy builds
-      # the site and force-pushes it to the gh-pages branch using the persisted
-      # GITHUB_TOKEN + git identity configured above — no extra permissions needed.
-      # One-time setup: repo Settings -> Pages -> Source = "Deploy from a branch" -> gh-pages.
-      - name: Deploy docs to GitHub Pages
-        run: uv run --extra docs mkdocs gh-deploy --force
+  # ------------------------------------------------------------------ docs
+  # Publish the MkDocs site to GitHub Pages via the GitHub Actions deployment method
+  # (no gh-pages branch, so GitHub's legacy Jekyll builder never runs). `needs: release`
+  # means this checks out master *after* the release job's CHANGELOG commit, so the
+  # published site reflects the released version (docs include CHANGELOG.md via a snippet).
+  # One-time setup: repo Settings -> Pages -> Build and deployment -> Source = "GitHub Actions".
+  deploy-docs:
+    needs: release
+    if: github.event.action == 'closed' && github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write        # publish to GitHub Pages
+      id-token: write      # OIDC for the Pages deployment
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 0   # full history so the CHANGELOG snippet + git info resolve
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Build the docs site
+        run: uv run --extra docs mkdocs build --strict
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
