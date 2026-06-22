@@ -139,6 +139,10 @@ class CoordinateCatalogResponse(BaseModel):
     space: List[str] = Field(default_factory=list, description="Allowed organizational space names")
     network: List[str] = Field(default_factory=list, description="Allowed network partition names")
     region: List[str] = Field(default_factory=list, description="Allowed geographical region codes")
-    island: List[str] = Field(default_factory=list, description="Allowed compute cluster zone names")
+    island: List[str] = Field(
+        default_factory=list, description="Allowed compute cluster zone names"
+    )
     environment: List[str] = Field(default_factory=list, description="Allowed lifecycle tier names")
-    projects: List[str] = Field(default_factory=list, description="All registered platform application names")
+    projects: List[str] = Field(
+        default_factory=list, description="All registered platform application names"
+    )
