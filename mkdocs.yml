@@ -3,6 +3,11 @@ site_description: >-
   Infrastructure connectors (ArgoCD, AWX, Bitbucket Server, Vault) and a reusable
   FastAPI application template, in one Python package.
 
+# Catch broken in-page anchors (#fragment) under --strict — not validated by default.
+validation:
+  links:
+    anchors: warn
+
 theme:
   name: material
   features:

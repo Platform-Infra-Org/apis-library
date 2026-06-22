@@ -45,7 +45,7 @@ async def get_coordinates():
 ```
 
 `get_coordinate_catalog` proxies the upstream's `/coordinates` route and returns a
-[`CoordinateCatalogResponse`](../reference/api/config-api.md#models--allowlists)-shaped dict — the
+[`CoordinateCatalogResponse`](../reference/api/config-api.md#models-allowlists)-shaped dict — the
 sorted set of values for each of `space` / `network` / `region` / `island` / `environment`, plus
 `projects`. An unseeded upstream yields empty lists (a valid `200`, not a `404`).
 
