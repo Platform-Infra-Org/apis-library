@@ -1809,7 +1809,7 @@ Swagger dropdowns and request validation in sync with the upstream's live allowl
 <a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>    <span class="k">return</span> <span class="k">await</span> <span class="n">provider</span><span class="o">.</span><span class="n">get_coordinate_catalog</span><span class="p">()</span>
 </code></pre></div>
 <p><code>get_coordinate_catalog</code> proxies the upstream's <code>/coordinates</code> route and returns a
-<a href="../../reference/api/config-api/#models--allowlists"><code>CoordinateCatalogResponse</code></a>-shaped dict — the
+<a href="../../reference/api/config-api/#models-allowlists"><code>CoordinateCatalogResponse</code></a>-shaped dict — the
 sorted set of values for each of <code>space</code> / <code>network</code> / <code>region</code> / <code>island</code> / <code>environment</code>, plus
 <code>projects</code>. An unseeded upstream yields empty lists (a valid <code>200</code>, not a <code>404</code>).</p>
 <h2 id="what-it-sets-up">What it sets up<a class="headerlink" href="#what-it-sets-up" title="Permanent link">&para;</a></h2>
