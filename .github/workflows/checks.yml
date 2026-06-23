@@ -21,20 +21,20 @@ jobs:
         with:
           enable-cache: true
 
-      - name: Install the project + dev tools
-        run: uv pip install --system -e ".[dev]"
-
+      # Run each tool through a uv-managed venv. The runner's system Python is
+      # externally managed (PEP 668), so `uv pip install --system` is refused;
+      # `uv run` resolves + creates .venv on first use (no lockfile needed).
       - name: Ruff format
-        run: ruff format --check .
+        run: uv run --extra dev ruff format --check .
 
       - name: Ruff lint
-        run: ruff check .
+        run: uv run --extra dev ruff check .
 
       - name: Tests
-        run: pytest
+        run: uv run --extra dev pytest
 
       - name: Type check (advisory)
-        run: ty check src || true   # type errors never fail the build
+        run: uv run --extra dev ty check src || true   # type errors never fail the build
 
   # Conventional-commit gate: with squash-merge the PR *title* is the commit git-cliff
   # parses, so it must be a valid conventional-commit subject.
