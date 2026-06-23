@@ -6,7 +6,7 @@ from typing import Any, Mapping, Union
 
 from pydantic import BaseModel
 
-from tashtiot_apis_library.fastapi_template.utils import BaseAPI
+from ...fastapi_template.utils import BaseAPI
 from ..errors import VaultError
 from .models import VaultSecretPayload, VaultSecretResponse
 
@@ -36,7 +36,9 @@ def _generate_secret_path(path: str) -> str:
 
 def _generate_metadata_path(path: str) -> str:
     parts = path.lstrip("/").split("/")
-    return f"{parts[0]}/metadata/{'/'.join(parts[1:])}" if len(parts) > 1 else f"{parts[0]}/metadata"
+    return (
+        f"{parts[0]}/metadata/{'/'.join(parts[1:])}" if len(parts) > 1 else f"{parts[0]}/metadata"
+    )
 
 
 class VaultClient:
@@ -63,7 +65,9 @@ class VaultClient:
             payload = VaultSecretPayload(data=data.model_dump(exclude_none=True))
         else:
             payload = VaultSecretPayload(data=dict(data))
-        response = await self.api.post(f"/v1/{secret_path}", json=payload.model_dump(exclude_none=True))
+        response = await self.api.post(
+            f"/v1/{secret_path}", json=payload.model_dump(exclude_none=True)
+        )
         response_json = _safe_json(response)
         _handle_response(response_json, response.status_code)
 

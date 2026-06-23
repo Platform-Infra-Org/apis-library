@@ -1,0 +1,176 @@
+# PR-driven release automation.
+#
+#   * PR opened / updated against master  -> build a "test version" and upload it as a
+#     workflow artifact (no commit, no tag, no release).
+#   * PR merged into master               -> git-cliff bumps the version + rewrites
+#     CHANGELOG.md, the change is committed back to master, a tag is pushed, the package
+#     is built, build provenance is attested, an SBOM is generated, and a GitHub Release
+#     is created with the sdist/wheel (+ SBOM) attached.
+#
+# The pushed tag also fires the existing Woodpecker -> Artifactory publish (dual release).
+name: release-pr
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+    branches: [master]
+
+# One run per PR; new pushes cancel the in-flight test build. (closed/merge runs to completion.)
+concurrency:
+  group: release-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # ------------------------------------------------------------------ open / update
+  # Build a throwaway "test version" so reviewers can install the PR's artifact.
+  test-build:
+    if: github.event.action != 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # full history + tags so git-cliff/setuptools-scm see them
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Compute the next (bumped) version
+        id: ver
+        run: |
+          # Dev marker keeps the test artifact from colliding with a real release version.
+          base="$(uvx git-cliff --config cliff.toml --bumped-version | sed 's/^v//')"
+          echo "version=${base}.dev${{ github.event.pull_request.number }}" >> "$GITHUB_OUTPUT"
+
+      - name: Build the test version
+        env:
+          SETUPTOOLS_SCM_PRETEND_VERSION: ${{ steps.ver.outputs.version }}
+        run: uv build
+
+      - name: Upload the test version artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-test-${{ steps.ver.outputs.version }}
+          path: dist/*
+          if-no-files-found: error
+
+  # ------------------------------------------------------------------ merge
+  release:
+    if: github.event.action == 'closed' && github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write       # commit CHANGELOG, push tag, create the release
+      id-token: write       # OIDC for keyless provenance signing
+      attestations: write   # actions/attest-build-provenance
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Compute release version
+        id: ver
+        run: echo "version=$(uvx git-cliff --config cliff.toml --bumped-version)" >> "$GITHUB_OUTPUT"
+
+      - name: Update CHANGELOG for the release
+        # --bump moves the "Unreleased" entries under the new vX.Y.Z heading + date.
+        run: uvx git-cliff --config cliff.toml --bump -o CHANGELOG.md
+
+      - name: Commit CHANGELOG and push the tag
+        env:
+          VERSION: ${{ steps.ver.outputs.version }}
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md
+          # No-op safe: only commit if git-cliff actually changed the file.
+          git diff --staged --quiet || git commit -m "chore(release): ${VERSION} [skip ci]"
+          git tag -a "${VERSION}" -m "Release ${VERSION}"
+          git push origin HEAD:master
+          git push origin "${VERSION}"
+
+      - name: Build the release artifacts
+        env:
+          # Strip the leading "v" — setuptools-scm wants a PEP 440 version.
+          SETUPTOOLS_SCM_PRETEND_VERSION: ${{ steps.ver.outputs.version }}
+        run: |
+          export SETUPTOOLS_SCM_PRETEND_VERSION="${SETUPTOOLS_SCM_PRETEND_VERSION#v}"
+          uv build
+
+      - name: Generate an SBOM (CycloneDX)
+        # Scan a throwaway venv with the just-built wheel installed, so the SBOM
+        # captures the package and its resolved dependency tree.
+        run: |
+          uv venv .sbom-venv
+          uv pip install --python .sbom-venv dist/*.whl
+          uvx --from cyclonedx-bom cyclonedx-py environment .sbom-venv \
+            -o dist/sbom.cdx.json || true
+
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: "dist/*.tar.gz, dist/*.whl"
+
+      - name: Extract this release's notes
+        run: uvx git-cliff --config cliff.toml --latest --strip all -o RELEASE_NOTES.md
+
+      - name: Create the GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.ver.outputs.version }}
+          name: ${{ steps.ver.outputs.version }}
+          body_path: RELEASE_NOTES.md
+          files: |
+            dist/*.tar.gz
+            dist/*.whl
+            dist/sbom.cdx.json
+
+  # ------------------------------------------------------------------ docs
+  # Publish the MkDocs site to GitHub Pages via the GitHub Actions deployment method
+  # (no gh-pages branch, so GitHub's legacy Jekyll builder never runs). `needs: release`
+  # means this checks out master *after* the release job's CHANGELOG commit, so the
+  # published site reflects the released version (docs include CHANGELOG.md via a snippet).
+  # One-time setup: repo Settings -> Pages -> Build and deployment -> Source = "GitHub Actions".
+  deploy-docs:
+    needs: release
+    if: github.event.action == 'closed' && github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write        # publish to GitHub Pages
+      id-token: write      # OIDC for the Pages deployment
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 0   # full history so the CHANGELOG snippet + git info resolve
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Build the docs site
+        run: uv run --extra docs mkdocs build --strict
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

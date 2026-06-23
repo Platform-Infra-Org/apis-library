@@ -4,26 +4,28 @@ from __future__ import annotations
 
 import asyncio
 from dataclasses import dataclass
-from typing import Mapping, Optional, Sequence, Union
+from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
-from pydantic import BaseModel
 import yaml
 from loguru import logger
+from pydantic import BaseModel
 
 from ..errors import ArgoCDError
 from .client import ArgoCDClient
 from .models import (
     ArgoApplication,
     ArgoApplicationEvaluation,
-    ArgoApplicationSpec,
     ArgoApplicationSource,
-    ArgoApplicationStatus,
+    ArgoApplicationSpec,
     ArgoApplicationStatus,
     ArgoHelmSource,
     ArgoOperationResponse,
 )
 
 __all__ = ["ArgoCD", "logger", "evaluate_argo_result"]
+
+# A list of Argo CD parameter entries, each a ``{"name": ..., "value": ...}`` mapping.
+ParamList = List[Dict[str, str]]
 
 
 @dataclass(frozen=True)
@@ -34,7 +36,9 @@ class _AppFingerprint:
     history_len: int
 
 
-def _load_status(status: Optional[Union[ArgoApplicationStatus, Mapping[str, object]]]) -> ArgoApplicationStatus:
+def _load_status(
+    status: Optional[Union[ArgoApplicationStatus, Mapping[str, object]]],
+) -> ArgoApplicationStatus:
     if status is None:
         return ArgoApplicationStatus()
     if isinstance(status, ArgoApplicationStatus):
@@ -81,19 +85,19 @@ def add_namespace(params, new_ns: str):
             p["value"] = ", ".join(sorted(cur))
             break
     else:
-        params.append({"name": "applicationClusters[0].namespace",
-                       "value": new_ns})
+        params.append({"name": "applicationClusters[0].namespace", "value": new_ns})
     return params
 
-def _as_parameter_list(
-    parameters: Union[ParamList, Mapping[str, object]]
-) -> ParamList:
+
+def _as_parameter_list(parameters: Union[ParamList, Mapping[str, object]]) -> ParamList:
     if isinstance(parameters, Mapping):
         return [{"name": str(k), "value": str(v)} for k, v in parameters.items()]
     return [dict(p) for p in parameters]
 
 
-def _fp_from_status(status: Optional[Union[ArgoApplicationStatus, Mapping[str, object]]]) -> _AppFingerprint:
+def _fp_from_status(
+    status: Optional[Union[ArgoApplicationStatus, Mapping[str, object]]],
+) -> _AppFingerprint:
     parsed = _load_status(status)
     history: Sequence[object] = parsed.history or []
     return _AppFingerprint(
@@ -108,7 +112,7 @@ def evaluate_argo_result(
     app_status: Optional[Union[ArgoApplicationStatus, Mapping[str, object]]],
 ) -> ArgoApplicationEvaluation:
     """
-    Evaluate ArgoCD Application status and return an :class:`ArgoApplicationEvaluation`.
+    Evaluate ArgoCD Application status and return an `ArgoApplicationEvaluation`.
     """
     status = _load_status(app_status)
     sync_status = status.sync.status if status.sync else None
@@ -129,13 +133,19 @@ def evaluate_argo_result(
             return ArgoApplicationEvaluation(result="FAILED", message=f"Namespace '{ns}' not found")
         if "forbidden" in op_msg or "permission" in op_msg:
             return ArgoApplicationEvaluation(result="FAILED", message="RBAC or permission denied")
-        if "helm" in op_msg.lower() and ("render" in op_msg.lower() or "template" in op_msg.lower()):
+        if "helm" in op_msg.lower() and (
+            "render" in op_msg.lower() or "template" in op_msg.lower()
+        ):
             return ArgoApplicationEvaluation(result="FAILED", message="Helm rendering error")
-        return ArgoApplicationEvaluation(result="FAILED", message=op_msg or "ArgoCD operation failed")
+        return ArgoApplicationEvaluation(
+            result="FAILED", message=op_msg or "ArgoCD operation failed"
+        )
 
     # 2️⃣ Healthy and synced
     if sync_status == "Synced" and health_status == "Healthy":
-        return ArgoApplicationEvaluation(result="SUCCESS", message="Application is healthy and synced")
+        return ArgoApplicationEvaluation(
+            result="SUCCESS", message="Application is healthy and synced"
+        )
 
     # 3️⃣ OutOfSync or still reconciling
     if sync_status in {"OutOfSync", "Unknown"} or phase == "Running":
@@ -149,7 +159,9 @@ def evaluate_argo_result(
         ns = extract_namespace(op_msg)
         if ns:
             return ArgoApplicationEvaluation(result="FAILED", message=f"Namespace '{ns}' not found")
-        return ArgoApplicationEvaluation(result="FAILED", message=f"Health={health_status}, Sync={sync_status}")
+        return ArgoApplicationEvaluation(
+            result="FAILED", message=f"Health={health_status}, Sync={sync_status}"
+        )
 
     # 5️⃣ Fallback (still in progress)
     return ArgoApplicationEvaluation(
@@ -165,14 +177,16 @@ class ArgoCD:
         self.client = ArgoCDClient(base_url, api_key)
         self.application_set_timeout = application_set_timeout
 
-    async def _get_current_namespaces(self, cluster_secret_name: str) -> Tuple[List[str], Dict[str, Any]]:
+    async def _get_current_namespaces(
+        self, cluster_secret_name: str
+    ) -> Tuple[List[str], Dict[str, Any]]:
         """Fetch current values for the cluster-secret and return (namespaces, values).
 
         This is called each time we need to make a decision or a write, to avoid
         using stale data if other writers updated the secret concurrently.
         """
         parameters = await self.get_app_parameters(cluster_secret_name)
-        namespaces_string = next(p for p in parameters if p['name'].endswith('.namespace'))
+        namespaces_string = next(p for p in parameters if p["name"].endswith(".namespace"))
         namespaces = _namespaces_to_list(namespaces_string)
         return namespaces, parameters
 
@@ -262,7 +276,7 @@ class ArgoCD:
         logger.info(f"Getting status for {app_name}")
         response = await self.client.get_app(app_name)
         evaluation = evaluate_argo_result(response.status)
-        
+
         status_map = {
             "SUCCESS": "successful",
             "FAILED": "failed",
@@ -307,7 +321,7 @@ class ArgoCD:
         patch = ArgoApplication(spec=spec)
 
         await self.client.patch_app(patch, app_name, namespace, project)
-        
+
     async def get_app_parameters(self, app_name: str) -> str:
         logger.info("Getting ArgoCD app parameters for {}", app_name)
         response = await self.client.get_app(app_name)
@@ -328,9 +342,7 @@ class ArgoCD:
         param_list = _as_parameter_list(parameters)
 
         spec = ArgoApplicationSpec(
-            source=ArgoApplicationSource(
-                helm=ArgoHelmSource(parameters=param_list)
-            )
+            source=ArgoApplicationSource(helm=ArgoHelmSource(parameters=param_list))
         )
         patch = ArgoApplication(spec=spec)
 
@@ -348,5 +360,7 @@ class ArgoCD:
 
         if namespace not in namespaces:
             parameters_after_adding = add_namespace(parameters, namespace)
-            await self.modify_parameters(parameters_after_adding, cluster_secret_name, project, "default")
+            await self.modify_parameters(
+                parameters_after_adding, cluster_secret_name, project, "default"
+            )
             await self.sync(cluster_secret_name)

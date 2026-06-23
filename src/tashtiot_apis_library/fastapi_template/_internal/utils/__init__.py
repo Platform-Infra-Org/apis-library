@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from pydantic import ValidationError
 from loguru import logger
+from pydantic import ValidationError
 
 from .config import ApplicationSettings
 from .logger import Logger
@@ -21,10 +21,19 @@ def _apply_proxy_overrides(settings: ApplicationSettings) -> None:
             settings.PROXY_LISTEN_PATH + "/" + settings.OPENAPI_JSON_URL.lstrip("/")
         )
 
-        settings.LOG_REQUEST_EXCLUDE_PATHS.extend([
-            settings.PROXY_LISTEN_PATH + "/" + path.lstrip("/")
-            for path in settings.LOG_REQUEST_EXCLUDE_PATHS
-        ])
+        settings.LOG_REQUEST_EXCLUDE_PATHS.extend(
+            [
+                settings.PROXY_LISTEN_PATH + "/" + path.lstrip("/")
+                for path in settings.LOG_REQUEST_EXCLUDE_PATHS
+            ]
+        )
+
+        settings.AUTH_EXCLUDE_PATHS.extend(
+            [
+                settings.PROXY_LISTEN_PATH + "/" + path.lstrip("/")
+                for path in settings.AUTH_EXCLUDE_PATHS
+            ]
+        )
 
     else:
         settings.PROXY_LISTEN_PATH = ""
