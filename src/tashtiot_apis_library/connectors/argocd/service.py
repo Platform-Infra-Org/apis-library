@@ -57,18 +57,6 @@ def _namespaces_to_list(raw: Any) -> List[str]:
     return []
 
 
-def _serialize_namespaces(namespaces: Sequence[str], original_value: Any) -> Any:
-    """Serialize namespaces preserving the original representation.
-
-    - If original was a list, return a cleaned list.
-    - Otherwise, return a comma-separated string to maintain compatibility.
-    """
-    clean = [str(ns).strip() for ns in namespaces if str(ns).strip()]
-    if isinstance(original_value, list):
-        return clean
-    return ", ".join(clean)
-
-
 def add_namespace(params, new_ns: str):
     """
     params : list[dict]   # your parameters list

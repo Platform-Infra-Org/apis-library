@@ -1,6 +1,6 @@
 from typing import Any, Dict, List, Optional, Set
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, ValidationInfo, field_validator
 
 # Mutable module-level allowlists, repopulated in place by the background polling
 # loop (provider.crawl_and_sync_keys) from the upstream Config API. They drive BOTH
@@ -12,6 +12,17 @@ LIVE_ALLOWED_ISLANDS: Set[str] = set()
 LIVE_ALLOWED_ENVIRONMENTS: Set[str] = set()
 LIVE_ALLOWED_SPACES: Set[str] = set()
 LIVE_ALLOWED_PROJECTS: Set[str] = set()
+
+# Maps each coordinate field to its allowlist. Holds the same set objects above,
+# which the poller repopulates in place, so these references stay current.
+_COORDINATE_ALLOWLISTS: Dict[str, Set[str]] = {
+    "space": LIVE_ALLOWED_SPACES,
+    "network": LIVE_ALLOWED_NETWORKS,
+    "region": LIVE_ALLOWED_REGIONS,
+    "island": LIVE_ALLOWED_ISLANDS,
+    "environment": LIVE_ALLOWED_ENVIRONMENTS,
+    "project": LIVE_ALLOWED_PROJECTS,
+}
 
 
 class InfraMetadata(BaseModel):
@@ -38,57 +49,14 @@ class InfraMetadata(BaseModel):
         None, description="The platform application name submitting the request"
     )
 
-    @field_validator("space")
+    @field_validator("space", "network", "region", "island", "environment", "project")
     @classmethod
-    def validate_space(cls, v: Optional[str]) -> Optional[str]:
-        if v is not None and LIVE_ALLOWED_SPACES and v not in LIVE_ALLOWED_SPACES:
+    def _validate_coordinate(cls, v: Optional[str], info: ValidationInfo) -> Optional[str]:
+        # Permissive when the allowlist is empty (pre-poll / upstream missing) or v is None.
+        allowed = _COORDINATE_ALLOWLISTS[info.field_name]
+        if v is not None and allowed and v not in allowed:
             raise ValueError(
-                f"Invalid space selection '{v}'. Permitted: {list(LIVE_ALLOWED_SPACES)}"
-            )
-        return v
-
-    @field_validator("network")
-    @classmethod
-    def validate_network(cls, v: Optional[str]) -> Optional[str]:
-        if v is not None and LIVE_ALLOWED_NETWORKS and v not in LIVE_ALLOWED_NETWORKS:
-            raise ValueError(
-                f"Invalid network selection '{v}'. Permitted: {list(LIVE_ALLOWED_NETWORKS)}"
-            )
-        return v
-
-    @field_validator("region")
-    @classmethod
-    def validate_region(cls, v: Optional[str]) -> Optional[str]:
-        if v is not None and LIVE_ALLOWED_REGIONS and v not in LIVE_ALLOWED_REGIONS:
-            raise ValueError(
-                f"Invalid region selection '{v}'. Permitted: {list(LIVE_ALLOWED_REGIONS)}"
-            )
-        return v
-
-    @field_validator("island")
-    @classmethod
-    def validate_island(cls, v: Optional[str]) -> Optional[str]:
-        if v is not None and LIVE_ALLOWED_ISLANDS and v not in LIVE_ALLOWED_ISLANDS:
-            raise ValueError(
-                f"Invalid island selection '{v}'. Permitted: {list(LIVE_ALLOWED_ISLANDS)}"
-            )
-        return v
-
-    @field_validator("environment")
-    @classmethod
-    def validate_environment(cls, v: Optional[str]) -> Optional[str]:
-        if v is not None and LIVE_ALLOWED_ENVIRONMENTS and v not in LIVE_ALLOWED_ENVIRONMENTS:
-            raise ValueError(
-                f"Invalid environment selection '{v}'. Permitted: {list(LIVE_ALLOWED_ENVIRONMENTS)}"
-            )
-        return v
-
-    @field_validator("project")
-    @classmethod
-    def validate_project(cls, v: Optional[str]) -> Optional[str]:
-        if v is not None and LIVE_ALLOWED_PROJECTS and v not in LIVE_ALLOWED_PROJECTS:
-            raise ValueError(
-                f"Application target project '{v}' not found in registry. Permitted: {list(LIVE_ALLOWED_PROJECTS)}"
+                f"Invalid {info.field_name} selection '{v}'. Permitted: {list(allowed)}"
             )
         return v
 

@@ -31,13 +31,7 @@ def _build_exclude_paths(cfg) -> List[str]:
             cfg.SWAGGER_OPENAPI_JSON_URL,
         ]
     )
-    seen = set()
-    unique: List[str] = []
-    for path in paths:
-        if path and path not in seen:
-            seen.add(path)
-            unique.append(path)
-    return unique
+    return list(dict.fromkeys(path for path in paths if path))
 
 
 class AuthMiddleware(BaseHTTPMiddleware):

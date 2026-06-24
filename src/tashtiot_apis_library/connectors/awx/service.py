@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Any, Dict, Optional
+from typing import Any, Awaitable, Callable, Dict, Optional
 
 from loguru import logger
 
@@ -52,7 +52,7 @@ class AWX:
             limit=limit,
         )
 
-        status = job.status.value if hasattr(job.status, "value") else str(job.status)
+        status = job.status.value
 
         return AWXOperationResponse(
             status=status,
@@ -90,7 +90,7 @@ class AWX:
             credential=credential,
         )
 
-        status = job.status.value if hasattr(job.status, "value") else str(job.status)
+        status = job.status.value
 
         return AWXOperationResponse(
             status=status,
@@ -111,7 +111,7 @@ class AWX:
         logger.debug(f"Getting status for job {job_id}")
         job = await self.client.get_job_status(job_id)
 
-        status = job.status.value if hasattr(job.status, "value") else str(job.status)
+        status = job.status.value
 
         return AWXOperationResponse(
             status=status,
@@ -132,7 +132,7 @@ class AWX:
         logger.debug(f"Getting status for workflow job {workflow_job_id}")
         job = await self.client.get_workflow_job_status(workflow_job_id)
 
-        status = job.status.value if hasattr(job.status, "value") else str(job.status)
+        status = job.status.value
 
         return AWXOperationResponse(
             status=status,
@@ -140,6 +140,33 @@ class AWX:
             job_id=job.id,
             stdout="",
         )
+
+    async def _wait_for_completion(
+        self,
+        label: str,
+        ref_id: int,
+        fetch: Callable[[int], Awaitable[AWXOperationResponse]],
+        timeout: int,
+        poll_interval: int,
+    ) -> AWXOperationResponse:
+        """Poll ``fetch`` until the referenced job reports a terminal status."""
+        logger.info(f"Waiting for {label} {ref_id} to complete (timeout={timeout}s)")
+
+        elapsed = 0
+        while elapsed < timeout:
+            result = await fetch(ref_id)
+
+            if result.status == "successful" or result.status == "failed":
+                logger.info(f"{label} {ref_id} completed with status: {result.status}")
+                return result
+
+            logger.debug(
+                f"{label} {ref_id} still running (status={result.status}), waiting {poll_interval}s"
+            )
+            await asyncio.sleep(poll_interval)
+            elapsed += poll_interval
+
+        raise TimeoutError(f"{label} {ref_id} did not complete within {timeout} seconds")
 
     async def wait_for_job_completion(
         self,
@@ -160,25 +187,9 @@ class AWX:
         Raises:
             TimeoutError: If job doesn't complete within timeout
         """
-        logger.info(f"Waiting for job {job_id} to complete (timeout={timeout}s)")
-
-        elapsed = 0
-        while elapsed < timeout:
-            job = await self.get_job_status(job_id)
-
-            # Check if job has finished
-            # Note: job is now AWXOperationResponse, status is a string
-            if job.status == "successful" or job.status == "failed":
-                logger.info(f"Job {job_id} completed with status: {job.status}")
-                return job
-
-            logger.debug(
-                f"Job {job_id} still running (status={job.status}), waiting {poll_interval}s"
-            )
-            await asyncio.sleep(poll_interval)
-            elapsed += poll_interval
-
-        raise TimeoutError(f"Job {job_id} did not complete within {timeout} seconds")
+        return await self._wait_for_completion(
+            "Job", job_id, self.get_job_status, timeout, poll_interval
+        )
 
     async def wait_for_workflow_completion(
         self,
@@ -199,25 +210,6 @@ class AWX:
         Raises:
             TimeoutError: If workflow doesn't complete within timeout
         """
-        logger.info(f"Waiting for workflow job {workflow_job_id} to complete (timeout={timeout}s)")
-
-        elapsed = 0
-        while elapsed < timeout:
-            workflow = await self.get_workflow_job_status(workflow_job_id)
-
-            # Check if workflow has finished
-            if workflow.status == "successful" or workflow.status == "failed":
-                logger.info(
-                    f"Workflow job {workflow_job_id} completed with status: {workflow.status}"
-                )
-                return workflow
-
-            logger.debug(
-                f"Workflow job {workflow_job_id} still running (status={workflow.status}), waiting {poll_interval}s"
-            )
-            await asyncio.sleep(poll_interval)
-            elapsed += poll_interval
-
-        raise TimeoutError(
-            f"Workflow job {workflow_job_id} did not complete within {timeout} seconds"
+        return await self._wait_for_completion(
+            "Workflow job", workflow_job_id, self.get_workflow_job_status, timeout, poll_interval
         )
