@@ -114,3 +114,18 @@ class CoordinateCatalogResponse(BaseModel):
     projects: List[str] = Field(
         default_factory=list, description="All registered platform application names"
     )
+
+
+class CoordinateTreeResponse(BaseModel):
+    """Nested variant of the coordinate catalog (``/coordinates?format=tree``).
+
+    ``coordinates`` mirrors the enterprise config hierarchy
+    (space → network → region → island → sorted env list); ``projects`` stays flat.
+    An unseeded source yields ``{"coordinates": {}, "projects": []}`` (a valid 200)."""
+
+    coordinates: Dict[str, Any] = Field(
+        default_factory=dict, description="Nested coordinate hierarchy"
+    )
+    projects: List[str] = Field(
+        default_factory=list, description="All registered platform application names"
+    )

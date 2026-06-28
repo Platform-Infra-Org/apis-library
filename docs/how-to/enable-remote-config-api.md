@@ -26,12 +26,13 @@ provider = enable_remote_config_api(
 ## Define routes against the provider
 
 The returned `RemoteConfigProvider` exposes `resolve_infra_config`, `resolve_naming_convention`,
-`get_all_projects`, and `get_coordinate_catalog` (all cached for `cache_ttl` seconds, default 60):
+`get_all_projects`, `get_coordinate_catalog`, and `get_coordinate_tree` (all cached for `cache_ttl`
+seconds, default 60):
 
 ```python
 from fastapi import Depends
 from tashtiot_apis_library.fastapi_template.config_api import (
-    RequiredInfraMetadata, CoordinateCatalogResponse,
+    RequiredInfraMetadata, CoordinateCatalogResponse, CoordinateTreeResponse,
 )
 
 @app.get("/config")
@@ -42,12 +43,22 @@ async def get_config(meta: RequiredInfraMetadata = Depends()):
 async def get_coordinates():
     # Discovery: the valid values per coordinate level plus the project list.
     return await provider.get_coordinate_catalog()
+
+@app.get("/coordinates/tree", response_model=CoordinateTreeResponse)
+async def get_coordinates_tree():
+    # Same values, shaped as the nested config hierarchy.
+    return await provider.get_coordinate_tree()
 ```
 
 `get_coordinate_catalog` proxies the upstream's `/coordinates` route and returns a
 [`CoordinateCatalogResponse`](../reference/api/config-api.md#models-allowlists)-shaped dict — the
 sorted set of values for each of `space` / `network` / `region` / `island` / `environment`, plus
 `projects`. An unseeded upstream yields empty lists (a valid `200`, not a `404`).
+
+`get_coordinate_tree` proxies the upstream's `/coordinates/tree` route and returns a
+[`CoordinateTreeResponse`](../reference/api/config-api.md#models-allowlists)-shaped dict — a nested
+hierarchy (`coordinates`: space → network → region → island → sorted env list) plus the flat
+`projects` list. An unseeded upstream yields `{"coordinates": {}, "projects": []}`.
 
 ## What it sets up
 

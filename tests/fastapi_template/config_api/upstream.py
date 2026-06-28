@@ -161,6 +161,25 @@ def resolve_coordinates(docs: List[Dict[str, Any]]) -> Dict[str, List[str]]:
     }
 
 
+def resolve_coordinate_tree(docs: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """Nested variant of ``resolve_coordinates`` — mirrors the origin's
+    ``/coordinates?format=tree`` route. Deepest level is the sorted env list."""
+    doc = _find(docs, "enterprise_configuration") or {}
+    projects_doc = _find(docs, "project_registry") or {}
+
+    tree: Dict[str, Any] = {}
+    for space_name, space_node in doc.get("space", {}).items():
+        networks = tree.setdefault(space_name, {})
+        for network_name, network_node in space_node.get("network", {}).items():
+            regions = networks.setdefault(network_name, {})
+            for region_name, region_node in network_node.get("region", {}).items():
+                islands = regions.setdefault(region_name, {})
+                for island_name, island_node in region_node.get("island", {}).items():
+                    islands[island_name] = sorted(island_node.get("environment", {}).keys())
+
+    return {"coordinates": tree, "projects": sorted(projects_doc.get("projects", []))}
+
+
 # --------------------------------------------------------------------------- #
 # respx wiring.
 # --------------------------------------------------------------------------- #
@@ -207,10 +226,20 @@ def _coordinates_handler(docs):
     return handler
 
 
+def _coordinate_tree_handler(docs):
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, json=resolve_coordinate_tree(docs))
+
+    return handler
+
+
 def register_upstream_routes(router, docs, base_url: str, prefix: str):
     base = base_url.rstrip("/")
     router.get(f"{base}{prefix}/projects", name="projects").mock(
         side_effect=_projects_handler(docs)
+    )
+    router.get(f"{base}{prefix}/coordinates/tree", name="coordinates_tree").mock(
+        side_effect=_coordinate_tree_handler(docs)
     )
     router.get(f"{base}{prefix}/coordinates", name="coordinates").mock(
         side_effect=_coordinates_handler(docs)

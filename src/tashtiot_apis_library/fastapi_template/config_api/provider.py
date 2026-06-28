@@ -216,3 +216,17 @@ class RemoteConfigProvider:
             {k: [] for k in keys},
             lambda body: {k: body.get(k, []) for k in keys},
         )
+
+    async def get_coordinate_tree(self) -> Dict[str, Any]:
+        """Fetch the nested coordinate hierarchy from the upstream
+        ``/coordinates/tree`` route. An upstream ``404`` maps to an empty tree."""
+        return await self._cached_get(
+            "global:coordinate_tree",
+            "/coordinates/tree",
+            {},
+            {"coordinates": {}, "projects": []},
+            lambda body: {
+                "coordinates": body.get("coordinates", {}),
+                "projects": body.get("projects", []),
+            },
+        )

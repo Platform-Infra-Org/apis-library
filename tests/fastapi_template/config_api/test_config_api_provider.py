@@ -147,6 +147,41 @@ class TestGetCoordinateCatalog:
         assert provider._router["coordinates"].call_count == hits
 
 
+class TestGetCoordinateTree:
+    @pytest.mark.asyncio
+    async def test_returns_nested_hierarchy_from_upstream(self, provider):
+        tree = await provider.get_coordinate_tree()
+        assert tree == {
+            "coordinates": {
+                "core-infrastructure": {
+                    "backbone-net": {
+                        "us-east": {
+                            "compute-island-a": ["production", "staging"],
+                        }
+                    }
+                }
+            },
+            "projects": [
+                "authentication-service",
+                "data-warehouse-pipeline",
+                "notification-engine",
+                "payment-gateway",
+            ],
+        }
+
+    @pytest.mark.asyncio
+    async def test_empty_upstream_returns_empty_tree(self, empty_provider):
+        tree = await empty_provider.get_coordinate_tree()
+        assert tree == {"coordinates": {}, "projects": []}
+
+    @pytest.mark.asyncio
+    async def test_cached_after_first_fetch(self, provider):
+        await provider.get_coordinate_tree()
+        hits = provider._router["coordinates_tree"].call_count
+        await provider.get_coordinate_tree()
+        assert provider._router["coordinates_tree"].call_count == hits
+
+
 class TestUpstreamErrors:
     @pytest.mark.asyncio
     @respx.mock(assert_all_called=False)
