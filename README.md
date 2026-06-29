@@ -12,9 +12,26 @@ services:
 
 ## Install
 
+From the internal Artifactory PyPI (the normal path):
+
 ```bash
 pip install tashtiot-apis-library
 ```
+
+Or straight from git — no Artifactory access needed (pip/uv clone the tag and build it).
+Pin a released tag for reproducibility:
+
+```bash
+# pip
+pip install "git+https://github.com/Platform-Infra-Org/apis-library.git@v1.0.0"
+
+# uv (add to a project, or --with for a one-off run)
+uv add "git+https://github.com/Platform-Infra-Org/apis-library.git@v1.0.0"
+```
+
+Drop the `@v1.0.0` to install the tip of `master`. Each release also attaches the prebuilt wheel/sdist —
+`gh release download v1.0.0 --repo Platform-Infra-Org/apis-library --pattern '*.whl'`, then
+`pip install ./*.whl`.
 
 ## Quick look
 
