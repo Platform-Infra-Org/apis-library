@@ -41,6 +41,38 @@ That tag triggers the publish pipeline. Between tags, the version is a dev strin
 `SETUPTOOLS_SCM_PRETEND_VERSION` pins the built version to the tag, so the publish doesn't depend on
 git clone depth / tag reachability in CI.
 
+## GitHub Actions release (`release-pr.yml`)
+
+Separate from Woodpecker, GitHub Actions drives the tag-and-release side: when a PR is **merged**
+into `master`, `git-cliff` bumps the version and rewrites `CHANGELOG.md`, that change is committed
+back to `master`, a tag is pushed, the package is built + provenance-attested + SBOM'd, and a GitHub
+Release is created. The pushed tag then fires the Woodpecker → Artifactory publish above (dual
+release).
+
+To commit and push to a protected `master`, the workflow authenticates as a **GitHub App** (not the
+default `GITHUB_TOKEN`, which can't be granted a branch-protection bypass — and `test-build` only
+runs on PR events, so a direct push can never satisfy that required check). The App, on the ruleset
+bypass list, is what lets the release push through.
+
+### Required repo config
+
+| Kind | Name | Value |
+|------|------|-------|
+| Variable | `RELEASE_APP_ID` | the release App's App ID |
+| Secret | `RELEASE_APP_KEY` | the release App's PEM private key |
+
+These feed `actions/create-github-app-token` in `.github/workflows/release-pr.yml`, whose output
+token is used as the checkout `token:` (so every `git push` in the job runs as the App).
+
+### One-time App setup
+
+1. Create a GitHub App (org or account level) with **Repository permissions → Contents: Read and
+   write**; disable the webhook (not needed).
+2. Generate a private key → store its contents as the `RELEASE_APP_KEY` secret; copy the App ID into
+   the `RELEASE_APP_ID` variable.
+3. Install the App on this repo (**Only select repositories → apis-library**).
+4. Settings → Rules → the `master` ruleset → **Bypass list** → add the App.
+
 ## Build locally (sanity check before tagging)
 
 ```bash
