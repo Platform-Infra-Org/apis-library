@@ -44,5 +44,5 @@ def add_middlewares(
         app.add_middleware(LogRequestsMiddleware)
 
     if enable_exception_handlers:
-        for handler in handlers:
-            app.add_exception_handler(handler.exception_class, handler.handler)
+        for exc_class, handler in handlers:
+            app.add_exception_handler(exc_class, handler)

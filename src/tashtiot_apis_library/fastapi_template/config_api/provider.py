@@ -136,100 +136,97 @@ class RemoteConfigProvider:
             await self.crawl_and_sync_keys(app_instance)
             await asyncio.sleep(interval_seconds)
 
+    async def _cached_get(self, cache_key, path, params, default, extract):
+        """Cache-read → upstream GET → (404 → ``default``) → ``extract`` → cache-write.
+
+        ``default`` is returned on a 404 *without* being cached (the upstream may
+        seed the value later); ``extract`` maps the JSON body to the cached result.
+        """
+        cached = await self._cache.get(cache_key)
+        if cached is not None:
+            return cached
+
+        response = await self._get(f"{self._prefix}{path}", params)
+        if response.status_code == 404:
+            return default
+        self._ensure_ok(response)
+
+        result = extract(response.json())
+        await self._cache.set(cache_key, result, ttl=self._cache_ttl)
+        return result
+
+    @staticmethod
+    def _coord_params(meta: InfraMetadata) -> Dict[str, Any]:
+        return {
+            "space": meta.space,
+            "network": meta.network,
+            "region": meta.region,
+            "island": meta.island,
+            "environment": meta.environment,
+            "project": meta.project,
+        }
+
     async def resolve_infra_config(self, meta: InfraMetadata) -> Dict[str, Any]:
         """Resolve config by delegating to the upstream ``/config`` route, which
         performs the root -> space -> network -> region -> island -> environment
         cascade. An upstream ``404`` (no matching config) maps to an empty dict so
         the route layer emits its own ``404``."""
         cache_key = f"cfg:{meta.space}:{meta.network}:{meta.region}:{meta.island}:{meta.environment}:{meta.project}"
-
-        cached = await self._cache.get(cache_key)
-        if cached is not None:
-            return cached
-
-        response = await self._get(
-            f"{self._prefix}/config",
-            {
-                "space": meta.space,
-                "network": meta.network,
-                "region": meta.region,
-                "island": meta.island,
-                "environment": meta.environment,
-                "project": meta.project,
-            },
+        return await self._cached_get(
+            cache_key,
+            "/config",
+            self._coord_params(meta),
+            {},
+            lambda body: body.get("configurations", {}),
         )
-        if response.status_code == 404:
-            return {}
-        self._ensure_ok(response)
-
-        result = response.json().get("configurations", {})
-        await self._cache.set(cache_key, result, ttl=self._cache_ttl)
-        return result
 
     async def resolve_naming_convention(self, meta: InfraMetadata) -> Dict[str, Any]:
         """Resolve the naming token suffixes by delegating to the upstream
         ``/naming`` route. With no coordinates supplied, the upstream returns the
         entire naming dictionary. An upstream ``404`` maps to an empty dict."""
         cache_key = f"name:{meta.space}:{meta.network}:{meta.region}:{meta.island}:{meta.environment}:{meta.project}"
-
-        cached = await self._cache.get(cache_key)
-        if cached is not None:
-            return cached
-
-        response = await self._get(
-            f"{self._prefix}/naming",
-            {
-                "space": meta.space,
-                "network": meta.network,
-                "region": meta.region,
-                "island": meta.island,
-                "environment": meta.environment,
-                "project": meta.project,
-            },
+        return await self._cached_get(
+            cache_key,
+            "/naming",
+            self._coord_params(meta),
+            {},
+            lambda body: body.get("naming_parts", {}),
         )
-        if response.status_code == 404:
-            return {}
-        self._ensure_ok(response)
-
-        payload = response.json().get("naming_parts", {})
-        await self._cache.set(cache_key, payload, ttl=self._cache_ttl)
-        return payload
 
     async def get_all_projects(self) -> List[str]:
         """Fetch every registered project from the upstream ``/projects`` route.
         An upstream ``404`` (empty registry) maps to an empty list."""
-        cache_key = "global:project_registry:all_names"
-
-        cached_list = await self._cache.get(cache_key)
-        if cached_list is not None:
-            return cached_list
-
-        response = await self._get(f"{self._prefix}/projects", {})
-        if response.status_code == 404:
-            return []
-        self._ensure_ok(response)
-
-        result_list = response.json().get("projects", [])
-        await self._cache.set(cache_key, result_list, ttl=self._cache_ttl)
-        return result_list
+        return await self._cached_get(
+            "global:project_registry:all_names",
+            "/projects",
+            {},
+            [],
+            lambda body: body.get("projects", []),
+        )
 
     async def get_coordinate_catalog(self) -> Dict[str, List[str]]:
         """Fetch the valid values per coordinate level plus the project list from
         the upstream ``/coordinates`` route. An upstream ``404`` maps to a catalog
         of empty lists."""
-        cache_key = "global:coordinate_catalog"
+        keys = ("space", "network", "region", "island", "environment", "projects")
+        return await self._cached_get(
+            "global:coordinate_catalog",
+            "/coordinates",
+            {},
+            {k: [] for k in keys},
+            lambda body: {k: body.get(k, []) for k in keys},
+        )
 
-        cached = await self._cache.get(cache_key)
-        if cached is not None:
-            return cached
-
-        empty = {k: [] for k in ("space", "network", "region", "island", "environment", "projects")}
-        response = await self._get(f"{self._prefix}/coordinates", {})
-        if response.status_code == 404:
-            return empty
-        self._ensure_ok(response)
-
-        body = response.json()
-        catalog = {k: body.get(k, []) for k in empty}
-        await self._cache.set(cache_key, catalog, ttl=self._cache_ttl)
-        return catalog
+    async def get_coordinate_tree(self) -> Dict[str, Any]:
+        """Fetch the nested coordinate hierarchy from the upstream
+        ``/coordinates/tree`` route. An upstream ``404`` maps to an empty tree."""
+        return await self._cached_get(
+            "global:coordinate_tree",
+            "/coordinates/tree",
+            {},
+            {"coordinates": {}, "projects": []},
+            lambda body: {
+                "coordinates": body.get("coordinates", {}),
+                "projects": body.get("projects", []),
+            },
+        )
