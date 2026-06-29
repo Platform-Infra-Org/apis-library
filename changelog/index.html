@@ -1604,15 +1604,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#100-2026-06-21" class="md-nav__link">
+  <a href="#000-2026-06-29" class="md-nav__link">
     <span class="md-ellipsis">
       
-        [1.0.0] - 2026-06-21
+        [0.0.0] - 2026-06-29
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="[1.0.0] - 2026-06-21">
+    <nav class="md-nav" aria-label="[0.0.0] - 2026-06-29">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1638,10 +1638,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#removed" class="md-nav__link">
+  <a href="#documentation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Removed
+        Documentation
       
     </span>
   </a>
@@ -1649,10 +1649,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fixed" class="md-nav__link">
+  <a href="#build-ci" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Fixed
+        Build &amp; CI
       
     </span>
   </a>
@@ -1699,15 +1699,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#100-2026-06-21" class="md-nav__link">
+  <a href="#000-2026-06-29" class="md-nav__link">
     <span class="md-ellipsis">
       
-        [1.0.0] - 2026-06-21
+        [0.0.0] - 2026-06-29
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="[1.0.0] - 2026-06-21">
+    <nav class="md-nav" aria-label="[0.0.0] - 2026-06-29">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1733,10 +1733,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#removed" class="md-nav__link">
+  <a href="#documentation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Removed
+        Documentation
       
     </span>
   </a>
@@ -1744,10 +1744,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fixed" class="md-nav__link">
+  <a href="#build-ci" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Fixed
+        Build &amp; CI
       
     </span>
   </a>
@@ -1779,95 +1779,58 @@
 <h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
 <p>All notable changes to this project are documented here. The format is based on
 <a href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>, and this project adheres to
-<a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>. The version itself is derived from git
-tags by setuptools-scm.</p>
-<h2 id="100-2026-06-21">[1.0.0] - 2026-06-21<a class="headerlink" href="#100-2026-06-21" title="Permanent link">&para;</a></h2>
-<p>First stable release. Adds a full inbound/outbound authentication story and a Remote Config
-capability to the FastAPI template, reorganizes the public API surface by concern (a breaking
-change), and modernizes packaging, tooling, and documentation.</p>
+<a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>. The version is derived from git tags by
+setuptools-scm.</p>
+<h2 id="000-2026-06-29">[0.0.0] - 2026-06-29<a class="headerlink" href="#000-2026-06-29" title="Permanent link">&para;</a></h2>
 <h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">&para;</a></h3>
-<p><strong>FastAPI template — authentication</strong>
-- <strong>Inbound JWT authentication</strong>, enforced by <code>AuthMiddleware</code> and <strong>dual-gated</strong> (<code>enable_auth=True</code>
-  <em>and</em> <code>AUTH_ENABLED=true</code>). The verifier auto-selects one mode from the configured material —
-  HS256 (<code>AUTH_HS256_SECRET</code>), local public key (<code>AUTH_PUBLIC_KEY_PEM</code>/<code>AUTH_PUBLIC_KEY_PATH</code>), or
-  JWKS (<code>AUTH_JWKS_URL</code>) — and raises <code>AuthConfigError</code> at startup on ambiguous/missing config.
-- <strong>OIDC issuer discovery</strong>: set <code>AUTH_OIDC_ISSUER</code> to resolve the <code>jwks_uri</code> from the issuer's
-  well-known document and verify in JWKS mode.
-- <strong>Non-expiring-token support</strong> via <code>AUTH_REQUIRE_EXP=false</code>.
-- <strong>Swagger Authorize tab</strong> appears automatically when auth is active.
-- Route helper <code>get_current_claims</code> and the standalone <code>verify_token()</code>.
-- <strong>Dev key/token generation</strong>: the <code>gen-auth-material</code> CLI plus <code>generate_keypair</code> / <code>mint_token</code> /
-  <code>load_keypair</code> / <code>derive_public_pem</code>.</p>
-<p><strong>FastAPI template — outbound SSO</strong>
-- OAuth2 <strong><code>client_credentials</code></strong> client: <code>SSOConfig</code>, <code>SSOTokenClient</code>, <code>SSOClientCredentialsAuth</code>,
-  <code>StaticBearerAuth</code>, and the headline <code>sso_authenticated_api(base_url)</code> — with token caching,
-  pre-expiry refresh, and a one-shot retry on <code>401</code>.</p>
-<p><strong>FastAPI template — Remote Config API</strong>
-- <code>enable_remote_config_api(app, …)</code>: an authenticated proxy to an upstream Config API with
-  in-memory caching, a background allowlist poller, live OpenAPI <code>enum</code> dropdowns, a
-  coordinate-validation→422 handler, and selectable <code>CONFIG_REMOTE_*</code> outbound auth (<code>sso</code>/<code>bearer</code>/
-  <code>none</code>).
-- Coordinate discovery: <code>RemoteConfigProvider.get_coordinate_catalog()</code> proxies the upstream
-  <code>/coordinates</code> route and returns a <code>CoordinateCatalogResponse</code> — the valid values per coordinate
-  level (<code>space</code>/<code>network</code>/<code>region</code>/<code>island</code>/<code>environment</code>) plus the project list — for clients to
-  discover allowed coordinates.</p>
-<p><strong>Public API</strong>
-- New public modules <code>fastapi_template.auth</code> (inbound JWT) and <code>fastapi_template.security</code> (outbound
-  SSO); auth error types (<code>AuthConfigError</code>, <code>TokenError</code>, <code>SSOError</code>) public via
-  <code>fastapi_template.errors</code> and the top-level package. <code>AuthMode</code> is now public.</p>
-<p><strong>Observability</strong>
-- Standardized Loguru logging added across the auth, SSO, and Remote Config code, following the
-  library's level conventions (INFO ops / DEBUG internals / WARNING misconfig / ERROR before raising).</p>
-<p><strong>Tooling &amp; CI</strong>
-- Adopted the Astral toolchain: <strong>Ruff</strong> (lint + format), <strong>ty</strong> (advisory type check), and <strong>uv</strong>
-  (fast runner). Added <code>.pre-commit-config.yaml</code> and a Woodpecker <code>check.yaml</code> pipeline that runs
-  Ruff + pytest + advisory ty on push/PR.</p>
-<p><strong>Documentation</strong>
-- A MkDocs (Material + mkdocstrings) documentation site organized by Diátaxis — tutorials, how-to
-  guides, reference, explanation, and contributing.
-- A comprehensive auto-generated <strong>API reference</strong> covering the connector services/clients/models,
-  the FastAPI app factory, inbound auth, outbound SSO, the Remote Config API, errors, and schemas,
-  with cross-references between documented symbols.</p>
+<ul>
+<li>Add inbound JWT authentication</li>
+<li>Run async_background_tasks via lifespan</li>
+<li>Show Swagger Authorize tab when auth is enabled</li>
+<li>Add JWT key/token generation utility to security</li>
+<li>Add external SSO client_credentials auth (client + server)</li>
+<li>Expose auth error types from a public module</li>
+<li>Add OIDC issuer discovery and non-expiring token support for inbound JWT</li>
+<li>Add client-side SSOConfig and StaticBearerAuth via public security module</li>
+<li>Add Remote Config API capability</li>
+<li>Add standard logging to auth, SSO, and config-api</li>
+<li>Add CoordinateCatalogResponse + coordinate-catalog proxy</li>
+<li>Add coordinate-tree proxy + CoordinateTreeResponse</li>
+</ul>
 <h3 id="changed">Changed<a class="headerlink" href="#changed" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong>Requires Python ≥ 3.10</strong> (previously 3.9). This is a breaking change for consumers still on 3.9;
-  folded into this unreleased 1.0.0 rather than a separate major bump.</li>
-<li><strong>Public API surface reorganized by concern</strong>: <code>fastapi_template.utils</code> now holds only the infra
-  utilities (<code>BaseAPI</code>, <code>settings</code>); inbound JWT lives in <code>auth</code>, outbound SSO in <code>security</code>, auth
-  errors in <code>errors</code>. (See <strong>Removed</strong> for the breaking move.)</li>
-<li><strong>Packaging consolidated to a single source of truth</strong> in <code>pyproject.toml</code>; the version is now
-  <strong>dynamic via setuptools-scm</strong> (<code>dynamic = ["version"]</code>) — no version is hardcoded in source, and
-  CI pins the published version from the git tag.</li>
-<li><strong>Dependencies reconciled</strong> (added <code>starlette</code>, <code>aiocache</code>, <code>cryptography</code>, <code>python-dotenv</code>;
-  corrected to Pydantic v2).</li>
-<li><strong>Tests consolidated</strong> into one top-level <code>tests/</code> tree with a single pytest config; tests now
-  import via the public API.</li>
-<li>Connector clients use <strong>relative imports</strong> for <code>BaseAPI</code>.</li>
-<li>Importing the <code>_internal.security</code> package (or running an auth-disabled app) <strong>no longer pulls in
-  PyJWT</strong> — the lazy-auth design now actually holds.</li>
-<li>Internal: the SSO Pydantic models (<code>SSOConfig</code>, <code>TokenResponse</code>) moved to a co-located
-  <code>_internal/security/models.py</code> (mirroring the connector model/logic split), and
-  <code>config_api/schemas.py</code> was renamed to <code>config_api/models.py</code> for naming consistency. No
-  public-API change — both are still imported from <code>fastapi_template.security</code> / <code>…config_api</code>.</li>
-<li>Background tasks run via the application lifespan.</li>
-<li><strong>README and MAINTAINERS slimmed</strong> to complement the docs site (now the single source of truth).</li>
+<li>Drop auth error types from the top-level public export</li>
+<li>Consolidate packaging, unify tests, and reorganize public API surface</li>
+<li>Hoist BaseAPI import so its cross-refs resolve via scope</li>
+<li>Split SSO Pydantic models into co-located models.py</li>
+<li>Rename schemas.py to models.py</li>
+<li>Cut over-engineering flagged by audit (internal only)</li>
 </ul>
-<h3 id="removed">Removed<a class="headerlink" href="#removed" title="Permanent link">&para;</a></h3>
+<h3 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong>Breaking:</strong> the auth/SSO helpers are <strong>no longer re-exported from <code>fastapi_template.utils</code></strong>.
-  Import inbound JWT from <code>fastapi_template.auth</code> and outbound SSO from <code>fastapi_template.security</code>
-  (clean break — no deprecation shims).</li>
-<li>Deleted the legacy <code>setup.py</code>, <code>requirements.txt</code>, and the redundant <code>MANIFEST.in</code> (obsolete under
-  the src-layout + setuptools-scm).</li>
-<li>Removed the dead <code>terraform_runner</code> module.</li>
+<li>Add CLAUDE.md repository guide</li>
+<li>Document auth toolkit in README and MAINTAINERS</li>
+<li>Document OIDC discovery, SSO client config, Remote Config API, and token expiry</li>
+<li>Add MkDocs documentation site (Diátaxis)</li>
+<li>Slim README and MAINTAINERS to complement the docs</li>
+<li>Render the home-page grid cards and icons</li>
+<li>Add CHANGELOG with the 1.0.0 release notes</li>
+<li>Surface the changelog in the MkDocs site</li>
+<li>Convert RST docstring roles to Markdown for mkdocstrings</li>
+<li>Expand the API reference to cover more of the package</li>
+<li>Note the comprehensive API reference in the 1.0.0 changelog</li>
+<li>Document the Remote Config coordinate-catalog discovery</li>
+<li>Fix broken config-api anchor link + validate anchors</li>
 </ul>
-<h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">&para;</a></h3>
+<h3 id="build-ci">Build &amp; CI<a class="headerlink" href="#build-ci" title="Permanent link">&para;</a></h3>
 <ul>
-<li><code>connectors/argocd/service.py</code>: defined the undefined <code>ParamList</code> type alias and added the missing
-  typing imports (a latent bug surfaced by Ruff's <code>F821</code>).</li>
-<li>Top-level package exports: <code>AWXError</code> and the auth error types are now declared in <code>__all__</code>.</li>
-<li>Docs home page: grid cards and Material icons now render (added the <code>md_in_html</code> and
-  <code>pymdownx.emoji</code> markdown extensions).</li>
+<li>Configure Ruff, ty, and uv (no lockfile) + docs deps</li>
+<li>Enforce Ruff/ty/pytest via pre-commit and Woodpecker</li>
+<li>Remove redundant MANIFEST.in</li>
+<li>Require Python &gt;=3.10 and use scoped mkdocstrings cross-references</li>
+<li>Add git-cliff release automation and GitHub Actions workflows</li>
+<li>Deploy docs to Pages via GitHub Actions instead of gh-deploy</li>
+<li>Run checks via uv-managed venv instead of --system</li>
 </ul>
 
 
