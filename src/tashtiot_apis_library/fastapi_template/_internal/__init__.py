@@ -45,6 +45,10 @@ def general_create_app(
         finally:
             for task in tasks:
                 task.cancel()
+            # Wait for cancellation to unwind so each task runs its cleanup
+            # before shutdown completes. return_exceptions swallows the
+            # expected CancelledError (and any teardown errors).
+            await asyncio.gather(*tasks, return_exceptions=True)
 
     app = FastAPI(
         **fastapi_kwargs,
