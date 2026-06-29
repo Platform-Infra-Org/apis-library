@@ -5,7 +5,7 @@ All notable changes to this project are documented here. The format is based on
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). The version is derived from git tags by
 setuptools-scm.
 
-## [Unreleased]
+## [0.0.0] - 2026-06-29
 
 ### Added
 
@@ -20,6 +20,7 @@ setuptools-scm.
 - Add Remote Config API capability
 - Add standard logging to auth, SSO, and config-api
 - Add CoordinateCatalogResponse + coordinate-catalog proxy
+- Add coordinate-tree proxy + CoordinateTreeResponse
 
 ### Changed
 
@@ -28,6 +29,7 @@ setuptools-scm.
 - Hoist BaseAPI import so its cross-refs resolve via scope
 - Split SSO Pydantic models into co-located models.py
 - Rename schemas.py to models.py
+- Cut over-engineering flagged by audit (internal only)
 
 ### Documentation
 
@@ -51,3 +53,6 @@ setuptools-scm.
 - Enforce Ruff/ty/pytest via pre-commit and Woodpecker
 - Remove redundant MANIFEST.in
 - Require Python >=3.10 and use scoped mkdocstrings cross-references
+- Add git-cliff release automation and GitHub Actions workflows
+- Deploy docs to Pages via GitHub Actions instead of gh-deploy
+- Run checks via uv-managed venv instead of --system
