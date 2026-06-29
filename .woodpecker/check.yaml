@@ -1,0 +1,16 @@
+# Lint / type / test checks on every push and pull request.
+# (The tag-only build.yaml handles building & publishing — kept separate.)
+when:
+  - event: [push, pull_request]
+
+steps:
+  - name: lint-type-test
+    image: harbor.app.com/devops-infra/generic-python311:1.0.0
+    commands:
+      - pip install --upgrade pip uv
+      # Fast install of the project + dev tools (ruff, ty, pytest) into the image.
+      - uv pip install --system -e ".[dev]"
+      - ruff format --check .          # formatting must match
+      - ruff check .                   # lint must pass
+      - pytest                         # test suite must pass
+      - ty check src || true           # advisory: type errors never fail the build

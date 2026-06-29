@@ -1,6 +1,7 @@
 """Middleware for recording request processing time."""
 
 import time
+
 from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware
 

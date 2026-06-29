@@ -1,19 +1,21 @@
 [build-system]
-requires = ["setuptools>=64", "wheel"]
+requires = ["setuptools>=64", "wheel", "setuptools-scm>=8"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "tashtiot-apis-library"
-version = "0.1.0"
 description = "Unified package for infrastructure connectors (ArgoCD, Git, Vault) and FastAPI template utilities"
 readme = "README.md"
 authors = [
     { name = "Yehonatan Magen" },
     { name = "Alon Elimelech" },
-    { name = "Chaim Mendelson" }
+    { name = "Chaim Mendelson" },
+    { name = "Daniel Tsytrinbaum" }
 ]
 license = { file = "LICENSE" }
-requires-python = ">=3.9"
+requires-python = ">=3.10"
+# version is provided by setuptools-scm from git tags
+dynamic = ["version"]
 dependencies = [
     "fastapi>=0.95",
     "httpx>=0.24",
@@ -22,7 +24,12 @@ dependencies = [
     "pydantic-settings>=2.0",
     "pyyaml>=6.0.3",
     "prometheus-client",
-    "uvicorn"
+    "uvicorn",
+    "pyjwt[crypto]>=2.9.0",
+    "starlette",
+    "aiocache",
+    "cryptography",
+    "python-dotenv",
 ]
 
 # Optional dependencies
@@ -30,13 +37,29 @@ dependencies = [
 dev = [
     "pytest",
     "pytest-asyncio",
+    "pytest-cov",
     "respx",
+    "ruff",
+    "ty",
+    "pre-commit",
 ]
+docs = [
+    "mkdocs",
+    "mkdocs-material",
+    "mkdocstrings[python]",
+    # 1.19+ wires scoped cross-references (needs Python >= 3.10); stay on the 1.x line for now.
+    "mkdocstrings-python>=1.19,<2",
+]
+
+[tool.setuptools_scm]
+
+# Console entry points
+[project.scripts]
+gen-auth-material = "tashtiot_apis_library.fastapi_template._internal.security.keygen:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["tashtiot_apis_library", "tashtiot_apis_library.*"]
-exclude = ["tashtiot_apis_library.fastapi_template.tests*"]
 
 [tool.setuptools.package-data]
 tashtiot_apis_library = ["fastapi_template/static/**"]
@@ -45,10 +68,13 @@ tashtiot_apis_library = ["fastapi_template/static/**"]
 include-package-data = true
 
 [tool.pytest.ini_options]
-testpaths = ["tashtiot_apis_library/fastapi_template/tests"]
+testpaths = ["tests"]
+pythonpath = ["src"]
 python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
 
-addopts = "-ra -q --disable-warnings --strict-markers"
+addopts = "-ra -q --disable-warnings --strict-markers --cov=tashtiot_apis_library --cov-report=term-missing"
 
 markers = [
     "asyncio: mark test to be run by the asyncio event loop",
@@ -60,3 +86,41 @@ log_cli = true
 log_cli_level = "INFO"
 log_cli_format = "%(asctime)s [%(levelname)s] %(message)s"
 log_cli_date_format = "%H:%M:%S"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+# Conservative, high-signal set. Intentionally NOT enabling: TID252 (the package
+# relies on relative imports), G (it mixes f-string and {}-style Loguru calls), and
+# UP (pyupgrade pushes PEP 585/604 annotations that are runtime-unsafe on the py39
+# target with this codebase's mixed `from __future__ import annotations` usage).
+select = ["E", "F", "I", "B", "C4"]
+ignore = ["E501"]  # line length is owned by the formatter
+
+[tool.ruff.lint.isort]
+known-first-party = ["tashtiot_apis_library"]
+
+[tool.ruff.lint.flake8-bugbear]
+# FastAPI's dependency-injection markers are *designed* to be called in argument
+# defaults, so they are not the mutable-default antipattern B008 warns about.
+extend-immutable-calls = [
+    "fastapi.Depends",
+    "fastapi.Query",
+    "fastapi.Header",
+    "fastapi.Path",
+    "fastapi.Cookie",
+    "fastapi.Body",
+    "fastapi.Form",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# auth.py re-exports JWTVerifier/verify_token/AuthMode/keygen lazily via __getattr__,
+# so they are listed in __all__ but not statically defined in the module.
+"src/tashtiot_apis_library/fastapi_template/auth.py" = ["F822"]
+
+[tool.ty.environment]
+python-version = "3.10"
+root = ["./src"]

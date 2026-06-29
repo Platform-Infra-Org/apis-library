@@ -1,6 +1,4 @@
 """Router registration for the FastAPI Template application."""
-from pathlib import Path
-from typing import List
 
 from fastapi import FastAPI
 
@@ -26,4 +24,3 @@ def add_routers(
 
     if enable_probe:
         app.include_router(health_router, include_in_schema=False)
-

@@ -1,5 +1,7 @@
 """Settings definition for the FastAPI Template application factory."""
 
+from typing import Optional
+
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -30,7 +32,7 @@ class ApplicationSettings(BaseSettings):
     RELOAD_INCLUDES: list[str] = Field(
         default=[".env"],
         description="List of paths to files that triggers reloading.",
-        examples=[["*.py"]]
+        examples=[["*.py"]],
     )
 
     APP_NAME: str = Field(
@@ -78,7 +80,15 @@ class ApplicationSettings(BaseSettings):
     SWAGGER_OPENAPI_JSON_URL: str = OPENAPI_JSON_URL
 
     LOG_REQUEST_EXCLUDE_PATHS: list[str] = Field(
-        default=["/health", "/metrics", "/static", "/docs", "/redoc", "/openapi.json", "/.well-known"],
+        default=[
+            "/health",
+            "/metrics",
+            "/static",
+            "/docs",
+            "/redoc",
+            "/openapi.json",
+            "/.well-known",
+        ],
         description="List of paths to ignore for logging.",
         examples=[["/health", "/metrics"]],
     )
@@ -95,3 +105,179 @@ class ApplicationSettings(BaseSettings):
         examples=["/liveness", "/api/liveness"],
     )
 
+    # --- Inbound JWT authentication ---
+
+    AUTH_ENABLED: bool = Field(
+        default=False,
+        description="Runtime master switch for inbound JWT bearer authentication.",
+        examples=[True, False],
+    )
+
+    AUTH_HEADER_NAME: str = Field(
+        default="Authorization",
+        description="Request header carrying the bearer token.",
+        examples=["Authorization", "X-Auth-Token"],
+    )
+
+    AUTH_HS256_SECRET: Optional[str] = Field(
+        default=None,
+        description="Shared secret for HS256 verification. If set, selects HS256 mode.",
+        examples=["super-secret-value"],
+    )
+
+    AUTH_JWKS_URL: Optional[str] = Field(
+        default=None,
+        description="JWKS/OIDC endpoint URL for RS256 verification with key caching. Selects JWKS mode.",
+        examples=["https://idp.example.com/.well-known/jwks.json"],
+    )
+
+    AUTH_OIDC_ISSUER: Optional[str] = Field(
+        default=None,
+        description=(
+            "OIDC issuer base URL. Selects JWKS mode by discovering the provider's "
+            "'jwks_uri' from <issuer>/.well-known/openid-configuration at startup "
+            "(an explicit AUTH_JWKS_URL takes precedence). Also used as the default "
+            "expected 'iss' when AUTH_ISSUER is unset."
+        ),
+        examples=["https://idp.example.com/", "https://sso.example.com/realms/platform"],
+    )
+
+    AUTH_OIDC_VERIFY_SSL: bool = Field(
+        default=True,
+        description="Verify the TLS certificate when fetching the OIDC discovery document.",
+        examples=[True, False],
+    )
+
+    AUTH_OIDC_TIMEOUT: float = Field(
+        default=10.0,
+        description="Timeout in seconds for the one-shot OIDC discovery request at startup.",
+        examples=[10.0, 5.0],
+    )
+
+    AUTH_PUBLIC_KEY_PEM: Optional[str] = Field(
+        default=None,
+        description="Inline PEM public key for offline RS256 verification. Selects local-pubkey mode.",
+        examples=["-----BEGIN PUBLIC KEY-----\n...\n-----END PUBLIC KEY-----"],
+    )
+
+    AUTH_PUBLIC_KEY_PATH: Optional[str] = Field(
+        default=None,
+        description="Filesystem path to a PEM public key (alternative to AUTH_PUBLIC_KEY_PEM). Selects local-pubkey mode.",
+        examples=["/etc/secrets/jwt_pub.pem"],
+    )
+
+    AUTH_ALGORITHMS: list[str] = Field(
+        default=["RS256"],
+        description="Allowed JWT signing algorithms. HS256 mode forces ['HS256'].",
+        examples=[["RS256"], ["HS256"], ["RS256", "RS384"]],
+    )
+
+    AUTH_REQUIRE_EXP: bool = Field(
+        default=True,
+        description=(
+            "Require the 'exp' claim on inbound tokens. True (default) rejects tokens without an "
+            "expiry; set False to accept non-expiring tokens (e.g. a forever gen-auth-material token)."
+        ),
+        examples=[True, False],
+    )
+
+    AUTH_AUDIENCE: Optional[str] = Field(
+        default=None,
+        description="Expected 'aud' claim. When None, audience is not validated.",
+        examples=["my-api"],
+    )
+
+    AUTH_ISSUER: Optional[str] = Field(
+        default=None,
+        description="Expected 'iss' claim. When None, issuer is not validated.",
+        examples=["https://idp.example.com/"],
+    )
+
+    AUTH_JWKS_CACHE_TTL: int = Field(
+        default=3600,
+        description="Seconds to cache fetched JWKS keys before refetching.",
+        examples=[3600, 300],
+    )
+
+    AUTH_EXCLUDE_PATHS: list[str] = Field(
+        default=[
+            "/health",
+            "/metrics",
+            "/static",
+            "/docs",
+            "/redoc",
+            "/openapi.json",
+            "/.well-known",
+            "/liveness",
+            "/readiness",
+        ],
+        description="Path prefixes/regexes that bypass authentication. Matched like LOG_REQUEST_EXCLUDE_PATHS.",
+        examples=[["/health", "/metrics"]],
+    )
+
+    # --- Outbound SSO (OAuth2 client_credentials) ---
+
+    AUTH_SSO_TOKEN_URL: Optional[str] = Field(
+        default=None,
+        description="OAuth2 token endpoint for the client_credentials grant. Required to use the SSO token client.",
+        examples=[
+            "https://idp.example.com/oauth/token",
+            "https://login.microsoftonline.com/<tenant>/oauth2/v2.0/token",
+        ],
+    )
+
+    AUTH_SSO_CLIENT_ID: Optional[str] = Field(
+        default=None,
+        description="OAuth2 client id for the client_credentials grant.",
+        examples=["my-service"],
+    )
+
+    AUTH_SSO_CLIENT_SECRET: Optional[str] = Field(
+        default=None,
+        description="OAuth2 client secret for the client_credentials grant.",
+        examples=["super-secret-value"],
+    )
+
+    AUTH_SSO_SCOPE: Optional[str] = Field(
+        default=None,
+        description=(
+            "Space-separated OAuth2 scopes to request, sent as the 'scope' field. When None, no "
+            "scope is sent. On Keycloak this is also how a downstream 'aud' is obtained: request a "
+            "client scope that carries an Audience mapper (AUTH_SSO_AUDIENCE is ignored by Keycloak)."
+        ),
+        examples=["api.read api.write"],
+    )
+
+    AUTH_SSO_AUDIENCE: Optional[str] = Field(
+        default=None,
+        description=(
+            "'audience' parameter sent in the token request, honored by Auth0-style providers. "
+            "When None, it is omitted. NOTE: Keycloak ignores this parameter -- set the downstream "
+            "'aud' via an Audience mapper requested through AUTH_SSO_SCOPE instead."
+        ),
+        examples=["https://api.example.com"],
+    )
+
+    AUTH_SSO_AUTH_STYLE: str = Field(
+        default="post",
+        description="How client credentials are sent to the token endpoint: 'post' (form body) or 'basic' (HTTP Basic).",
+        examples=["post", "basic"],
+    )
+
+    AUTH_SSO_VERIFY_SSL: bool = Field(
+        default=True,
+        description="Verify the TLS certificate of the SSO token endpoint.",
+        examples=[True, False],
+    )
+
+    AUTH_SSO_TIMEOUT: float = Field(
+        default=10.0,
+        description="Timeout in seconds for token endpoint requests.",
+        examples=[10.0, 5.0],
+    )
+
+    AUTH_SSO_EXPIRY_SKEW: int = Field(
+        default=30,
+        description="Refresh the cached access token this many seconds before its expiry.",
+        examples=[30, 60],
+    )

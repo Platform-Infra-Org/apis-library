@@ -18,27 +18,19 @@ __all__ = [
 
 class OperationResponse(BaseModel):
     """Base response schema for operations.
-    
+
     Attributes:
         status: Operation status - typically "successful", a response from external service, or "failed"
         status_code: HTTP status code if applicable
         return_code: Process return code if applicable
         stdout: Standard output from the operation
     """
-    
+
     status: str = Field(
-        ...,
-        description='Operation status: "successful", external service response, or "failed"'
+        ..., description='Operation status: "successful", external service response, or "failed"'
     )
     status_code: Optional[int] = Field(
-        default=None,
-        description="HTTP status code from external service"
+        default=None, description="HTTP status code from external service"
     )
-    return_code: Optional[int] = Field(
-        default=None,
-        description="Process return code"
-    )
-    stdout: str = Field(
-        default="",
-        description="Standard output from the operation"
-    )
+    return_code: Optional[int] = Field(default=None, description="Process return code")
+    stdout: str = Field(default="", description="Standard output from the operation")

@@ -2,10 +2,11 @@
 
 import logging
 import logging.config
+import os
 import sys
 import traceback as _tb
-import os
 from typing import Iterable, List
+
 from loguru import logger
 from uvicorn.config import LOGGING_CONFIG as UVICORN_LOGGING_CONFIG
 
@@ -44,7 +45,7 @@ def _to_module(path: str) -> str:
         rel = rel[: -len(".__init__")]
     elif rel.endswith("__init__"):
         parent = os.path.basename(os.path.dirname(ap))
-        rel = parent or rel[:-len("__init__")] or "__init__"
+        rel = parent or rel[: -len("__init__")] or "__init__"
 
     return rel
 
@@ -65,7 +66,9 @@ def _exception_path(frames: Iterable[_tb.FrameSummary]) -> List[str]:
         return []
 
     project_frames = [frame for frame in frames_list if _is_project_frame(frame)]
-    candidates = project_frames or [frame for frame in frames_list if not _in_package(frame.filename)]
+    candidates = project_frames or [
+        frame for frame in frames_list if not _in_package(frame.filename)
+    ]
     if not candidates:
         candidates = [frames_list[-1]]
 
@@ -81,6 +84,7 @@ def _exception_path(frames: Iterable[_tb.FrameSummary]) -> List[str]:
             seen.add(key)
 
     return [_format_frame(frame) for frame in ordered]
+
 
 class UvicornHandler(logging.Handler):
     def emit(self, record: logging.LogRecord) -> None:  # pragma: no cover - thin wrapper
@@ -110,7 +114,7 @@ def base_formatter(record: dict) -> str:
         location = override
     else:
         # defaults from the call site
-        module = record["name"]          # dotted module
+        module = record["name"]  # dotted module
         func = record["function"]
         line = record["line"]
         location = None
@@ -165,27 +169,26 @@ def base_formatter(record: dict) -> str:
     )
 
 
-
 def configure_uvicorn(log_level: str = "INFO") -> None:
     UVICORN_LOGGING_CONFIG["handlers"] = {
-            "UvicornHandler": {
-                "level": log_level.upper(),
-                "()": UvicornHandler,
-            }
+        "UvicornHandler": {
+            "level": log_level.upper(),
+            "()": UvicornHandler,
         }
+    }
 
     UVICORN_LOGGING_CONFIG["loggers"] = {
-            "uvicorn": {
-                "level": log_level.upper(),
-                "handlers": ["UvicornHandler"],
-                "propagate": False,
-            },
-            "uvicorn.access": {
-                "level": log_level.upper(),
-                "handlers": [],
-                "propagate": False,
-            },
-        }
+        "uvicorn": {
+            "level": log_level.upper(),
+            "handlers": ["UvicornHandler"],
+            "propagate": False,
+        },
+        "uvicorn.access": {
+            "level": log_level.upper(),
+            "handlers": [],
+            "propagate": False,
+        },
+    }
 
 
 class Logger:

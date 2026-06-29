@@ -3,13 +3,13 @@
 from __future__ import annotations
 
 import base64
-from typing import Iterable, List, Optional, Sequence, Tuple, Union
+from typing import List, Optional, Sequence, Tuple, Union
 
 from loguru import logger
 
-from .client import GitClient
-from .models import GitChangedFile, GitDirectoryEntry, GitFileContent
 from ..errors import GitError
+from .client import GitClient
+from .models import GitDirectoryEntry, GitFileContent
 
 __all__ = ["Git", "logger"]
 
@@ -25,7 +25,7 @@ class Git:
         project_key: str,
         repo_slug: str,
         default_ref: str = "main",
-        ssh_key_file_path: str =  "/etc/.ssh/private_key",
+        ssh_key_file_path: str = "/etc/.ssh/private_key",
     ) -> None:
         logger.debug(
             "Initialising Git service with Bitbucket Server: base_url={}, project_key={}, repo_slug={}",
@@ -45,23 +45,45 @@ class Git:
         self.default_ref = default_ref
         self.last_commit: Optional[str] = None
 
-    async def modify_file(self, path: str, commit_message: str, content: Union[str, bytes], *, branch: Optional[str] = None) -> None:
+    async def modify_file(
+        self,
+        path: str,
+        commit_message: str,
+        content: Union[str, bytes],
+        *,
+        branch: Optional[str] = None,
+    ) -> None:
         logger.info("Modifying file at path={} (branch={}).", path, branch or self.default_ref)
         await self._ensure_exists_for_mutation(path, branch)
-        await self.client.create_or_update_file(path, commit_message, content, branch=branch, create=False)
+        await self.client.create_or_update_file(
+            path, commit_message, content, branch=branch, create=False
+        )
         return
 
-    async def add_file(self, path: str, commit_message: str, content: Union[str, bytes], *, branch: Optional[str] = None) -> None:
+    async def add_file(
+        self,
+        path: str,
+        commit_message: str,
+        content: Union[str, bytes],
+        *,
+        branch: Optional[str] = None,
+    ) -> None:
         logger.info("Adding file at path={} (branch={}).", path, branch or self.default_ref)
         await self._ensure_absent_for_create(path, branch)
-        await self.client.create_or_update_file(path, commit_message, content, branch=branch, create=True)
+        await self.client.create_or_update_file(
+            path, commit_message, content, branch=branch, create=True
+        )
         return
 
-    async def delete_file(self, path: str, commit_message: str, *, branch: Optional[str] = None) -> None:
+    async def delete_file(
+        self, path: str, commit_message: str, *, branch: Optional[str] = None
+    ) -> None:
         logger.info("Deleting file at path={} (branch={}).", path, branch or self.default_ref)
         await self.client.delete_file(path, commit_message, branch)
 
-    async def get_file_content(self, path: str, ref: Optional[str] = None, encoding: str = "utf-8") -> str:
+    async def get_file_content(
+        self, path: str, ref: Optional[str] = None, encoding: str = "utf-8"
+    ) -> str:
         logger.debug("Fetching text for path={} (ref={}).", path, ref or self.default_ref)
         meta = await self._get_file(path, ref=ref)
         if not meta.content:
@@ -78,7 +100,9 @@ class Git:
         ]
 
     async def list_files_recursive(self, path: str = "", ref: Optional[str] = None) -> List[str]:
-        logger.debug("Listing files recursively from path={} (ref={}).", path or "/", ref or self.default_ref)
+        logger.debug(
+            "Listing files recursively from path={} (ref={}).", path or "/", ref or self.default_ref
+        )
         if hasattr(self.client, "list_files_recursive"):
             return await self.client.list_files_recursive(path, ref)
 
@@ -137,7 +161,7 @@ class Git:
         return await self.client.list_dir(path, ref=ref)
 
     async def file_exists(self, path: str, ref: Optional[str] = None) -> bool:
-        
+
         try:
             await self._get_file(path, ref or self.default_ref)
             return True

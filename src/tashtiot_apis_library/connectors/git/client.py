@@ -2,25 +2,27 @@
 
 from __future__ import annotations
 
-import subprocess
 import asyncio
 import base64
 import hashlib
 import os
-import re
-from pathlib import Path
 import shutil
 import tempfile
+from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
+
 from loguru import logger
-from tashtiot_apis_library.fastapi_template.utils import BaseAPI
+
+from ...fastapi_template.utils import BaseAPI
 from ..errors import GitError
-from .models import GitChangedFile, GitDirectoryEntry, GitFileContent
+from .models import GitDirectoryEntry, GitFileContent
 
 __all__ = ["GitClient"]
 
 
-async def _run_git(args: List[str], cwd: Optional[str] = None, env: Optional[Dict[str, str]] = None) -> Tuple[str, str]:
+async def _run_git(
+    args: List[str], cwd: Optional[str] = None, env: Optional[Dict[str, str]] = None
+) -> Tuple[str, str]:
     cmd = ["git"] + args
     logger.debug(f"running {' '.join(cmd)}")
     process = await asyncio.create_subprocess_exec(
@@ -36,12 +38,10 @@ async def _run_git(args: List[str], cwd: Optional[str] = None, env: Optional[Dic
 
     if process.returncode != 0:
         logger.debug(f"{' '.join(cmd)} has failed due to {' '.join(args)}\n{stderr}")
-        raise GitError(
-            status_code=500,
-            detail=f"Git command failed: {' '.join(args)}\n{stderr}"
-        )
+        raise GitError(status_code=500, detail=f"Git command failed: {' '.join(args)}\n{stderr}")
     return stdout, stderr
-  
+
+
 def _safe_json(response) -> Dict[str, Any]:
     try:
         return response.json()
@@ -100,39 +100,45 @@ class GitClient:
         self.repo_slug = repo_slug
         self._default_ref = default_ref
         self.project_key = project_key
-        self.ssh_host = f'{base_url.replace("https://", "").split("/")[0]}:7995'
+        self.ssh_host = f"{base_url.replace('https://', '').split('/')[0]}:7995"
 
         self._git_env = os.environ.copy()
         self._git_env["GIT_SSH_COMMAND"] = f"ssh -i {ssh_key_file_path} -o StrictHostKeyChecking=no"
-        
+
         self.username_or_email = username_or_email
 
     async def get_file(self, path: str, ref: Optional[str] = None) -> GitFileContent:
         ref = ref or self._default_ref
         endpoint = _server_browse_endpoint(self.project_key, self.repo_slug, path)
         params = {"at": ref}
-        
+
         # Get metadata
         meta_response = await self.api.get(endpoint, params=params)
         meta_data = _safe_json(meta_response)
         _handle_response(meta_data, meta_response.status_code)
-        
+
         # Get raw content
         raw_params = {"at": ref, "raw": 1}
-        raw_response = await self.api.get(endpoint, params=raw_params, headers={"Accept": "application/octet-stream"})
+        raw_response = await self.api.get(
+            endpoint, params=raw_params, headers={"Accept": "application/octet-stream"}
+        )
         _handle_response(_safe_json(raw_response), raw_response.status_code)
         content_bytes = raw_response.content
-        
+
         # Parse metadata
         path_meta = meta_data.get("path") if isinstance(meta_data, dict) else {}
         if isinstance(path_meta, dict):
-            components = path_meta.get("components") if isinstance(path_meta.get("components"), list) else None
+            components = (
+                path_meta.get("components")
+                if isinstance(path_meta.get("components"), list)
+                else None
+            )
             meta_path = path_meta.get("toString") or "/".join(components or [])
             meta_name = path_meta.get("name")
         else:
             meta_path = None
             meta_name = None
-            
+
         return GitFileContent(
             type="file",
             encoding="base64",
@@ -149,24 +155,28 @@ class GitClient:
         response = await self.api.get(endpoint, params={"at": ref})
         data = _safe_json(response)
         _handle_response(data, response.status_code)
-        
+
         children = {}
         if isinstance(data, dict):
             children = data.get("children", {}) or {}
-            
+
         values: Iterable[Dict[str, Any]] = []
         if isinstance(children, dict):
             raw_values = children.get("values")
             if isinstance(raw_values, list):
                 values = raw_values
-                
+
         entries: List[GitDirectoryEntry] = []
         for entry in values:
             if not isinstance(entry, dict):
                 continue
             path_meta = entry.get("path")
             if isinstance(path_meta, dict):
-                components = path_meta.get("components") if isinstance(path_meta.get("components"), list) else None
+                components = (
+                    path_meta.get("components")
+                    if isinstance(path_meta.get("components"), list)
+                    else None
+                )
                 entry_path = path_meta.get("toString") or "/".join(components or [])
             else:
                 entry_path = path_meta
@@ -182,36 +192,38 @@ class GitClient:
             )
         return entries
 
-      
     async def _server_branch_head(self, branch: str) -> Optional[str]:
         endpoint = f"/projects/{self.project_key}/repos/{self.repo_slug}/branches"
         response = await self.api.get(endpoint, params={"filterText": branch, "limit": 1})
         data = _safe_json(response)
         _handle_response(data, response.status_code)
-        
+
         if not isinstance(data, dict):
             return None
-          
+
         values = data.get("values")
-        
+
         if not isinstance(values, list):
             return None
-          
+
         normalised = branch.replace("refs/heads/", "")
-        
+
         for entry in values:
             if not isinstance(entry, dict):
                 continue
-            
+
             display_id = entry.get("displayId") or entry.get("display_id")
             entry_id = entry.get("id")
-            if display_id == normalised or entry_id == branch or entry_id ==f"refs/heads/{normalised}":
+            if (
+                display_id == normalised
+                or entry_id == branch
+                or entry_id == f"refs/heads/{normalised}"
+            ):
                 latest = entry.get("latestCommit") or entry.get("latest_commit")
                 if isinstance(latest, str) and latest:
                     return latest
-            
+
         return None
-      
 
     async def _commit(
         self,
@@ -223,14 +235,14 @@ class GitClient:
         create: bool,
     ) -> None:
         source_commit = await self._server_branch_head(branch or self._default_ref)
-        
+
         for path, content in (files or {}).items():
             endpoint = _server_browse_endpoint(self.project_key, self.repo_slug, path)
-            data={"message": commit_message, "branch": branch}
+            data = {"message": commit_message, "branch": branch}
             if source_commit:
-              data["sourceCommitId"] = source_commit
+                data["sourceCommitId"] = source_commit
             if create:
-              data.pop("sourceCommitId", None)
+                data.pop("sourceCommitId", None)
             response = await self.api.put(
                 endpoint,
                 data=data,
@@ -244,50 +256,75 @@ class GitClient:
             )
 
             _handle_response(_safe_json(response), response.status_code)
-        
 
-    async def create_or_update_file(self, path: str, commit_message: str, content: Union[str, bytes], create:bool, branch: Optional[str] = None) -> None:
+    async def create_or_update_file(
+        self,
+        path: str,
+        commit_message: str,
+        content: Union[str, bytes],
+        create: bool,
+        branch: Optional[str] = None,
+    ) -> None:
         data_bytes = content.encode() if isinstance(content, str) else content
-        await self._commit(commit_message, files={path: data_bytes}, deleted=[], branch=branch, create=create)
+        await self._commit(
+            commit_message, files={path: data_bytes}, deleted=[], branch=branch, create=create
+        )
 
-    async def delete_file(self, path: str, commit_message: str, branch: Optional[str] = None) -> None:
-        
+    async def delete_file(
+        self, path: str, commit_message: str, branch: Optional[str] = None
+    ) -> None:
+
         temp_dir = tempfile.mktemp(prefix="git-delete-")
-        
+
         try:
             ref = branch or self._default_ref
             ssh_url = f"ssh://git@{self.ssh_host}/{self.project_key}/{self.repo_slug}.git"
             repo_dir = os.path.join(temp_dir, "repo")
 
-            await _run_git([
-                "clone",
-                "--depth", "1",
-                "--branch", ref,
-                "--single-branch",
-                ssh_url,
-                repo_dir,
-            ], env=self._git_env)
-            
-            await _run_git([
-                "-C", repo_dir,
-                "config",
-                "--local", "user.name",
-                self.username_or_email,
-            ], env=self._git_env)
-            
-            await _run_git([
-                "-C", repo_dir,
-                "config",
-                "--local", "user.email",
-                self.username_or_email,
-            ], env=self._git_env)
+            await _run_git(
+                [
+                    "clone",
+                    "--depth",
+                    "1",
+                    "--branch",
+                    ref,
+                    "--single-branch",
+                    ssh_url,
+                    repo_dir,
+                ],
+                env=self._git_env,
+            )
 
-            file_path = os.path.join(repo_dir, path.lstrip('/'))
+            await _run_git(
+                [
+                    "-C",
+                    repo_dir,
+                    "config",
+                    "--local",
+                    "user.name",
+                    self.username_or_email,
+                ],
+                env=self._git_env,
+            )
+
+            await _run_git(
+                [
+                    "-C",
+                    repo_dir,
+                    "config",
+                    "--local",
+                    "user.email",
+                    self.username_or_email,
+                ],
+                env=self._git_env,
+            )
+
+            file_path = os.path.join(repo_dir, path.lstrip("/"))
             if not os.path.exists(file_path):
                 raise GitError(status_code=404, detail=f"File {path} not found")
 
             os.remove(file_path)
-            await _run_git(["add", path.lstrip('/')], cwd=repo_dir, env=self._git_env)
+            await _run_git(["add", path.lstrip("/")], cwd=repo_dir, env=self._git_env)
             await _run_git(["commit", "-m", commit_message], cwd=repo_dir, env=self._git_env)
 
             max_retries = 3

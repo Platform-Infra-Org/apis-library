@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from typing import Mapping, Union
 
-from pydantic import BaseModel
 from loguru import logger
+from pydantic import BaseModel
 
 from .client import VaultClient
 from .models import VaultSecret, VaultSecretPayload
@@ -14,7 +14,7 @@ __all__ = ["Vault", "logger"]
 
 
 class Vault:
-    """Higher level wrapper around :class:`VaultClient`."""
+    """Higher level wrapper around `VaultClient`."""
 
     def __init__(self, base_url: str, token: str) -> None:
         self.client = VaultClient(base_url, token)

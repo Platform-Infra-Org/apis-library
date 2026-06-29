@@ -5,19 +5,19 @@ FastAPI template utilities into a single library.
 """
 
 # Re-export connectors for convenient access
-from .connectors import ArgoCD, Git, Vault, AWX
+from .connectors import AWX, ArgoCD, Git, Vault
 from .connectors.errors import (
-    ExternalServiceError,
     ArgoCDError,
+    AWXError,
+    ExternalServiceError,
     GitError,
     VaultError,
 )
 
-from .schemas import OperationRequest, ResourceSpec, DefaultMetaSpec, NameNamespace
 # Re-export FastAPI template
 from .fastapi_template import general_create_app
-
-__version__ = "0.1.0"
+from .fastapi_template.errors import AuthConfigError, SSOError, TokenError
+from .schemas import DefaultMetaSpec, NameNamespace, OperationRequest, ResourceSpec
 
 __all__ = [
     "ArgoCD",
@@ -28,6 +28,10 @@ __all__ = [
     "ArgoCDError",
     "GitError",
     "VaultError",
+    "AWXError",
+    "AuthConfigError",
+    "TokenError",
+    "SSOError",
     "general_create_app",
     "OperationRequest",
     "ResourceSpec",

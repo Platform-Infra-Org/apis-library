@@ -1,4 +1,5 @@
 """Middleware for logging incoming HTTP requests."""
+
 import re
 
 from fastapi import Request
@@ -26,7 +27,8 @@ class LogRequestsMiddleware(BaseHTTPMiddleware):
 
         logger.log(
             log_level,
-            f"{request.method} {request.url.path} {response.status_code} {process_time}", extra={"location": "Response"}
+            f"{request.method} {request.url.path} {response.status_code} {process_time}",
+            extra={"location": "Response"},
         )
 
         return response

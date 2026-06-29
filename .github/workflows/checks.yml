@@ -1,0 +1,49 @@
+# Lint / format / type-check / test on every push and PR — the GitHub mirror of
+# .woodpecker/check.yaml. Building & releasing live in the release-* workflows.
+name: checks
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  lint-type-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      # Run each tool through a uv-managed venv. The runner's system Python is
+      # externally managed (PEP 668), so `uv pip install --system` is refused;
+      # `uv run` resolves + creates .venv on first use (no lockfile needed).
+      - name: Ruff format
+        run: uv run --extra dev ruff format --check .
+
+      - name: Ruff lint
+        run: uv run --extra dev ruff check .
+
+      - name: Tests
+        run: uv run --extra dev pytest
+
+      - name: Type check (advisory)
+        run: uv run --extra dev ty check src || true   # type errors never fail the build
+
+  # Conventional-commit gate: with squash-merge the PR *title* is the commit git-cliff
+  # parses, so it must be a valid conventional-commit subject.
+  pr-title:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    steps:
+      - uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

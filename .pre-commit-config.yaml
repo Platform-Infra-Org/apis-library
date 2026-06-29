@@ -1,0 +1,23 @@
+# Pre-commit hooks for the Astral toolchain.
+# Install once with:  uv run pre-commit install
+# ruff + ruff-format run on every commit; ty is advisory (manual stage only).
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.18
+    hooks:
+      - id: ruff-check    # lint, auto-fixing what it safely can
+        args: [--fix]
+      - id: ruff-format   # format
+
+  # ty is beta (no Pydantic plugin yet), so it's advisory and must not block
+  # commits. A local hook runs it via the project env, scoped to the shipped
+  # library. Run it explicitly with:
+  #   uv run pre-commit run ty --hook-stage manual --all-files
+  - repo: local
+    hooks:
+      - id: ty
+        name: ty (advisory type check, src only)
+        entry: uv run ty check src
+        language: system
+        pass_filenames: false
+        stages: [manual]

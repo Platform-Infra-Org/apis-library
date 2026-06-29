@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
 from datetime import datetime
 from enum import Enum
+from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from ..response_schemas import OperationResponse
 
@@ -22,14 +22,11 @@ __all__ = [
 
 class AWXOperationResponse(OperationResponse):
     """Response schema for AWX/AWX operations.
-    
+
     Extends OperationResponse with AWX-specific job_id field.
     """
-    
-    job_id: int = Field(
-        ...,
-        description="AWX job ID"
-    )
+
+    job_id: int = Field(..., description="AWX job ID")
 
 
 class AWXJobStatus(str, Enum):
@@ -82,9 +79,7 @@ class AWXWorkflowJob(BaseModel):
     started: Optional[datetime] = None
     finished: Optional[datetime] = None
     elapsed: Optional[float] = None
-    workflow_job_template_id: Optional[int] = Field(
-        default=None, alias="workflow_job_template"
-    )
+    workflow_job_template_id: Optional[int] = Field(default=None, alias="workflow_job_template")
     extra_vars: Optional[str] = Field(default=None, alias="extra_vars")
     workflow_nodes: List[Dict[str, Any]] = Field(default_factory=list)
 
