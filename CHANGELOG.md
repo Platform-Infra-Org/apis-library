@@ -5,6 +5,16 @@ All notable changes to this project are documented here. The format is based on
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). The version is derived from git tags by
 setuptools-scm.
 
+## [Unreleased]
+
+### Added
+
+- Add general-purpose async job manager for operations Ansible can't drive, on any system (pluggable `Executor` Protocol with a generic stdlib command executor)
+
+### Changed
+
+- Migrate the job-manager queue engine from SAQ to Dramatiq + dramatiq-abort; the Redis-backed `JobRepository` is now the sole source of truth for status/result/history, the worker runs via `dramatiq ...:worker`, and cancellation is cooperative + abort-middleware driven (no monitoring UI — use the app's own surface + Prometheus)
+
 ## [1.1.0] - 2026-06-30
 
 ### Added
