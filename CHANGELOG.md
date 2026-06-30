@@ -5,7 +5,16 @@ All notable changes to this project are documented here. The format is based on
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). The version is derived from git tags by
 setuptools-scm.
 
-## [0.0.0] - 2026-06-29
+## [1.1.0] - 2026-06-30
+
+### Added
+
+- Optional stale-on-upstream-down fallback
+
+### Documentation
+
+- Document serve_stale_on_error fallback
+## [1.0.0] - 2026-06-29
 
 ### Added
 
@@ -46,6 +55,7 @@ setuptools-scm.
 - Note the comprehensive API reference in the 1.0.0 changelog
 - Document the Remote Config coordinate-catalog discovery
 - Fix broken config-api anchor link + validate anchors
+- Document GitHub Actions release process in MAINTAINERS.md
 
 ### Build & CI
 
