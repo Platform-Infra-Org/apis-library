@@ -849,6 +849,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#serve-stale-on-upstream-failure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Serve stale on upstream failure
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#choose-the-outbound-auth" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1733,6 +1744,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#serve-stale-on-upstream-failure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Serve stale on upstream failure
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#choose-the-outbound-auth" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1832,14 +1854,29 @@ hierarchy (<code>coordinates</code>: space → network → region → island →
 <li>A <code>pydantic.ValidationError → 422</code> handler so a coordinate outside its allowlist returns the same
   shape as any other invalid query parameter.</li>
 </ul>
+<h2 id="serve-stale-on-upstream-failure">Serve stale on upstream failure<a class="headerlink" href="#serve-stale-on-upstream-failure" title="Permanent link">&para;</a></h2>
+<p>By default an unreachable or <code>5xx</code> upstream propagates as a <code>502</code> (the strict, fail-closed contract).
+Pass <code>serve_stale_on_error=True</code> to instead fall back to the <strong>last successfully-fetched value for
+that key</strong> (last-known-good) when the upstream is down:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">provider</span> <span class="o">=</span> <span class="n">enable_remote_config_api</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="n">serve_stale_on_error</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
+<p>Notes:</p>
+<ul>
+<li>Any upstream error <em>except</em> <code>404</code> falls back — unreachable host, <code>5xx</code>, or <code>4xx</code> (all map to a
+  <code>502</code> internally). A <code>404</code> is not an error: it means "no value yet" and returns the empty default.</li>
+<li>The last-known-good store is <strong>unbounded</strong> (never expires), separate from the <code>cache_ttl</code> cache, so
+  a key that was fetched once stays serveable through an outage of any length.</li>
+<li>A key never fetched successfully has no fallback, so its first request during an outage still
+  <code>502</code>s.</li>
+</ul>
 <h2 id="choose-the-outbound-auth">Choose the outbound auth<a class="headerlink" href="#choose-the-outbound-auth" title="Permanent link">&para;</a></h2>
 <p>Authentication to the upstream is <strong>selectable via <code>CONFIG_REMOTE_*</code> environment variables</strong> —
 <code>CONFIG_REMOTE_AUTH_METHOD</code> picks <code>sso</code> (OAuth2 <code>client_credentials</code>), <code>bearer</code> (a static token), or
 <code>none</code>. See the <a href="../../reference/configuration/#remote-config-api-outbound-to-the-upstream">Remote Config configuration table</a>.</p>
 <p>To override settings entirely (tests / escape hatch), pass an explicit <code>httpx.Auth</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">tashtiot_apis_library.fastapi_template.security</span><span class="w"> </span><span class="kn">import</span> <span class="n">StaticBearerAuth</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">provider</span> <span class="o">=</span> <span class="n">enable_remote_config_api</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="n">auth</span><span class="o">=</span><span class="n">StaticBearerAuth</span><span class="p">(</span><span class="s2">&quot;token&quot;</span><span class="p">))</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">tashtiot_apis_library.fastapi_template.security</span><span class="w"> </span><span class="kn">import</span> <span class="n">StaticBearerAuth</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">provider</span> <span class="o">=</span> <span class="n">enable_remote_config_api</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="n">auth</span><span class="o">=</span><span class="n">StaticBearerAuth</span><span class="p">(</span><span class="s2">&quot;token&quot;</span><span class="p">))</span>
 </code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Lazy dependency</p>
