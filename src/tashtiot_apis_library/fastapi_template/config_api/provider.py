@@ -44,6 +44,7 @@ class RemoteConfigProvider:
         timeout: float = 10.0,
         verify: bool = True,
         cache_ttl: int = 60,
+        serve_stale_on_error: bool = False,
     ):
         self._base_url = base_url.rstrip("/")
         self._prefix = remote_prefix
@@ -52,6 +53,10 @@ class RemoteConfigProvider:
         self._verify = verify
         self._cache_ttl = cache_ttl
         self._cache = Cache(Cache.MEMORY)
+        self._serve_stale = serve_stale_on_error
+        # Last-known-good per cache_key, no TTL -- the aiocache MEMORY backend drops
+        # expired entries on read, so stale fallback needs its own store.
+        self._stale: Dict[str, Any] = {}
 
     async def _get(self, path: str, params: Dict[str, Any]) -> httpx.Response:
         """GET ``path`` on the upstream with the configured auth attached.
@@ -141,18 +146,27 @@ class RemoteConfigProvider:
 
         ``default`` is returned on a 404 *without* being cached (the upstream may
         seed the value later); ``extract`` maps the JSON body to the cached result.
+        When ``serve_stale_on_error`` is set, a 502 (upstream down or 5xx) falls back
+        to the last-known-good value for this key instead of propagating the error.
         """
         cached = await self._cache.get(cache_key)
         if cached is not None:
             return cached
 
-        response = await self._get(f"{self._prefix}{path}", params)
-        if response.status_code == 404:
-            return default
-        self._ensure_ok(response)
+        try:
+            response = await self._get(f"{self._prefix}{path}", params)
+            if response.status_code == 404:
+                return default
+            self._ensure_ok(response)
+            result = extract(response.json())
+        except HTTPException:
+            if self._serve_stale and cache_key in self._stale:
+                logger.warning(f"Upstream Config API unavailable; serving stale '{cache_key}'.")
+                return self._stale[cache_key]
+            raise
 
-        result = extract(response.json())
         await self._cache.set(cache_key, result, ttl=self._cache_ttl)
+        self._stale[cache_key] = result  # ponytail: unbounded; keys = coordinate combos
         return result
 
     @staticmethod

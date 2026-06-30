@@ -214,6 +214,53 @@ class TestUpstreamErrors:
         assert exc.value.status_code == 502
 
 
+class TestServeStaleOnError:
+    @pytest.mark.asyncio
+    @respx.mock(assert_all_called=False)
+    async def test_serves_stale_after_expiry_on_transport_error(self, respx_mock):
+        register_token_route(respx_mock, TOKEN_URL)
+        route = respx_mock.get(f"{UPSTREAM_BASE}{REMOTE_PREFIX}/projects")
+        route.mock(return_value=httpx.Response(200, json={"projects": ["alpha", "beta"]}))
+
+        prov = make_provider(serve_stale_on_error=True)
+        await prov._cache.clear()
+        assert await prov.get_all_projects() == ["alpha", "beta"]  # seeds last-known-good
+
+        await prov._cache.clear()  # simulate TTL expiry
+        route.mock(side_effect=httpx.ConnectError("refused"))
+        assert await prov.get_all_projects() == ["alpha", "beta"]  # stale, no raise
+
+    @pytest.mark.asyncio
+    @respx.mock(assert_all_called=False)
+    async def test_serves_stale_after_expiry_on_5xx(self, respx_mock):
+        register_token_route(respx_mock, TOKEN_URL)
+        route = respx_mock.get(f"{UPSTREAM_BASE}{REMOTE_PREFIX}/projects")
+        route.mock(return_value=httpx.Response(200, json={"projects": ["alpha"]}))
+
+        prov = make_provider(serve_stale_on_error=True)
+        await prov._cache.clear()
+        assert await prov.get_all_projects() == ["alpha"]
+
+        await prov._cache.clear()
+        route.mock(return_value=httpx.Response(500, text="boom"))
+        assert await prov.get_all_projects() == ["alpha"]
+
+    @pytest.mark.asyncio
+    @respx.mock(assert_all_called=False)
+    async def test_no_stale_value_still_raises_502(self, respx_mock):
+        from fastapi import HTTPException
+
+        register_token_route(respx_mock, TOKEN_URL)
+        respx_mock.get(f"{UPSTREAM_BASE}{REMOTE_PREFIX}/projects").mock(
+            side_effect=httpx.ConnectError("refused")
+        )
+        prov = make_provider(serve_stale_on_error=True)
+        await prov._cache.clear()
+        with pytest.raises(HTTPException) as exc:
+            await prov.get_all_projects()  # nothing ever seeded -> no fallback
+        assert exc.value.status_code == 502
+
+
 class TestCrawlAndSyncKeys:
     @pytest.mark.asyncio
     async def test_populates_allowlists_in_place_and_invalidates_schema(self, provider):
