@@ -42,6 +42,12 @@ dev = [
     "ruff",
     "ty",
     "pre-commit",
+    "tashtiot-apis-library[job-manager]",  # so the job-manager deps resolve in editors/tests
+]
+# generic async job manager (Dramatiq + Redis); base install stays thin without it
+job-manager = [
+    "dramatiq[redis]>=2.2",
+    "dramatiq-abort[redis]>=1.2",
 ]
 docs = [
     "mkdocs",
@@ -80,6 +86,7 @@ markers = [
     "asyncio: mark test to be run by the asyncio event loop",
     "rest: mark test as needing a REST server",
     "ftp: mark test as needing an ftp server",
+    "integration: mark test as needing real infra (e.g. Redis); opt-in, skipped by default",
 ]
 
 log_cli = true
