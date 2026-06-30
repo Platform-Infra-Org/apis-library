@@ -26,6 +26,7 @@ def enable_remote_config_api(
     config_path: str,
     naming_path: str,
     cache_ttl: int = 60,
+    serve_stale_on_error: bool = False,
     poll_interval: int = 5,
     settings: Optional[ConfigRemoteSettings] = None,
     auth: Optional[httpx.Auth] = None,
@@ -47,6 +48,10 @@ def enable_remote_config_api(
     auth:
         Explicit outbound `httpx.Auth` that overrides ``settings`` (escape
         hatch / tests). When given, ``settings`` is not consulted for auth.
+    serve_stale_on_error:
+        When ``True``, an unreachable or 5xx upstream falls back to the last
+        successfully-fetched value for that key (last-known-good, unbounded) instead
+        of raising ``502``. Defaults to ``False`` (preserve the strict 502 contract).
     enable_polling:
         Register the background allowlist poller (the task is appended to
         ``app.state.async_background_tasks``, which ``general_create_app``'s
@@ -65,6 +70,7 @@ def enable_remote_config_api(
         remote_prefix,
         auth=resolved_auth,
         cache_ttl=cache_ttl,
+        serve_stale_on_error=serve_stale_on_error,
         **api_kwargs,
     )
 

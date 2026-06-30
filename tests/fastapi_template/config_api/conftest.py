@@ -70,8 +70,8 @@ def reset_sso_token_cache():
     sso_mod._token_client_cache.clear()
 
 
-def make_provider():
-    return RemoteConfigProvider(UPSTREAM_BASE, REMOTE_PREFIX, auth=sso_auth(SSO_CONFIG))
+def make_provider(**kwargs):
+    return RemoteConfigProvider(UPSTREAM_BASE, REMOTE_PREFIX, auth=sso_auth(SSO_CONFIG), **kwargs)
 
 
 @pytest_asyncio.fixture
