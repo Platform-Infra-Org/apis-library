@@ -70,6 +70,25 @@ hierarchy (`coordinates`: space → network → region → island → sorted env
 - A `pydantic.ValidationError → 422` handler so a coordinate outside its allowlist returns the same
   shape as any other invalid query parameter.
 
+## Serve stale on upstream failure
+
+By default an unreachable or `5xx` upstream propagates as a `502` (the strict, fail-closed contract).
+Pass `serve_stale_on_error=True` to instead fall back to the **last successfully-fetched value for
+that key** (last-known-good) when the upstream is down:
+
+```python
+provider = enable_remote_config_api(app, ..., serve_stale_on_error=True)
+```
+
+Notes:
+
+- Any upstream error *except* `404` falls back — unreachable host, `5xx`, or `4xx` (all map to a
+  `502` internally). A `404` is not an error: it means "no value yet" and returns the empty default.
+- The last-known-good store is **unbounded** (never expires), separate from the `cache_ttl` cache, so
+  a key that was fetched once stays serveable through an outage of any length.
+- A key never fetched successfully has no fallback, so its first request during an outage still
+  `502`s.
+
 ## Choose the outbound auth
 
 Authentication to the upstream is **selectable via `CONFIG_REMOTE_*` environment variables** —
