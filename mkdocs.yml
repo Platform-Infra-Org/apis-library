@@ -102,9 +102,9 @@ nav:
           - Auth (inbound JWT): reference/api/auth.md
           - Security (outbound SSO): reference/api/security.md
           - Remote Config API: reference/api/config-api.md
-      - Job manager: reference/job-manager.md
           - Errors: reference/api/errors.md
           - Schemas: reference/api/schemas.md
+      - Job manager: reference/job-manager.md
   - Explanation:
       - explanation/index.md
       - Architecture: explanation/architecture.md

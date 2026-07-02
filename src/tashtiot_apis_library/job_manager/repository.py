@@ -15,18 +15,32 @@ from .models import JobRecord, JobStatus
 __all__ = ["JobRepository", "RedisJobRepository", "InMemoryJobRepository"]
 
 # Atomic claim: set the record iff the key is absent or the prior record is terminal
-# (ARGV[3..] are the terminal status values). Returns 1 on claim, 0 if a live one exists.
+# (ARGV[4..] are the terminal status values), and index it in the same script so a
+# failure can't leave a claimed-but-invisible record. KEYS = record key, index zset;
+# ARGV = record JSON, TTL, created-at score, terminal values. Returns 1 on claim.
 # cjson is built into Redis's Lua runtime since 2.6, so no server-side modules needed.
 _CLAIM_LUA = """
 local cur = redis.call('GET', KEYS[1])
 if cur then
   local status = cjson.decode(cur)['status']
   local terminal = false
-  for i = 3, #ARGV do
+  for i = 4, #ARGV do
     if status == ARGV[i] then terminal = true end
   end
   if not terminal then return 0 end
 end
+redis.call('SET', KEYS[1], ARGV[1], 'EX', ARGV[2])
+redis.call('ZADD', KEYS[2], ARGV[3], cjson.decode(ARGV[1])['job_id'])
+redis.call('EXPIRE', KEYS[2], ARGV[2] * 2)
+return 1
+"""
+
+# Guarded write: replace the record iff the stored status equals ARGV[3] (the
+# status the caller based its decision on). Returns 1 on write, 0 on mismatch/absent.
+_CAS_LUA = """
+local cur = redis.call('GET', KEYS[1])
+if not cur then return 0 end
+if cjson.decode(cur)['status'] ~= ARGV[3] then return 0 end
 redis.call('SET', KEYS[1], ARGV[1], 'EX', ARGV[2])
 return 1
 """
@@ -47,7 +61,12 @@ class JobRepository(Protocol):
 
     async def get(self, job_id: str) -> Optional[JobRecord]: ...
 
-    async def update(self, job_id: str, **fields: Any) -> Optional[JobRecord]: ...
+    async def update(
+        self, job_id: str, *, expected_status: Optional[JobStatus] = None, **fields: Any
+    ) -> Optional[JobRecord]:
+        """Merge ``fields`` into the record. With ``expected_status``, write only if the
+        stored status still matches (atomic compare-and-set); returns None if not."""
+        ...
 
     async def list(
         self,
@@ -86,28 +105,41 @@ class RedisJobRepository:
         """Atomic claim (Lua): win iff the id is absent or the prior record is terminal."""
         won = await self.redis.eval(
             _CLAIM_LUA,
-            1,
+            2,
             self._rec_key(record.job_id),
+            self._index,
             record.model_dump_json(),
             self.record_ttl,
+            record.created_at.timestamp(),
             *_TERMINAL_VALUES,
         )
-        if won:
-            await self.redis.zadd(self._index, {record.job_id: record.created_at.timestamp()})
-            await self.redis.expire(self._index, self.record_ttl * 2)
         return bool(won)
 
     async def get(self, job_id: str) -> Optional[JobRecord]:
         raw = await self.redis.get(self._rec_key(job_id))
         return JobRecord.model_validate_json(raw) if raw is not None else None
 
-    async def update(self, job_id: str, **fields: Any) -> Optional[JobRecord]:
+    async def update(
+        self, job_id: str, *, expected_status: Optional[JobStatus] = None, **fields: Any
+    ) -> Optional[JobRecord]:
         record = await self.get(job_id)
         if record is None:
             return None
         # Re-validate the merged data so e.g. a status passed as a string coerces
         # back to the JobStatus enum (model_copy(update=) would skip validation).
         updated = JobRecord.model_validate({**record.model_dump(), **fields})
+        if expected_status is not None:
+            # CAS on status: don't clobber a transition another process made
+            # between our read and this write (e.g. pending -> running vs cancel).
+            wrote = await self.redis.eval(
+                _CAS_LUA,
+                1,
+                self._rec_key(job_id),
+                updated.model_dump_json(),
+                self.record_ttl,
+                expected_status.value,
+            )
+            return updated if wrote else None
         await self.save(updated)
         return updated
 
@@ -168,9 +200,13 @@ class InMemoryJobRepository:
         record = self._records.get(job_id)
         return record.model_copy(deep=True) if record else None
 
-    async def update(self, job_id: str, **fields: Any) -> Optional[JobRecord]:
+    async def update(
+        self, job_id: str, *, expected_status: Optional[JobStatus] = None, **fields: Any
+    ) -> Optional[JobRecord]:
         record = self._records.get(job_id)
         if record is None:
+            return None
+        if expected_status is not None and record.status != expected_status:
             return None
         updated = JobRecord.model_validate({**record.model_dump(), **fields})
         self._records[job_id] = updated

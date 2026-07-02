@@ -44,7 +44,8 @@ marks the record `failed`, and cancelling a still-queued job marks it
 `cancelled`. Routes read **only** from the repository; they never inspect
 Dramatiq.
 
-- **Reads** (`GET /jobs/{id}`, `/status`, `cancel`, `wait`) → `repository.get`.
+- **Reads** (`GET /jobs/{id}`, `/status`, and the Python-side
+  `wait_for_job_completion` poll loop — there is no `/wait` route) → `repository.get`.
 - **Listing** (`GET /jobs`) → `repository.list`, filtered by target/status.
 - **Logs** → the actor returns its stdout; the repository stores it as the
   record's `result`; `GET /jobs/{id}/logs` returns it.
@@ -62,6 +63,11 @@ Dramatiq.
 - Logs are the **final** stdout, available once terminal — no live tail.
 - Filtering a listing scans the index and filters in Python — fine at the
   expected (TTL-bounded) volume.
+- A **SIGKILLed worker** leaves its job's record at `running` until the TTL
+  evicts it — there is no heartbeat, and `cancel_job` can't force a running
+  record terminal (a live actor owns that write). The actor time limit
+  (`JM_ACTOR_TIME_LIMIT_MS`) bounds normal runaways; a hard worker kill is
+  visible as a `running` job whose worker is gone.
 
 ## Per-target serialization
 

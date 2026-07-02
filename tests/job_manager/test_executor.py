@@ -65,3 +65,12 @@ async def test_nonzero_exit_raises_after_streaming():
     )
     with pytest.raises(ExecutorError):
         [chunk async for chunk in ex.run("fail", {})]
+
+
+@pytest.mark.asyncio
+async def test_shell_mode_quotes_params_in_string_template():
+    # A string template in shell mode quotes each substituted param, so API-supplied
+    # values can't inject shell syntax; the template's own syntax still works.
+    ex = CommandExecutor(command_for={"op": "printf %s {msg}"}, shell=True)
+    lines = [chunk async for chunk in ex.run("op", {"msg": "a b; echo INJECTED"})]
+    assert lines == ["a b; echo INJECTED"]

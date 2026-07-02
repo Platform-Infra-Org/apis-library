@@ -57,12 +57,15 @@ class CommandExecutor:
         self.cwd = cwd
         self.env = dict(env) if env is not None else None
 
-    def _expand(self, text: str, params: Dict[str, Any], operation: str) -> str:
+    def _expand(
+        self, text: str, params: Dict[str, Any], operation: str, *, quote: bool = False
+    ) -> str:
         def repl(match: "re.Match[str]") -> str:
             name = match.group(1)
             if name not in params:
                 raise ExecutorError(f"Missing param {name!r} for operation {operation!r}.")
-            return str(params[name])
+            value = str(params[name])
+            return shlex.quote(value) if quote else value
 
         return _PLACEHOLDER.sub(repl, text)
 
@@ -71,7 +74,10 @@ class CommandExecutor:
         if template is None:
             raise ExecutorError(f"Unknown operation {operation!r}.")
         if isinstance(template, str):
-            return self._expand(template, params, operation)
+            # In shell mode the expanded string is handed to the shell verbatim, so
+            # params must be quoted at substitution time (API callers control them);
+            # argv lists are instead quoted token-wise when joined for the shell.
+            return self._expand(template, params, operation, quote=self.shell)
         return [self._expand(token, params, operation) for token in template]
 
     async def run(self, operation: str, params: Dict[str, Any]) -> AsyncIterator[str]:

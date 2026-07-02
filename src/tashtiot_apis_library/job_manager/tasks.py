@@ -50,10 +50,37 @@ def _repo() -> RedisJobRepository:
 
 
 async def _finish(
-    repo: Any, job_id: str, status: JobStatus, *, metric: Optional[str] = None, **fields: Any
+    repo: Any,
+    job_id: str,
+    status: JobStatus,
+    *,
+    metric: Optional[str] = None,
+    expected_status: Optional[JobStatus] = None,
+    **fields: Any,
 ) -> None:
-    """Write a terminal status to the repo and bump the metric (defaults to the status)."""
-    await repo.update(job_id, status=status.value, finished_at=_utcnow(), **fields)
+    """Write a terminal status to the repo and bump the metric (defaults to the status).
+
+    With ``expected_status`` the write is a CAS: if another write beat us (e.g. the
+    success write already landed when a cancel arrives), it is skipped, metric included.
+    """
+    updated = await repo.update(
+        job_id,
+        expected_status=expected_status,
+        status=status.value,
+        finished_at=_utcnow(),
+        **fields,
+    )
+    if updated is None:
+        if expected_status is not None:
+            logger.info("Skipped '{}' write for job {}: status moved on", status.value, job_id)
+            return
+        # Record gone (JM_JOB_TTL shorter than the job ran?) -- the outcome is lost.
+        logger.warning(
+            "Terminal write '{}' for job {} dropped: record missing/expired. "
+            "Keep JM_JOB_TTL above the longest job runtime.",
+            status.value,
+            job_id,
+        )
     JOBS_TOTAL.labels(status=metric or status.value).inc()
 
 
@@ -66,8 +93,6 @@ async def run_job(*, job_id: str, target: str, operation: str, params: Dict[str,
     Tests call the bare coroutine directly via ``run_job.fn.__wrapped__``.
     """
     repo = _repo()
-    executor = _executor_instance()
-    redis = create_async_redis()
     message = CurrentMessage.get_current_message()
     message_id = message.message_id if message is not None else None
 
@@ -79,9 +104,14 @@ async def run_job(*, job_id: str, target: str, operation: str, params: Dict[str,
 
         JOBS_INFLIGHT.inc()
         start = time.monotonic()
+        finished = False
+        lines: list[str] = []
         try:
+            # Inside the try so a setup failure (e.g. malformed JM_COMMAND_MAP)
+            # marks the job failed instead of leaving it pending forever.
+            executor = _executor_instance()
+            redis = create_async_redis()
             await repo.update(job_id, status=JobStatus.RUNNING.value, started_at=_utcnow())
-            lines: list[str] = []
             async with target_lock(
                 redis,
                 target,
@@ -100,14 +130,31 @@ async def run_job(*, job_id: str, target: str, operation: str, params: Dict[str,
                     aclose = getattr(stream, "aclose", None)
                     if aclose is not None:  # async generators expose aclose(); iterators may not
                         await aclose()
-            await _finish(repo, job_id, JobStatus.SUCCEEDED, result="\n".join(lines))
+            # Shielded so a cancel landing after the work completed can't kill the
+            # success write; `finished` stops the handler re-labelling it cancelled.
+            await asyncio.shield(
+                _finish(repo, job_id, JobStatus.SUCCEEDED, result="\n".join(lines))
+            )
+            finished = True
             logger.info("Job succeeded")
         except (Abort, asyncio.CancelledError) as exc:
             # The abort middleware interrupts an async actor by cancelling its task,
             # so we must catch CancelledError too. Shield the terminal write so the
             # cancellation tearing down the task doesn't also kill the status update.
-            logger.warning("Job cancelled")
-            await asyncio.shield(_finish(repo, job_id, JobStatus.CANCELLED))
+            if not finished:
+                logger.warning("Job cancelled")
+                # Keep whatever output was captured before the abort. CAS on running:
+                # if the success/failure write already landed (a cancel racing the
+                # shielded write), this loses cleanly instead of relabelling the job.
+                await asyncio.shield(
+                    _finish(
+                        repo,
+                        job_id,
+                        JobStatus.CANCELLED,
+                        result="\n".join(lines),
+                        expected_status=JobStatus.RUNNING,
+                    )
+                )
             if isinstance(exc, asyncio.CancelledError):
                 raise  # never swallow a CancelledError
         except TargetLockTimeout:

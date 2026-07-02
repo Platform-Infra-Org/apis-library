@@ -54,3 +54,24 @@ def test_cancel_accepts(client):
         "job_id"
     ]
     assert c.post(f"/jobs/{job_id}/cancel").status_code == 202
+
+
+def test_list_jobs_filters_to_summary_fields(client):
+    import asyncio
+
+    c, repo = client
+    ids = [
+        c.post("/jobs", json={"target": t, "operation": "op", "params": {"p": 1}}).json()["job_id"]
+        for t in ("host-1", "host-1", "host-2")
+    ]
+    asyncio.run(repo.update(ids[0], status=JobStatus.SUCCEEDED.value, result="secret"))
+
+    rows = c.get("/jobs").json()
+    assert {r["job_id"] for r in rows} == set(ids)
+    # response_model filters JobRecord down to JobSummary rows.
+    assert set(rows[0]) == {"job_id", "target", "operation", "status", "created_at"}
+
+    assert {r["job_id"] for r in c.get("/jobs", params={"target": "host-2"}).json()} == {ids[2]}
+    succeeded = c.get("/jobs", params={"status": "succeeded"}).json()
+    assert [r["job_id"] for r in succeeded] == [ids[0]]
+    assert len(c.get("/jobs", params={"limit": 1}).json()) == 1

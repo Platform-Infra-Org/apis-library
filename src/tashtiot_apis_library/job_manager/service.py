@@ -90,7 +90,10 @@ class JobManager:
             )
             # No phantom pending record if the enqueue itself fails.
             await self.repository.update(
-                job_id, status=JobStatus.FAILED.value, error=f"enqueue failed: {exc}"
+                job_id,
+                status=JobStatus.FAILED.value,
+                error=f"enqueue failed: {exc}",
+                finished_at=_utcnow(),
             )
             raise
         logger.info("Enqueued job {} for target {}", job_id, request.target)
@@ -130,9 +133,13 @@ class JobManager:
             await asyncio.to_thread(abort, record.message_id)
         if record.status == JobStatus.PENDING:
             # Still queued: the Abortable middleware skips the message before the actor
-            # runs, so nobody else would ever write the terminal state.
+            # runs, so nobody else would ever write the terminal state. CAS on pending:
+            # if the actor started meanwhile, its transition wins and it owns the abort.
             await self.repository.update(
-                job_id, status=JobStatus.CANCELLED.value, finished_at=_utcnow()
+                job_id,
+                expected_status=JobStatus.PENDING,
+                status=JobStatus.CANCELLED.value,
+                finished_at=_utcnow(),
             )
         logger.info("Requested abort for job {}", job_id)
         return JobOperationResponse(

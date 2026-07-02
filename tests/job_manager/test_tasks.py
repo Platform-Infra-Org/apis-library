@@ -133,3 +133,42 @@ async def test_cancelled_error_writes_cancelled_and_reraises(wire):
 def test_actor_max_retries_is_zero():
     # Non-idempotent jobs must not be retried by Dramatiq's default of 20.
     assert tasks.run_job.options.get("max_retries") == 0
+
+
+@pytest.mark.asyncio
+async def test_setup_failure_marks_job_failed(wire, monkeypatch):
+    # A broken executor build (e.g. malformed JM_COMMAND_MAP) must not leave the
+    # record pending/running forever.
+    repo, _, _, _ = wire
+
+    def boom():
+        raise ValueError("bad JM_COMMAND_MAP")
+
+    monkeypatch.setattr(tasks, "_executor_instance", boom)
+    await _seed(repo, "j7")
+
+    with pytest.raises(ValueError):
+        await tasks.run_job.fn.__wrapped__(job_id="j7", target="host-1", operation="op", params={})
+    record = await repo.get("j7")
+    assert record.status is JobStatus.FAILED
+    assert "JM_COMMAND_MAP" in record.error
+
+
+@pytest.mark.asyncio
+async def test_lock_release_failure_is_swallowed():
+    # A lock whose TTL lapsed raises on release(); target_lock must not surface it.
+    from tashtiot_apis_library.job_manager.locks import target_lock
+
+    class ExplodingLock:
+        async def acquire(self):
+            return True
+
+        async def release(self):
+            raise RuntimeError("lock expired")
+
+    class Redis:
+        def lock(self, name, **kw):
+            return ExplodingLock()
+
+    async with target_lock(Redis(), "host-1", timeout=1.0, blocking_timeout=1.0):
+        pass  # exiting must not raise

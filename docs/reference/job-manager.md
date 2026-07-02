@@ -69,9 +69,9 @@ Added to `ApplicationSettings` (env / `.env`):
 | `REDIS_URL` | `redis://localhost:6379/0` | Broker, abort backend, lock, and record store. |
 | `REDIS_MAX_CONNECTIONS` | `10` | Record-store Redis pool size. |
 | `REDIS_SOCKET_TIMEOUT` | `5.0` | Record-store Redis socket timeout (s). |
-| `JM_JOB_TTL` | `86400` | Seconds the JobRecord (status/result/history) is retained. |
+| `JM_JOB_TTL` | `86400` | Seconds the JobRecord (status/result/history) is retained. Keep it well above the longest job runtime, or the record can expire mid-job and the terminal write is dropped (logged as a worker warning). |
 | `JM_TARGET_LOCK_TIMEOUT` | `900.0` | Per-target lock auto-expiry (s); keep ≥ the actor time limit. |
-| `JM_TARGET_LOCK_WAIT` | `30.0` | How long a job waits for the lock before failing (`status: lock_timeout`). |
+| `JM_TARGET_LOCK_WAIT` | `30.0` | How long a job waits for the lock before failing (`status: failed`, counted under the `lock_timeout` metric label). |
 | `JM_ACTOR_TIME_LIMIT_MS` | `600000` | Dramatiq actor time limit (ms); worker aborts longer jobs. |
 | `JM_MAX_RETRIES` | `0` | Dramatiq retries per job (Dramatiq's own default of 20 is unsafe for non-idempotent jobs). |
 | `JM_ABORT_TTL` | `90000` | Milliseconds an abort request is retained. |
