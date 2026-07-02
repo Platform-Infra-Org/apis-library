@@ -16,6 +16,7 @@ __all__ = ["JobRepository", "RedisJobRepository", "InMemoryJobRepository"]
 
 # Atomic claim: set the record iff the key is absent or the prior record is terminal
 # (ARGV[3..] are the terminal status values). Returns 1 on claim, 0 if a live one exists.
+# cjson is built into Redis's Lua runtime since 2.6, so no server-side modules needed.
 _CLAIM_LUA = """
 local cur = redis.call('GET', KEYS[1])
 if cur then
@@ -118,10 +119,15 @@ class RedisJobRepository:
         limit: int = 50,
         offset: int = 0,
     ) -> List[JobRecord]:
-        # ponytail: full index scan + one mget (2 round trips), bounded by the record
-        # TTL; page the index / add per-field indexes only if retained volume outgrows it.
-        # client is created with decode_responses=True, so ids come back as str
-        ids = await self.redis.zrevrange(self._index, 0, -1)
+        # (ids come back as str: the client is created with decode_responses=True)
+        if target is None and status is None:
+            # No filters: let the index do the paging (a stale id may shorten the page).
+            ids = await self.redis.zrevrange(self._index, offset, offset + limit - 1)
+            offset = 0  # already applied by the slice
+        else:
+            # ponytail: filtered listing = full index scan + one mget, bounded by the
+            # record TTL; add per-field indexes only if retained volume outgrows it.
+            ids = await self.redis.zrevrange(self._index, 0, -1)
         if not ids:
             return []
         raws = await self.redis.mget([self._rec_key(j) for j in ids])

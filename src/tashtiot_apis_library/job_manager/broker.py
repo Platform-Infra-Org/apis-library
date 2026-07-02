@@ -10,6 +10,8 @@ from __future__ import annotations
 from functools import lru_cache
 from typing import Any
 
+from loguru import logger
+
 from ..fastapi_template.utils import settings
 
 __all__ = ["setup_broker", "create_async_redis"]
@@ -42,6 +44,7 @@ def setup_broker() -> Any:
     )
     dramatiq.set_broker(broker)
     _broker = broker
+    logger.info("Dramatiq broker configured (AsyncIO + Abortable middleware)")
     return broker
 
 
