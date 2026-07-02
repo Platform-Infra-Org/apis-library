@@ -95,6 +95,15 @@ Authentication to the upstream is **selectable via `CONFIG_REMOTE_*` environment
 `CONFIG_REMOTE_AUTH_METHOD` picks `sso` (OAuth2 `client_credentials`), `bearer` (a static token), or
 `none`. See the [Remote Config configuration table](../reference/configuration.md#remote-config-api-outbound-to-the-upstream).
 
+With the default `sso` method, the config provider mints its token with the same
+`client_credentials` machinery as any [outbound SSO call](call-services-with-sso.md). To set it up,
+**ask the SSO team for a client** and give its id/secret to `CONFIG_REMOTE_SSO_CLIENT_ID` /
+`CONFIG_REMOTE_SSO_CLIENT_SECRET`. If the upstream Config API checks its audience, also request the
+**optional client scope that carries the platform audience** — that scope **should already exist in
+the SSO**, so the client just needs it granted — and set `CONFIG_REMOTE_SSO_SCOPE` to it. (Auth0-style
+providers can instead send the audience as a parameter via `CONFIG_REMOTE_SSO_AUDIENCE`.) The same
+pattern for securing your *own* API is covered in [Secure an API with OIDC & JWKS](secure-with-oidc-jwks.md).
+
 To override settings entirely (tests / escape hatch), pass an explicit `httpx.Auth`:
 
 ```python
