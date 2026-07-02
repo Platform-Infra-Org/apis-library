@@ -81,3 +81,4 @@ is minted at the token endpoint, not at the call site:
 - [API reference: security](../reference/api/security.md)
 - [Configuration: Outbound SSO](../reference/configuration.md#outbound-sso-client-side)
 - [Verify a token (the inbound side)](verify-a-token.md)
+- [Secure an API with OIDC & JWKS](secure-with-oidc-jwks.md) — the inbound counterpart these tokens are minted for.
