@@ -580,6 +580,8 @@
       
         
       
+        
+      
     
     
     
@@ -680,6 +682,34 @@
     
   
     Drive AWX, ArgoCD & Vault
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../secure-with-oidc-jwks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Secure an API with OIDC &amp; JWKS
   
 
     
@@ -1873,6 +1903,14 @@ that key</strong> (last-known-good) when the upstream is down:</p>
 <p>Authentication to the upstream is <strong>selectable via <code>CONFIG_REMOTE_*</code> environment variables</strong> —
 <code>CONFIG_REMOTE_AUTH_METHOD</code> picks <code>sso</code> (OAuth2 <code>client_credentials</code>), <code>bearer</code> (a static token), or
 <code>none</code>. See the <a href="../../reference/configuration/#remote-config-api-outbound-to-the-upstream">Remote Config configuration table</a>.</p>
+<p>With the default <code>sso</code> method, the config provider mints its token with the same
+<code>client_credentials</code> machinery as any <a href="../call-services-with-sso/">outbound SSO call</a>. To set it up,
+<strong>ask the SSO team for a client</strong> and give its id/secret to <code>CONFIG_REMOTE_SSO_CLIENT_ID</code> /
+<code>CONFIG_REMOTE_SSO_CLIENT_SECRET</code>. If the upstream Config API checks its audience, also request the
+<strong>optional client scope that carries the platform audience</strong> — that scope <strong>should already exist in
+the SSO</strong>, so the client just needs it granted — and set <code>CONFIG_REMOTE_SSO_SCOPE</code> to it. (Auth0-style
+providers can instead send the audience as a parameter via <code>CONFIG_REMOTE_SSO_AUDIENCE</code>.) The same
+pattern for securing your <em>own</em> API is covered in <a href="../secure-with-oidc-jwks/">Secure an API with OIDC &amp; JWKS</a>.</p>
 <p>To override settings entirely (tests / escape hatch), pass an explicit <code>httpx.Auth</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">tashtiot_apis_library.fastapi_template.security</span><span class="w"> </span><span class="kn">import</span> <span class="n">StaticBearerAuth</span>
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>

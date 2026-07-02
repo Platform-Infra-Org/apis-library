@@ -11,10 +11,10 @@
       
       
       
-        <link rel="prev" href="../">
+        <link rel="prev" href="../use-awx-argocd-vault/">
       
       
-        <link rel="next" href="../../changelog/">
+        <link rel="next" href="../verify-a-token/">
       
       
         
@@ -25,7 +25,7 @@
     
     
       
-        <title>Development - Tashtiot APIs Library</title>
+        <title>Secure an API with OIDC & JWKS - Tashtiot APIs Library</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#development" class="md-skip">
+        <a href="#secure-an-api-with-oidc-jwks" class="md-skip">
           Skip to content
         </a>
       
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Development
+              Secure an API with OIDC &amp; JWKS
             
           </span>
         </div>
@@ -250,11 +250,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../how-to/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
           
   
   
@@ -316,13 +318,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../contributing/" class="md-tabs__link">
           
   
   
@@ -553,6 +553,8 @@
       
   
   
+    
+  
   
   
     
@@ -584,20 +586,23 @@
     
     
       
+        
+        
+      
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../how-to/" class="md-nav__link ">
+            <a href="../" class="md-nav__link ">
               
   
   
@@ -615,13 +620,13 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -641,7 +646,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../how-to/read-write-bitbucket/" class="md-nav__link">
+      <a href="../read-write-bitbucket/" class="md-nav__link">
         
   
   
@@ -669,7 +674,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../how-to/use-awx-argocd-vault/" class="md-nav__link">
+      <a href="../use-awx-argocd-vault/" class="md-nav__link">
         
   
   
@@ -694,10 +699,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../how-to/secure-with-oidc-jwks/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Secure an API with OIDC &amp; JWKS
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -713,6 +745,81 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-what-to-request-from-the-sso-team" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. What to request from the SSO team
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-configure-your-api-inbound-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Configure your API (inbound verification)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-how-a-caller-obtains-a-token-client_credentials" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. How a caller obtains a token (client_credentials)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verify-a-token-outside-a-request" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verify a token outside a request
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See also
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -725,7 +832,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../how-to/verify-a-token/" class="md-nav__link">
+      <a href="../verify-a-token/" class="md-nav__link">
         
   
   
@@ -753,7 +860,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../how-to/call-services-with-sso/" class="md-nav__link">
+      <a href="../call-services-with-sso/" class="md-nav__link">
         
   
   
@@ -781,7 +888,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../how-to/enable-remote-config-api/" class="md-nav__link">
+      <a href="../enable-remote-config-api/" class="md-nav__link">
         
   
   
@@ -809,7 +916,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../how-to/generate-auth-material/" class="md-nav__link">
+      <a href="../generate-auth-material/" class="md-nav__link">
         
   
   
@@ -837,7 +944,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../how-to/add-a-connector/" class="md-nav__link">
+      <a href="../add-a-connector/" class="md-nav__link">
         
   
   
@@ -865,7 +972,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../how-to/extend-the-template/" class="md-nav__link">
+      <a href="../extend-the-template/" class="md-nav__link">
         
   
   
@@ -1469,8 +1576,6 @@
       
   
   
-    
-  
   
   
     
@@ -1486,23 +1591,20 @@
     
     
       
-        
-        
-      
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../" class="md-nav__link ">
+            <a href="../../contributing/" class="md-nav__link ">
               
   
   
@@ -1520,13 +1622,13 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="">
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1543,37 +1645,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Development
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../contributing/development/" class="md-nav__link">
         
   
   
@@ -1589,103 +1664,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#environment" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Environment
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#tests" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Tests
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#lint-format-ruff" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Lint &amp; format (Ruff)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#type-check-ty" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Type check (ty)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#pre-commit-hooks" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Pre-commit hooks
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#docs" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Docs
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#before-you-open-a-pr" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Before you open a PR
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1752,10 +1730,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#environment" class="md-nav__link">
+  <a href="#1-what-to-request-from-the-sso-team" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Environment
+        1. What to request from the SSO team
       
     </span>
   </a>
@@ -1763,10 +1741,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#tests" class="md-nav__link">
+  <a href="#2-configure-your-api-inbound-verification" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Tests
+        2. Configure your API (inbound verification)
       
     </span>
   </a>
@@ -1774,10 +1752,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#lint-format-ruff" class="md-nav__link">
+  <a href="#3-how-a-caller-obtains-a-token-client_credentials" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Lint &amp; format (Ruff)
+        3. How a caller obtains a token (client_credentials)
       
     </span>
   </a>
@@ -1785,10 +1763,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#type-check-ty" class="md-nav__link">
+  <a href="#verify-a-token-outside-a-request" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Type check (ty)
+        Verify a token outside a request
       
     </span>
   </a>
@@ -1796,32 +1774,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#pre-commit-hooks" class="md-nav__link">
+  <a href="#see-also" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Pre-commit hooks
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#docs" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Docs
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#before-you-open-a-pr" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Before you open a PR
+        See also
       
     </span>
   </a>
@@ -1845,58 +1801,89 @@
 
 
 
-<h1 id="development">Development<a class="headerlink" href="#development" title="Permanent link">&para;</a></h1>
-<p>How to set up a working environment and run the project's checks. The toolchain is
-<a href="https://astral.sh/">Astral</a>'s: <strong>uv</strong> (environment + runner), <strong>Ruff</strong> (lint + format), and <strong>ty</strong>
-(type check).</p>
-<h2 id="environment">Environment<a class="headerlink" href="#environment" title="Permanent link">&para;</a></h2>
-<p>uv is used as a fast runner — there is <strong>no committed <code>uv.lock</code></strong>. This is a library, so consumers
-resolve against the dependency <em>ranges</em> in <code>pyproject.toml</code>; a lockfile would only pin our own dev
-environment and churn against the setuptools-scm version. Plain <code>pip</code> works too.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>uv<span class="w"> </span>venv<span class="w">                              </span><span class="c1"># create .venv</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[dev,docs]&quot;</span><span class="w">      </span><span class="c1"># dev tools + docs toolchain</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="c1"># equivalently, without uv:</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1">#   python -m venv .venv &amp;&amp; source .venv/bin/activate &amp;&amp; pip install -e &quot;.[dev,docs]&quot;</span>
-</code></pre></div>
-<h2 id="tests">Tests<a class="headerlink" href="#tests" title="Permanent link">&para;</a></h2>
-<p>The suite lives in the top-level <code>tests/</code> tree and runs from the repo root:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w">                                         </span><span class="c1"># whole suite (with coverage)</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>tests/connectors/test_awx_client.py<span class="w">     </span><span class="c1"># one file</span>
-</code></pre></div>
-<h2 id="lint-format-ruff">Lint &amp; format (Ruff)<a class="headerlink" href="#lint-format-ruff" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>uv<span class="w"> </span>run<span class="w"> </span>ruff<span class="w"> </span>format<span class="w"> </span>.<span class="w">          </span><span class="c1"># format</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>uv<span class="w"> </span>run<span class="w"> </span>ruff<span class="w"> </span>check<span class="w"> </span>.<span class="w"> </span>--fix<span class="w">     </span><span class="c1"># lint, auto-fixing what it safely can</span>
-</code></pre></div>
-<p>Ruff config is in <code>pyproject.toml</code> (<code>[tool.ruff]</code>). The rule set is intentionally conservative;
-<code>UP</code> (pyupgrade), <code>TID252</code> (it would ban the package's relative imports), and <code>G</code> (the codebase mixes
-f-string and <code>{}</code>-style Loguru calls) are deliberately <strong>not</strong> enabled.</p>
-<h2 id="type-check-ty">Type check (ty)<a class="headerlink" href="#type-check-ty" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>uv<span class="w"> </span>run<span class="w"> </span>ty<span class="w"> </span>check<span class="w"> </span>src<span class="w">           </span><span class="c1"># advisory — scoped to the shipped package</span>
-</code></pre></div>
-<p>ty is <strong>advisory / non-blocking</strong>: it's beta and has no Pydantic plugin yet, so it reports a known
-baseline of mostly Optional-annotation and Pydantic false positives. Treat it as a signal, not a
-gate.</p>
-<h2 id="pre-commit-hooks">Pre-commit hooks<a class="headerlink" href="#pre-commit-hooks" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>uv<span class="w"> </span>run<span class="w"> </span>pre-commit<span class="w"> </span>install<span class="w">                                  </span><span class="c1"># enable on every commit</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>uv<span class="w"> </span>run<span class="w"> </span>pre-commit<span class="w"> </span>run<span class="w"> </span>--all-files<span class="w">                          </span><span class="c1"># run ruff + ruff-format now</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>uv<span class="w"> </span>run<span class="w"> </span>pre-commit<span class="w"> </span>run<span class="w"> </span>ty<span class="w"> </span>--hook-stage<span class="w"> </span>manual<span class="w"> </span>--all-files<span class="w">   </span><span class="c1"># run the advisory ty hook</span>
-</code></pre></div>
-<p><code>ruff</code> and <code>ruff-format</code> run on every commit; <code>ty</code> is a manual-stage hook so its beta noise never
-blocks a commit.</p>
-<h2 id="docs">Docs<a class="headerlink" href="#docs" title="Permanent link">&para;</a></h2>
-<p>The docs you're reading are built with MkDocs (Material) + mkdocstrings:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>uv<span class="w"> </span>run<span class="w"> </span>mkdocs<span class="w"> </span>serve<span class="w">            </span><span class="c1"># live preview at http://127.0.0.1:8000</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>uv<span class="w"> </span>run<span class="w"> </span>mkdocs<span class="w"> </span>build<span class="w"> </span>--strict<span class="w">   </span><span class="c1"># what CI-equivalent checks expect: fails on any broken link</span>
-</code></pre></div>
-<p>The API reference pages are generated from docstrings, so keep docstrings accurate when you change
-public signatures.</p>
-<h2 id="before-you-open-a-pr">Before you open a PR<a class="headerlink" href="#before-you-open-a-pr" title="Permanent link">&para;</a></h2>
+<h1 id="secure-an-api-with-oidc-jwks">Secure an API with OIDC &amp; JWKS<a class="headerlink" href="#secure-an-api-with-oidc-jwks" title="Permanent link">&para;</a></h1>
+<p>To protect your service against tokens minted by the <strong>platform SSO</strong>, verify inbound bearer tokens
+in <strong>JWKS mode</strong>: the verifier fetches the provider's RS256 signing keys from its JWKS endpoint (by
+their <code>kid</code>) and validates every request against them. This is the standards path for any OIDC
+provider and needs no shared secret or key file on your side — unlike the local-pubkey mode used in
+the <a href="../../tutorials/secure-your-api/">Secure your API</a> tutorial.</p>
+<p>Two sides have to line up: the <strong>SSO</strong> (issues tokens carrying the right audience), and <strong>your API</strong>
+(verifies the signature, <code>iss</code>, and <code>aud</code>). Callers get their tokens via the OAuth2
+<code>client_credentials</code> grant.</p>
+<h2 id="1-what-to-request-from-the-sso-team">1. What to request from the SSO team<a class="headerlink" href="#1-what-to-request-from-the-sso-team" title="Permanent link">&para;</a></h2>
+<p>The verification material and the audience aren't something you generate — ask the SSO team for:</p>
 <ul>
-<li><code>uv run ruff format . &amp;&amp; uv run ruff check .</code> — clean.</li>
-<li><code>uv run pytest</code> — green.</li>
-<li><code>uv run mkdocs build --strict</code> — clean, if you touched docs or public docstrings.</li>
+<li><strong>A client</strong> (client id + secret) for each <em>caller</em> that will reach your API. Callers use it with
+  the <code>client_credentials</code> grant (see step 3). Human callers front-ended by a UI use their own flow;
+  this is for <strong>service-to-service</strong> calls.</li>
+<li><strong>An audience</strong> (a.k.a. API identifier) for <em>your</em> service — the value the SSO stamps into the
+  <code>aud</code> claim of issued tokens, and the value your API checks. Agree on one string (e.g.
+  <code>https://my-api.platform.example</code>).</li>
+<li><strong>The client scope that carries the platform audience.</strong> On Keycloak-style providers the <code>aud</code> is
+  set by an <strong>Audience</strong> protocol mapper attached to a <strong>client scope</strong>. This platform scope should
+  <strong>already exist in the SSO</strong> — callers just need it granted/requested so their tokens carry your
+  audience. (On Auth0-style providers the audience is a request parameter instead — see step 3.)</li>
+<li><strong>The issuer URL</strong> (for OIDC discovery) <em>or</em> the <strong>JWKS endpoint URL</strong> directly.</li>
 </ul>
-<p>CI (<code>.woodpecker/check.yaml</code>) runs Ruff + pytest + advisory ty on every push/PR.</p>
+<h2 id="2-configure-your-api-inbound-verification">2. Configure your API (inbound verification)<a class="headerlink" href="#2-configure-your-api-inbound-verification" title="Permanent link">&para;</a></h2>
+<p>Turn on inbound auth. It's <strong>dual-gated</strong> — both the code flag and the runtime switch must be set:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">tashtiot_apis_library</span><span class="w"> </span><span class="kn">import</span> <span class="n">general_create_app</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">app</span> <span class="o">=</span> <span class="n">general_create_app</span><span class="p">(</span><span class="n">enable_auth</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>   <span class="c1"># gate 1: the code flag</span>
+</code></pre></div>
+<p>Point the verifier at the SSO in your environment (<code>.env</code> or process env). Prefer <strong>OIDC discovery</strong>
+— give it the issuer and it fetches <code>/.well-known/openid-configuration</code> at startup to find the
+<code>jwks_uri</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>AUTH_ENABLED=true                                        # gate 2: the runtime switch
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>AUTH_OIDC_ISSUER=https://sso.platform.example/realms/platform
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>AUTH_AUDIENCE=https://my-api.platform.example            # must equal the audience the SSO assigned you
+</code></pre></div>
+<p>Or skip discovery and name the JWKS endpoint directly (use one <strong>or</strong> the other, not both):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>AUTH_ENABLED=true
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>AUTH_JWKS_URL=https://sso.platform.example/realms/platform/protocol/openid-connect/certs
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>AUTH_AUDIENCE=https://my-api.platform.example
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>AUTH_ISSUER=https://sso.platform.example/realms/platform  # expected iss (OIDC discovery sets this for you)
+</code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title">Set <code>AUTH_AUDIENCE</code> or audience isn't checked</p>
+<p>Audience is validated <strong>only when <code>AUTH_AUDIENCE</code> is set</strong>. Leave it unset and any validly-signed
+token from the issuer is accepted regardless of who it was minted for — so a token meant for a
+different service would pass. Always set it to your assigned audience.</p>
+</div>
+<p>With <code>enable_auth=True</code> + <code>AUTH_ENABLED=true</code>, the <code>AuthMiddleware</code> protects <strong>every</strong> route (minus
+the <a href="../../reference/configuration/#inbound-authentication-server-side">exclude list</a>: probes, docs,
+<code>/.well-known</code>, …). Routes read the verified identity via <code>Depends(get_current_claims)</code>; a missing or
+invalid token gets a <code>401</code>. See the full <a href="../../reference/configuration/#inbound-authentication-server-side">inbound <code>AUTH_*</code> table</a>
+for every knob (<code>AUTH_ISSUER</code>, <code>AUTH_ALGORITHMS</code>, <code>AUTH_JWKS_CACHE_TTL</code>, <code>AUTH_REQUIRE_EXP</code>, …).</p>
+<h2 id="3-how-a-caller-obtains-a-token-client_credentials">3. How a caller obtains a token (<code>client_credentials</code>)<a class="headerlink" href="#3-how-a-caller-obtains-a-token-client_credentials" title="Permanent link">&para;</a></h2>
+<p>A caller exchanges its client id/secret for a token at the SSO's token endpoint, then sends it as
+<code>Authorization: Bearer &lt;token&gt;</code>. The issued token's <code>aud</code> <strong>must match your <code>AUTH_AUDIENCE</code></strong>, so the
+caller has to make the SSO stamp it:</p>
+<ul>
+<li><strong>Keycloak-style:</strong> request the platform <strong>client scope</strong> (step 1) so the Audience mapper adds your
+  <code>aud</code>. With this library's helpers, set <code>AUTH_SSO_SCOPE</code> to that scope.</li>
+<li><strong>Auth0-style:</strong> the provider honours an <code>audience</code> request parameter — set <code>AUTH_SSO_AUDIENCE</code> to
+  your audience and the IdP stamps it.</li>
+</ul>
+<p>If the caller is itself a service built on this library, it doesn't need to hand-roll the grant — the
+outbound helpers fetch, cache, and refresh the token automatically:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">tashtiot_apis_library.fastapi_template.security</span><span class="w"> </span><span class="kn">import</span> <span class="n">sso_authenticated_api</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="k">async</span> <span class="k">with</span> <span class="n">sso_authenticated_api</span><span class="p">(</span><span class="s2">&quot;https://my-api.platform.example&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="n">resp</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/protected&quot;</span><span class="p">)</span>     <span class="c1"># Authorization: Bearer &lt;auto-managed&gt;</span>
+</code></pre></div>
+<p>See <strong><a href="../call-services-with-sso/">Call other services with SSO</a></strong> for the full outbound setup
+(<code>AUTH_SSO_*</code> variables, per-upstream <code>SSOConfig</code>, and how the downstream <code>aud</code> is populated).</p>
+<h2 id="verify-a-token-outside-a-request">Verify a token outside a request<a class="headerlink" href="#verify-a-token-outside-a-request" title="Permanent link">&para;</a></h2>
+<p>Workers, CLIs, or routes that receive a token by other means can verify it directly with the same
+JWKS configuration — see <a href="../verify-a-token/">Verify a token outside a request</a>.</p>
+<h2 id="see-also">See also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../call-services-with-sso/">Call other services with SSO</a> — the caller/outbound side.</li>
+<li><a href="../verify-a-token/">Verify a token outside a request</a> — the inbound check off the request path.</li>
+<li><a href="../../explanation/authentication/">Authentication design</a> — why modes exist and how they're selected.</li>
+<li><a href="../../reference/configuration/">Configuration reference</a> — every <code>AUTH_*</code> / <code>AUTH_SSO_*</code> variable.</li>
+</ul>
 
 
 
