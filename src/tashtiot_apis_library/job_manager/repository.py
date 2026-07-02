@@ -8,16 +8,41 @@ behind the same Protocol without touching the routes.
 
 from __future__ import annotations
 
-from typing import Any, List, Optional, Protocol, runtime_checkable
+from typing import Any, List, Optional, Protocol
 
 from .models import JobRecord, JobStatus
 
 __all__ = ["JobRepository", "RedisJobRepository", "InMemoryJobRepository"]
 
+# Atomic claim: set the record iff the key is absent or the prior record is terminal
+# (ARGV[3..] are the terminal status values). Returns 1 on claim, 0 if a live one exists.
+_CLAIM_LUA = """
+local cur = redis.call('GET', KEYS[1])
+if cur then
+  local status = cjson.decode(cur)['status']
+  local terminal = false
+  for i = 3, #ARGV do
+    if status == ARGV[i] then terminal = true end
+  end
+  if not terminal then return 0 end
+end
+redis.call('SET', KEYS[1], ARGV[1], 'EX', ARGV[2])
+return 1
+"""
 
-@runtime_checkable
+_TERMINAL_VALUES = [
+    JobStatus.SUCCEEDED.value,
+    JobStatus.FAILED.value,
+    JobStatus.CANCELLED.value,
+]
+
+
 class JobRepository(Protocol):
     async def save(self, record: JobRecord) -> None: ...
+
+    async def create(self, record: JobRecord) -> bool:
+        """Atomic claim: succeeds iff the id is absent OR the existing record is terminal."""
+        ...
 
     async def get(self, job_id: str) -> Optional[JobRecord]: ...
 
@@ -36,21 +61,18 @@ class JobRepository(Protocol):
 class RedisJobRepository:
     """Records as JSON keys with TTL; a sorted-set index keyed by created time.
 
-    ponytail: ``list`` scans the index and filters target/status in Python -- fine
-    at the retained-job volume (bounded by TTL); swap for per-field indexes if it grows.
+    ponytail: ``list`` is a full index scan + one ``mget``, filtered in Python --
+    fine at the TTL-bounded volume; swap for per-field indexes if it grows.
     """
 
-    def __init__(self, redis: Any, *, record_ttl: int = 86400, key_prefix: str = "jm") -> None:
+    _index = "jm:jobs"
+
+    def __init__(self, redis: Any, *, record_ttl: int = 86400) -> None:
         self.redis = redis
         self.record_ttl = record_ttl
-        self.p = key_prefix
 
     def _rec_key(self, job_id: str) -> str:
-        return f"{self.p}:job:{job_id}"
-
-    @property
-    def _index(self) -> str:
-        return f"{self.p}:jobs"
+        return f"jm:job:{job_id}"
 
     async def save(self, record: JobRecord) -> None:
         await self.redis.set(
@@ -58,6 +80,21 @@ class RedisJobRepository:
         )
         await self.redis.zadd(self._index, {record.job_id: record.created_at.timestamp()})
         await self.redis.expire(self._index, self.record_ttl * 2)
+
+    async def create(self, record: JobRecord) -> bool:
+        """Atomic claim (Lua): win iff the id is absent or the prior record is terminal."""
+        won = await self.redis.eval(
+            _CLAIM_LUA,
+            1,
+            self._rec_key(record.job_id),
+            record.model_dump_json(),
+            self.record_ttl,
+            *_TERMINAL_VALUES,
+        )
+        if won:
+            await self.redis.zadd(self._index, {record.job_id: record.created_at.timestamp()})
+            await self.redis.expire(self._index, self.record_ttl * 2)
+        return bool(won)
 
     async def get(self, job_id: str) -> Optional[JobRecord]:
         raw = await self.redis.get(self._rec_key(job_id))
@@ -81,19 +118,27 @@ class RedisJobRepository:
         limit: int = 50,
         offset: int = 0,
     ) -> List[JobRecord]:
-        job_ids = await self.redis.zrevrange(self._index, 0, -1)
+        # ponytail: full index scan + one mget (2 round trips), bounded by the record
+        # TTL; page the index / add per-field indexes only if retained volume outgrows it.
+        # client is created with decode_responses=True, so ids come back as str
+        ids = await self.redis.zrevrange(self._index, 0, -1)
+        if not ids:
+            return []
+        raws = await self.redis.mget([self._rec_key(j) for j in ids])
         out: List[JobRecord] = []
-        for jid in job_ids:
-            jid = jid.decode() if isinstance(jid, bytes) else jid
-            record = await self.get(jid)
-            if record is None:
-                await self.redis.zrem(self._index, jid)  # expired -> drop stale index entry
+        stale: List[str] = []
+        for jid, raw in zip(ids, raws, strict=True):
+            if raw is None:
+                stale.append(jid)
                 continue
+            record = JobRecord.model_validate_json(raw)
             if target is not None and record.target != target:
                 continue
             if status is not None and record.status != status:
                 continue
             out.append(record)
+        if stale:
+            await self.redis.zrem(self._index, *stale)
         return out[offset : offset + limit]
 
 
@@ -105,6 +150,13 @@ class InMemoryJobRepository:
 
     async def save(self, record: JobRecord) -> None:
         self._records[record.job_id] = record.model_copy(deep=True)
+
+    async def create(self, record: JobRecord) -> bool:
+        existing = self._records.get(record.job_id)
+        if existing is not None and not existing.is_terminal:
+            return False  # a live record owns this id
+        self._records[record.job_id] = record.model_copy(deep=True)
+        return True
 
     async def get(self, job_id: str) -> Optional[JobRecord]:
         record = self._records.get(job_id)

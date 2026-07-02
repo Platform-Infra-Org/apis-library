@@ -24,6 +24,20 @@ async def test_save_get_update():
 
 
 @pytest.mark.asyncio
+async def test_create_claim_semantics():
+    repo = InMemoryJobRepository()
+    assert await repo.create(_rec("a", status=JobStatus.PENDING)) is True
+    # A live (non-terminal) record owns the id -> claim fails.
+    assert await repo.create(_rec("a", status=JobStatus.RUNNING)) is False
+    # Once terminal, a re-claim wins and replaces the record.
+    await repo.update("a", status=JobStatus.SUCCEEDED.value)
+    assert await repo.create(_rec("a", target="host-2", status=JobStatus.PENDING)) is True
+    replaced = await repo.get("a")
+    assert replaced.status is JobStatus.PENDING
+    assert replaced.target == "host-2"
+
+
+@pytest.mark.asyncio
 async def test_list_filters_target_and_status():
     repo = InMemoryJobRepository()
     await repo.save(_rec("a", target="host-1", status=JobStatus.RUNNING))

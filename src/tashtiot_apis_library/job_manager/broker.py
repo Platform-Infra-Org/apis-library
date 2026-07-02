@@ -8,7 +8,7 @@ API side (so ``send``/``abort`` work) and the worker side.
 from __future__ import annotations
 
 from functools import lru_cache
-from typing import Any, Optional
+from typing import Any
 
 from ..fastapi_template.utils import settings
 
@@ -17,7 +17,7 @@ __all__ = ["setup_broker", "create_async_redis"]
 _broker: Any = None
 
 
-def setup_broker(url: Optional[str] = None) -> Any:
+def setup_broker() -> Any:
     """Create the Redis broker + ``Abortable`` middleware and set it globally (once)."""
     global _broker
     if _broker is not None:
@@ -26,13 +26,15 @@ def setup_broker(url: Optional[str] = None) -> Any:
     import dramatiq
     import redis
     from dramatiq.brokers.redis import RedisBroker
+    from dramatiq.middleware import CurrentMessage
     from dramatiq.middleware.asyncio import AsyncIO
     from dramatiq_abort import Abortable
     from dramatiq_abort.backends import RedisBackend as AbortRedisBackend
 
-    url = url or settings.REDIS_URL
+    url = settings.REDIS_URL
     broker = RedisBroker(url=url)
     broker.add_middleware(AsyncIO())  # required to run async actors
+    broker.add_middleware(CurrentMessage())  # so the actor can read its message_id (abort checks)
     broker.add_middleware(
         Abortable(
             backend=AbortRedisBackend(client=redis.from_url(url)), abort_ttl=settings.JM_ABORT_TTL
@@ -52,4 +54,5 @@ def create_async_redis() -> Any:
         settings.REDIS_URL,
         max_connections=settings.REDIS_MAX_CONNECTIONS,
         socket_timeout=settings.REDIS_SOCKET_TIMEOUT,
+        decode_responses=True,
     )

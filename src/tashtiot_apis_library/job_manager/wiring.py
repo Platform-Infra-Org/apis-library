@@ -8,7 +8,7 @@ from fastapi import FastAPI
 from loguru import logger
 
 from ..fastapi_template.utils import settings as app_settings
-from .repository import JobRepository
+from .repository import JobRepository, RedisJobRepository
 from .router import create_job_manager_router
 from .service import JobManager
 
@@ -18,7 +18,6 @@ __all__ = ["enable_job_manager"]
 def enable_job_manager(
     app: FastAPI,
     *,
-    redis_url: Optional[str] = None,
     prefix: str = "",
     repository: Optional[JobRepository] = None,
     manager: Optional[JobManager] = None,
@@ -32,11 +31,9 @@ def enable_job_manager(
     """
     if manager is None:
         if repository is None:
-            from .broker import create_async_redis, setup_broker
+            from .broker import create_async_redis, setup_broker  # lazy: pulls in Dramatiq
 
-            setup_broker(redis_url)
-            from .repository import RedisJobRepository
-
+            setup_broker()  # uses settings.REDIS_URL -- the single source of truth
             repository = RedisJobRepository(
                 create_async_redis(), record_ttl=app_settings.JM_JOB_TTL
             )

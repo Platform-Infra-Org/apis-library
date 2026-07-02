@@ -6,7 +6,6 @@ from __future__ import annotations
 import asyncio
 import json
 import time
-from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 
 import dramatiq
@@ -20,7 +19,7 @@ from .exceptions import TargetLockTimeout
 from .executor import CommandExecutor, Executor
 from .locks import target_lock
 from .metrics import JOB_DURATION, JOBS_INFLIGHT, JOBS_TOTAL
-from .models import JobStatus
+from .models import JobStatus, _utcnow
 from .repository import RedisJobRepository
 
 __all__ = ["run_job", "set_executor"]
@@ -50,10 +49,6 @@ def _repo() -> RedisJobRepository:
     return RedisJobRepository(create_async_redis(), record_ttl=app_settings.JM_JOB_TTL)
 
 
-def _utcnow() -> datetime:
-    return datetime.now(timezone.utc)
-
-
 async def _finish(
     repo: Any, job_id: str, status: JobStatus, *, metric: Optional[str] = None, **fields: Any
 ) -> None:
@@ -66,12 +61,10 @@ async def _finish(
     max_retries=app_settings.JM_MAX_RETRIES, time_limit=app_settings.JM_ACTOR_TIME_LIMIT_MS
 )
 async def run_job(*, job_id: str, target: str, operation: str, params: Dict[str, Any]) -> None:
-    """Dramatiq actor: thin wrapper so the lifecycle logic stays directly testable."""
-    await _execute(job_id=job_id, target=target, operation=operation, params=params)
+    """Execute the job and persist its lifecycle. Status lives only in the repository.
 
-
-async def _execute(*, job_id: str, target: str, operation: str, params: Dict[str, Any]) -> None:
-    """Execute the job and persist its lifecycle. Status lives only in the repository."""
+    Tests call the bare coroutine directly via ``run_job.fn.__wrapped__``.
+    """
     repo = _repo()
     executor = _executor_instance()
     redis = create_async_redis()

@@ -66,6 +66,65 @@ async def test_idempotency_reuses_inflight(manager, stub_broker):
 
 
 @pytest.mark.asyncio
+async def test_concurrent_idempotent_launches_enqueue_once(manager, stub_broker):
+    # Two identical requests racing: exactly one wins the atomic claim; the loser
+    # reuses the same job without a second enqueue.
+    import asyncio
+
+    a, b = await asyncio.gather(
+        manager.launch_job(_req(idempotency_key="dup")),
+        manager.launch_job(_req(idempotency_key="dup")),
+    )
+    assert a.job_id == b.job_id
+    assert stub_broker.queues["default"].qsize() == 1
+
+
+@pytest.mark.asyncio
+async def test_relaunch_after_terminal_reuses_id_and_enqueues_again(manager, stub_broker):
+    first = await manager.launch_job(_req(idempotency_key="re"))
+    await manager.repository.update(first.job_id, status=JobStatus.SUCCEEDED.value)
+    stub_broker.flush_all()  # drop the first message so we can count the second
+
+    second = await manager.launch_job(_req(idempotency_key="re"))
+    assert second.job_id == first.job_id
+    assert second.status == JobStatus.PENDING.value
+    assert stub_broker.queues["default"].qsize() == 1  # terminal prior -> re-enqueued
+
+
+@pytest.mark.asyncio
+async def test_concurrent_relaunch_after_terminal_enqueues_once(manager, stub_broker):
+    import asyncio
+
+    first = await manager.launch_job(_req(idempotency_key="rdup"))
+    await manager.repository.update(first.job_id, status=JobStatus.SUCCEEDED.value)
+    stub_broker.flush_all()  # drop the first message
+
+    a, b = await asyncio.gather(
+        manager.launch_job(_req(idempotency_key="rdup")),
+        manager.launch_job(_req(idempotency_key="rdup")),
+    )
+    assert a.job_id == b.job_id
+    assert stub_broker.queues["default"].qsize() == 1  # exactly one wins the claim
+
+
+@pytest.mark.asyncio
+async def test_enqueue_failure_marks_failed_and_reraises(manager, stub_broker, monkeypatch):
+    from tashtiot_apis_library.job_manager.tasks import run_job
+
+    def boom(*_a, **_k):
+        raise RuntimeError("broker down")
+
+    monkeypatch.setattr(run_job.broker, "enqueue", boom)
+
+    with pytest.raises(RuntimeError):
+        await manager.launch_job(_req(idempotency_key="failenq"))
+
+    record = await manager.repository.get("job-failenq")
+    assert record.status is JobStatus.FAILED
+    assert "enqueue failed" in record.error
+
+
+@pytest.mark.asyncio
 async def test_cancel_requests_abort(manager, stub_broker, monkeypatch):
     calls = []
     monkeypatch.setattr(dramatiq_abort, "abort", lambda mid, **kw: calls.append(mid))
@@ -76,6 +135,23 @@ async def test_cancel_requests_abort(manager, stub_broker, monkeypatch):
     out = await manager.cancel_job(resp.job_id)
     assert out.status == JobStatus.CANCELLED.value
     assert calls == [record.message_id]  # cancel maps job_id -> message_id and aborts
+
+    # Still-queued job: cancel_job itself writes the terminal state (the actor
+    # never runs -- Abortable skips the message before it starts).
+    record = await manager.repository.get(resp.job_id)
+    assert record.status is JobStatus.CANCELLED
+    assert record.finished_at is not None
+
+
+@pytest.mark.asyncio
+async def test_cancel_running_leaves_terminal_write_to_actor(manager, stub_broker, monkeypatch):
+    monkeypatch.setattr(dramatiq_abort, "abort", lambda mid, **kw: None)
+    resp = await manager.launch_job(_req())
+    await manager.repository.update(resp.job_id, status=JobStatus.RUNNING.value)
+
+    await manager.cancel_job(resp.job_id)
+    record = await manager.repository.get(resp.job_id)
+    assert record.status is JobStatus.RUNNING  # actor's shielded write owns the transition
 
 
 @pytest.mark.asyncio

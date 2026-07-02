@@ -86,7 +86,6 @@ markers = [
     "asyncio: mark test to be run by the asyncio event loop",
     "rest: mark test as needing a REST server",
     "ftp: mark test as needing an ftp server",
-    "integration: mark test as needing real infra (e.g. Redis); opt-in, skipped by default",
 ]
 
 log_cli = true

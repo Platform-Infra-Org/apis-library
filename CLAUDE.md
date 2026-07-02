@@ -132,8 +132,7 @@ against an in-memory repo + a `StubBroker` with no real infra.
   builds the repository + service, includes the router. API replicas only enqueue
   (no executor); workers execute.
 - Settings live on `ApplicationSettings` (`REDIS_*`, `JM_*`). Metrics
-  (`jm_jobs_*`) register on the default registry → existing `/metrics`. Redis
-  integration tests are marked `integration` (opt-in; need `JM_TEST_REDIS_URL`).
+  (`jm_jobs_*`) register on the default registry → existing `/metrics`.
 
 ### Public API
 Top-level `tashtiot_apis_library/__init__.py` re-exports the connector services, error types, `general_create_app`, and the shared request schemas from `schemas.py` (`OperationRequest`, `ResourceSpec`, `DefaultMetaSpec`, `NameNamespace` — Kubernetes/PaaS-oriented Pydantic models with CPU/memory regex validation). Keep `__all__` here in sync when adding exports.

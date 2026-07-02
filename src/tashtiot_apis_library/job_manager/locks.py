@@ -15,9 +15,8 @@ async def target_lock(
     redis: Any,
     target: str,
     *,
-    timeout: float = 600.0,
-    blocking_timeout: float = 30.0,
-    key_prefix: str = "jm",
+    timeout: float,
+    blocking_timeout: float,
 ) -> AsyncIterator[None]:
     """Hold the per-target lock for the duration of the ``with`` block.
 
@@ -25,9 +24,7 @@ async def target_lock(
     target forever); ``blocking_timeout`` is how long we wait to acquire before
     raising :class:`TargetLockTimeout`.
     """
-    lock = redis.lock(
-        f"{key_prefix}:lock:{target}", timeout=timeout, blocking_timeout=blocking_timeout
-    )
+    lock = redis.lock(f"jm:lock:{target}", timeout=timeout, blocking_timeout=blocking_timeout)
     acquired = await lock.acquire()
     if not acquired:
         raise TargetLockTimeout(target)
@@ -37,5 +34,5 @@ async def target_lock(
         # Lock may have already expired (long op) -> release can raise; ignore.
         try:
             await lock.release()
-        except Exception:  # noqa: BLE001 - best-effort release
+        except Exception:
             pass

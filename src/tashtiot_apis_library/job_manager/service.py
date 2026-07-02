@@ -15,7 +15,7 @@ from .models import (
     JobRequest,
     JobStatus,
     JobStatusResponse,
-    JobSummary,
+    _utcnow,
 )
 from .repository import JobRepository
 
@@ -40,37 +40,45 @@ class JobManager:
             raise UnknownOperationError(request.operation)
 
         # Idempotency: a stable id lets a replay reuse a still-running job.
-        if request.idempotency_key:
-            job_id = f"job-{request.idempotency_key}"
-            existing = await self.repository.get(job_id)
-            if existing is not None and not existing.is_terminal:
-                logger.info("Idempotent launch: reusing in-flight job {}", job_id)
-                return JobOperationResponse(
-                    status=existing.status.value, status_code=202, job_id=job_id
-                )
-        else:
-            job_id = uuid.uuid4().hex
+        job_id = f"job-{request.idempotency_key}" if request.idempotency_key else uuid.uuid4().hex
 
-        # Record exists before the worker can pick the message up.
+        from .tasks import run_job  # lazy: pulls in Dramatiq
+
+        # Build the message first (no I/O) so its message_id lands in the record at
+        # claim time -- no post-send update() racing the worker's status writes.
+        message = run_job.message(
+            job_id=job_id,
+            target=request.target,
+            operation=request.operation,
+            params=request.params,
+        )
+
+        # Record exists before the worker can pick the message up. Atomic claim so
+        # concurrent duplicate launches can't both enqueue -- exactly one wins create()
+        # (a terminal prior record lets the claim succeed and re-run under the same id).
         record = JobRecord(
             job_id=job_id,
             target=request.target,
             operation=request.operation,
             params=request.params,
             status=JobStatus.PENDING,
+            message_id=message.message_id,
         )
-        await self.repository.save(record)
+        if not await self.repository.create(record):
+            # Lost the claim: a live (non-terminal) record already owns this id -- reuse it.
+            existing = await self.repository.get(job_id)
+            status = existing.status.value if existing is not None else JobStatus.PENDING.value
+            logger.info("Idempotent launch: reusing in-flight job {}", job_id)
+            return JobOperationResponse(status=status, status_code=202, job_id=job_id)
 
-        from .tasks import run_job  # lazy: pulls in Dramatiq
-
-        message = await asyncio.to_thread(
-            run_job.send,
-            job_id=job_id,
-            target=request.target,
-            operation=request.operation,
-            params=request.params,
-        )
-        await self.repository.update(job_id, message_id=message.message_id)
+        try:
+            await asyncio.to_thread(run_job.broker.enqueue, message)
+        except Exception as exc:
+            # No phantom pending record if the enqueue itself fails.
+            await self.repository.update(
+                job_id, status=JobStatus.FAILED.value, error=f"enqueue failed: {exc}"
+            )
+            raise
         logger.info("Enqueued job {} for target {}", job_id, request.target)
         return JobOperationResponse(status=JobStatus.PENDING.value, status_code=202, job_id=job_id)
 
@@ -93,20 +101,9 @@ class JobManager:
         status: Optional[JobStatus] = None,
         limit: int = 50,
         offset: int = 0,
-    ) -> List[JobSummary]:
-        records = await self.repository.list(
-            target=target, status=status, limit=limit, offset=offset
-        )
-        return [
-            JobSummary(
-                job_id=r.job_id,
-                target=r.target,
-                operation=r.operation,
-                status=r.status,
-                created_at=r.created_at,
-            )
-            for r in records
-        ]
+    ) -> List[JobRecord]:
+        # JobRecord is a superset of JobSummary; the router's response_model filters.
+        return await self.repository.list(target=target, status=status, limit=limit, offset=offset)
 
     async def cancel_job(self, job_id: str) -> JobOperationResponse:
         """Request a cooperative abort; the actor writes the terminal ``cancelled`` state."""
@@ -117,6 +114,12 @@ class JobManager:
             from dramatiq_abort import abort  # lazy: pulls in Dramatiq
 
             await asyncio.to_thread(abort, record.message_id)
+        if record.status == JobStatus.PENDING:
+            # Still queued: the Abortable middleware skips the message before the actor
+            # runs, so nobody else would ever write the terminal state.
+            await self.repository.update(
+                job_id, status=JobStatus.CANCELLED.value, finished_at=_utcnow()
+            )
         logger.info("Requested abort for job {}", job_id)
         return JobOperationResponse(
             status=JobStatus.CANCELLED.value, status_code=202, job_id=job_id

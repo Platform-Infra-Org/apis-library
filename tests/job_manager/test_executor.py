@@ -50,6 +50,15 @@ async def test_missing_param_raises():
 
 
 @pytest.mark.asyncio
+async def test_shell_mode_quotes_argv_tokens():
+    # Each argv token becomes one shell-quoted argument: the param value stays a single
+    # arg, so the embedded `; echo INJECTED` is printed literally, never executed.
+    ex = CommandExecutor(command_for={"op": ["printf", "%s", "{msg}"]}, shell=True)
+    lines = [chunk async for chunk in ex.run("op", {"msg": "a b; echo INJECTED"})]
+    assert lines == ["a b; echo INJECTED"]
+
+
+@pytest.mark.asyncio
 async def test_nonzero_exit_raises_after_streaming():
     ex = CommandExecutor(
         command_for={"fail": [sys.executable, "-c", "import sys; print('partial'); sys.exit(2)"]}

@@ -1,6 +1,6 @@
 """run_job actor body: status transitions written to the repo, under the per-target lock.
 
-The actor coroutine (``run_job.fn``) is called directly with its module-level
+The actor coroutine (``run_job.fn.__wrapped__``, the coroutine under dramatiq's async_to_sync) is called directly with its module-level
 dependencies monkeypatched -- no broker/worker needed.
 """
 
@@ -41,7 +41,7 @@ async def test_success_writes_running_then_succeeded(wire):
     set_executor(FakeExecutor(["a", "b", "c"]))
     await _seed(repo)
 
-    await tasks._execute(job_id="j1", target="host-1", operation="op", params={})
+    await tasks.run_job.fn.__wrapped__(job_id="j1", target="host-1", operation="op", params={})
 
     record = await repo.get("j1")
     assert record.status is JobStatus.SUCCEEDED
@@ -57,7 +57,7 @@ async def test_failure_writes_failed_with_error_and_reraises(wire):
     await _seed(repo, "j2")
 
     with pytest.raises(ExecutorError):
-        await tasks._execute(job_id="j2", target="host-1", operation="op", params={})
+        await tasks.run_job.fn.__wrapped__(job_id="j2", target="host-1", operation="op", params={})
     record = await repo.get("j2")
     assert record.status is JobStatus.FAILED
     assert "boom" in record.error
@@ -70,7 +70,7 @@ async def test_lock_contention_writes_failed(wire):
     set_redis(FakeRedis(acquirable=False))
     await _seed(repo, "j3")
 
-    await tasks._execute(job_id="j3", target="host-1", operation="op", params={})
+    await tasks.run_job.fn.__wrapped__(job_id="j3", target="host-1", operation="op", params={})
     record = await repo.get("j3")
     assert record.status is JobStatus.FAILED
     assert "lock" in record.error.lower()
@@ -88,7 +88,7 @@ async def test_cooperative_abort_writes_cancelled(wire, monkeypatch):
     monkeypatch.setattr(tasks.CurrentMessage, "get_current_message", staticmethod(lambda: _Msg()))
     monkeypatch.setattr(tasks, "abort_requested", lambda mid: 1.0)  # abort already requested
 
-    await tasks._execute(job_id="j4", target="host-1", operation="op", params={})
+    await tasks.run_job.fn.__wrapped__(job_id="j4", target="host-1", operation="op", params={})
     record = await repo.get("j4")
     assert record.status is JobStatus.CANCELLED
 

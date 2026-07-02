@@ -14,7 +14,6 @@ from typing import (
     Optional,
     Protocol,
     Union,
-    runtime_checkable,
 )
 
 from loguru import logger
@@ -27,7 +26,6 @@ __all__ = ["Executor", "CommandExecutor"]
 _PLACEHOLDER = re.compile(r"\{(\w+)\}")
 
 
-@runtime_checkable
 class Executor(Protocol):
     """Runs a named operation against its target, yielding stdout chunks as they arrive."""
 
@@ -82,7 +80,7 @@ class CommandExecutor:
 
         if self.shell:
             proc = await asyncio.create_subprocess_shell(
-                command if isinstance(command, str) else " ".join(command),
+                command if isinstance(command, str) else " ".join(shlex.quote(t) for t in command),
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.STDOUT,
                 cwd=self.cwd,
