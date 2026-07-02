@@ -281,3 +281,71 @@ class ApplicationSettings(BaseSettings):
         description="Refresh the cached access token this many seconds before its expiry.",
         examples=[30, 60],
     )
+
+    # --- Job manager (Dramatiq + Redis) ---
+
+    REDIS_URL: str = Field(
+        default="redis://localhost:6379/0",
+        description="Redis URL for the Dramatiq broker, abort backend, per-target lock, and job record store.",
+        examples=["redis://localhost:6379/0", "rediss://redis.example.com:6379/1"],
+    )
+
+    REDIS_MAX_CONNECTIONS: int = Field(
+        default=10,
+        description="Max connections in the Redis pool used by the job record store.",
+        examples=[10, 50],
+    )
+
+    REDIS_SOCKET_TIMEOUT: float = Field(
+        default=5.0,
+        description="Redis socket timeout (seconds) for the job record store.",
+        examples=[5.0, 10.0],
+    )
+
+    JM_JOB_TTL: int = Field(
+        default=86400,
+        description="Seconds the JobRecord (status/result/history) is retained in Redis. Ephemeral by design.",
+        examples=[86400, 3600],
+    )
+
+    JM_TARGET_LOCK_TIMEOUT: float = Field(
+        default=900.0,
+        description="Auto-expiry (seconds) of the per-target lock; caps how long a crashed worker can wedge a target. Keep >= the actor time limit so it never expires mid-job.",
+        examples=[900.0, 1800.0],
+    )
+
+    JM_TARGET_LOCK_WAIT: float = Field(
+        default=30.0,
+        description="Seconds a job waits to acquire the per-target lock before giving up. Jobs that wait longer fail (status 'lock_timeout'); size this for your per-target burst depth.",
+        examples=[30.0, 120.0],
+    )
+
+    JM_ACTOR_TIME_LIMIT_MS: int = Field(
+        default=600_000,
+        description="Dramatiq actor time limit (milliseconds); the worker aborts a job that runs longer.",
+        examples=[600_000, 1_800_000],
+    )
+
+    JM_MAX_RETRIES: int = Field(
+        default=0,
+        description="Dramatiq retries per job. Default 0 -- jobs are non-idempotent; raise only for provably idempotent operations (Dramatiq's own default of 20 is unsafe here).",
+        examples=[0, 3],
+    )
+
+    JM_ABORT_TTL: int = Field(
+        default=90_000,
+        description="Milliseconds an abort request is retained in the abort backend before expiring.",
+        examples=[90_000, 300_000],
+    )
+
+    JM_COMMAND_MAP: Optional[str] = Field(
+        default=None,
+        description='JSON mapping operation -> argv list (or string) for the command executor, e.g. {"drain_node": ["ssh", "{host}", "drain", "{node}"]}.',
+        examples=['{"scale": ["kubectl", "scale", "--replicas={n}", "deploy/{name}"]}'],
+    )
+
+    JM_COMMAND_SHELL: bool = Field(
+        default=False,
+        description="Run command-executor operations through the shell. Default False (argv, no shell).",
+        examples=[False, True],
+    )

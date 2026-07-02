@@ -88,6 +88,7 @@ nav:
       - Verify a token outside a request: how-to/verify-a-token.md
       - Call other services with SSO: how-to/call-services-with-sso.md
       - Enable the Remote Config API: how-to/enable-remote-config-api.md
+      - Run a job: how-to/run-a-job.md
       - Generate dev auth material: how-to/generate-auth-material.md
       - Add a new connector: how-to/add-a-connector.md
       - Extend the FastAPI template: how-to/extend-the-template.md
@@ -103,9 +104,11 @@ nav:
           - Remote Config API: reference/api/config-api.md
           - Errors: reference/api/errors.md
           - Schemas: reference/api/schemas.md
+      - Job manager: reference/job-manager.md
   - Explanation:
       - explanation/index.md
       - Architecture: explanation/architecture.md
+      - Job manager: explanation/job-manager.md
       - Authentication design: explanation/authentication.md
       - Logging: explanation/logging.md
   - Contributing:

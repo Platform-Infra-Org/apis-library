@@ -1,0 +1,16 @@
+# Dev infra for the job manager. Redis is the ONLY requirement: it backs the
+# Dramatiq broker, the abort backend, the per-target lock, and the job record store.
+#
+#   docker compose up -d
+#   REDIS_URL=redis://localhost:6379/0 dramatiq tashtiot_apis_library.job_manager.tasks
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5

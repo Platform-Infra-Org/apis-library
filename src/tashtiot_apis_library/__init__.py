@@ -17,6 +17,7 @@ from .connectors.errors import (
 # Re-export FastAPI template
 from .fastapi_template import general_create_app
 from .fastapi_template.errors import AuthConfigError, SSOError, TokenError
+from .job_manager import JobManager, enable_job_manager
 from .schemas import DefaultMetaSpec, NameNamespace, OperationRequest, ResourceSpec
 
 __all__ = [
@@ -37,4 +38,6 @@ __all__ = [
     "ResourceSpec",
     "DefaultMetaSpec",
     "NameNamespace",
+    "JobManager",
+    "enable_job_manager",
 ]

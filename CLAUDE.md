@@ -91,6 +91,49 @@ Use **relative imports** within the package (`from .client import ...`, `from ..
 - **Key/token generation** (`_internal/security/keygen.py`): the signing-side companion to `JWTVerifier`. Exposes `generate_keypair`, `derive_public_pem`, `load_keypair`, and `mint_token` (re-exported lazily from `fastapi_template/auth.py`) for minting RSA keys + dev tokens that pass local-pubkey verification. Also runnable as the `gen-auth-material` console script (registered in `pyproject.toml` `[project.scripts]`) or `python -m ...security.keygen`.
 - **Outbound SSO** (`_internal/security/sso.py`): the *client* side — obtaining a token to call other services via the OAuth2 **client_credentials** grant, configured from `AUTH_SSO_*` env vars (`AUTH_SSO_TOKEN_URL`/`CLIENT_ID`/`CLIENT_SECRET` required; optional `SCOPE`, `AUDIENCE`, `AUTH_STYLE` = `post`|`basic`, `VERIFY_SSL`, `TIMEOUT`, `EXPIRY_SKEW`). Its Pydantic data models (`SSOConfig`, `TokenResponse`) live in the co-located `_internal/security/models.py` (mirroring the connector model/logic split); the client/auth classes stay in `sso.py`. `SSOTokenClient` fetches/caches/refreshes the token (`get_token`, `auth_header`); `SSOClientCredentialsAuth` is an `httpx.Auth` that injects + refreshes the bearer per request and retries once on `401`. The headline helper `sso_authenticated_api(base_url)` returns a connector-style `BaseAPI` (`auth=` accepts an `httpx.Auth`) whose every request carries a fresh token — `async with sso_authenticated_api(url) as client: await client.get(...)`. All re-exported from `fastapi_template/security.py` (`get_sso_token_client`, `sso_auth`, `sso_authenticated_api`). Note: `client_credentials` issues **no** refresh token (RFC 6749 §4.4.3) — "refresh" re-runs the grant. **Server-side** verification of SSO-issued tokens reuses **JWKS mode**: set `AUTH_JWKS_URL` (+ `AUTH_AUDIENCE`/`AUTH_ISSUER`) and either protect routes with `AuthMiddleware` or check a token directly with `verify_token(token)` (`_internal/security/verifier.py`).
 
+### Job manager (`job_manager/`)
+A general-purpose async job manager (AWX-like) for operations Ansible can't
+drive — on **any** system (SSH, cloud CLIs, kubectl, scripts). **Optional** —
+its stack is the `[job-manager]` extra (`dramatiq[redis]`, `dramatiq-abort[redis]`);
+the base install stays thin. The whole subpackage imports *without* Dramatiq
+installed (the imports are lazy, confined to `broker.py`/`tasks.py`, which are
+loaded only by the worker or inside `launch_job`/`cancel_job`), so tests run
+against an in-memory repo + a `StubBroker` with no real infra.
+
+- **Dispatch = Dramatiq + Redis** (`broker.py`): `setup_broker()` builds a
+  `RedisBroker` + the **AsyncIO middleware** (required for async actors) + the
+  `Abortable` middleware (Redis abort backend). Idempotent; runs on both the API
+  side (so `send`/`abort` work) and the worker. Worker: `dramatiq
+  tashtiot_apis_library.job_manager.tasks --processes N --threads M`.
+- **Execution = pluggable `Executor` Protocol** (`executor.py`). The shipped
+  `CommandExecutor` (stdlib `asyncio` subprocess, streams stdout; `command_for`
+  maps operation→argv, `{name}`-regex-expanded leaving other braces, no shell by
+  default) is fully generic. Custom backends implement `run(operation, params)`;
+  register via `tasks.set_executor(...)` in a custom worker module.
+- **The `JobRepository` is the SOLE source of truth** (`repository.py`, Protocol
+  + `RedisJobRepository` + `InMemoryJobRepository`). Dramatiq tracks **no** status,
+  so the actor (`tasks.py`, an async `@dramatiq.actor`) writes every transition:
+  `pending` (at launch) → `running` → `succeeded`/`failed`/`cancelled`. Routes
+  read only the repository. `JobRecord` stores `message_id` (for cancel), `result`
+  (logs), `error`, timestamps. History ephemeral (`JM_JOB_TTL`).
+- **`JobManager` (`service.py`) mirrors the `AWX` connector** surface
+  (`launch_job`/`get_job_status`/`wait_for_job_completion` + `cancel_job`/`get_logs`).
+  `launch_job` saves the `pending` record **before** `run_job.send()`, then stores
+  the returned `message_id`. Reads/poll come from the repository.
+- **Per-target lock** (`locks.py`): `target_lock(redis, target)` over
+  `redis.asyncio`'s native `Lock` (kept over `ConcurrentRateLimiter` because async
+  actors make the blocking-wait async lock the natural, no-drop fit). Keep
+  `JM_TARGET_LOCK_TIMEOUT` ≥ `JM_ACTOR_TIME_LIMIT_MS`. **Cancellation**: cooperative
+  `abort_requested` poll between output chunks **plus** the `Abortable` middleware
+  interrupt (CancelledError); the actor shields its `cancelled` write. A no-output
+  blocking job can't be interrupted until it awaits. **Retries** = `JM_MAX_RETRIES`
+  (default 0; Dramatiq's own default of 20 is unsafe for non-idempotent jobs).
+- **Mounting**: `enable_job_manager(app, ...)` (`wiring.py`) sets up the broker,
+  builds the repository + service, includes the router. API replicas only enqueue
+  (no executor); workers execute.
+- Settings live on `ApplicationSettings` (`REDIS_*`, `JM_*`). Metrics
+  (`jm_jobs_*`) register on the default registry → existing `/metrics`.
+
 ### Public API
 Top-level `tashtiot_apis_library/__init__.py` re-exports the connector services, error types, `general_create_app`, and the shared request schemas from `schemas.py` (`OperationRequest`, `ResourceSpec`, `DefaultMetaSpec`, `NameNamespace` — Kubernetes/PaaS-oriented Pydantic models with CPU/memory regex validation). Keep `__all__` here in sync when adding exports.
 
