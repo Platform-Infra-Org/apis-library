@@ -50,7 +50,9 @@ Mirrors the `AWX` connector:
 - `launch_job(request) -> JobOperationResponse`
 - `get_job(job_id) -> JobRecord`
 - `get_job_status(job_id) -> JobStatusResponse`
-- `list_jobs(*, target=None, status=None, limit=50, offset=0) -> list[JobSummary]`
+- `list_jobs(*, target=None, status=None, limit=50, offset=0) -> list[JobRecord]`
+  (full records; the HTTP route filters them to `JobSummary` rows via its
+  `response_model`)
 - `cancel_job(job_id) -> JobOperationResponse`
 - `get_logs(job_id) -> str`  (the job result / captured stdout)
 - `wait_for_job_completion(job_id, timeout=300, poll_interval=5) -> JobRecord`

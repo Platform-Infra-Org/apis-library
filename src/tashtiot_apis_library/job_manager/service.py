@@ -8,7 +8,12 @@ from typing import Collection, List, Optional
 
 from loguru import logger
 
-from .exceptions import JobAlreadyTerminalError, JobNotFoundError, UnknownOperationError
+from .exceptions import (
+    JobAlreadyTerminalError,
+    JobManagerError,
+    JobNotFoundError,
+    UnknownOperationError,
+)
 from .models import (
     JobOperationResponse,
     JobRecord,
@@ -67,13 +72,22 @@ class JobManager:
         if not await self.repository.create(record):
             # Lost the claim: a live (non-terminal) record already owns this id -- reuse it.
             existing = await self.repository.get(job_id)
-            status = existing.status.value if existing is not None else JobStatus.PENDING.value
+            if existing is None:
+                # Claim refused yet no record exists: repository inconsistency.
+                # Don't mask it as a healthy pending job.
+                logger.error("Job {} claim lost but record missing", job_id)
+                raise JobManagerError(500, f"Job {job_id!r} state is inconsistent; retry launch.")
             logger.info("Idempotent launch: reusing in-flight job {}", job_id)
-            return JobOperationResponse(status=status, status_code=202, job_id=job_id)
+            return JobOperationResponse(
+                status=existing.status.value, status_code=202, job_id=job_id
+            )
 
         try:
             await asyncio.to_thread(run_job.broker.enqueue, message)
         except Exception as exc:
+            logger.exception(
+                "Enqueue failed for job {} ({} on {})", job_id, request.operation, request.target
+            )
             # No phantom pending record if the enqueue itself fails.
             await self.repository.update(
                 job_id, status=JobStatus.FAILED.value, error=f"enqueue failed: {exc}"

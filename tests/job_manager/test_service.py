@@ -5,6 +5,7 @@ import pytest
 
 from tashtiot_apis_library.job_manager.exceptions import (
     JobAlreadyTerminalError,
+    JobManagerError,
     JobNotFoundError,
     UnknownOperationError,
 )
@@ -63,6 +64,18 @@ async def test_idempotency_reuses_inflight(manager, stub_broker):
     second = await manager.launch_job(_req(idempotency_key="abc"))
     assert second.job_id == first.job_id
     assert second.status == JobStatus.RUNNING.value
+
+
+@pytest.mark.asyncio
+async def test_lost_claim_with_missing_record_raises(manager, stub_broker, monkeypatch):
+    # create() refused but get() finds nothing: repo inconsistency, not a healthy reuse.
+    async def refuse(record):
+        return False
+
+    monkeypatch.setattr(manager.repository, "create", refuse)
+    with pytest.raises(JobManagerError) as exc:
+        await manager.launch_job(_req(idempotency_key="ghost"))
+    assert exc.value.status_code == 500
 
 
 @pytest.mark.asyncio

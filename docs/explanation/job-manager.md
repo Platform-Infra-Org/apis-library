@@ -38,15 +38,20 @@ any one system:
 Dramatiq tracks **no** status — it's fire-and-forget. So the `JobRepository`
 (Redis-backed by default) is the only place job state lives, and the **actor
 writes every transition**: `pending` (at launch) → `running` (actor start) →
-`succeeded` / `failed` / `cancelled` (terminal). Routes read **only** from the
-repository; they never inspect Dramatiq.
+`succeeded` / `failed` / `cancelled` (terminal). Two edge writes happen on the
+service side instead, because the actor never runs for them: a failed enqueue
+marks the record `failed`, and cancelling a still-queued job marks it
+`cancelled`. Routes read **only** from the repository; they never inspect
+Dramatiq.
 
 - **Reads** (`GET /jobs/{id}`, `/status`, `cancel`, `wait`) → `repository.get`.
 - **Listing** (`GET /jobs`) → `repository.list`, filtered by target/status.
 - **Logs** → the actor returns its stdout; the repository stores it as the
   record's `result`; `GET /jobs/{id}/logs` returns it.
 - **Cancel** → the record stores the Dramatiq `message_id`; `cancel_job` maps
-  `job_id → message_id` and calls `dramatiq_abort.abort(...)`.
+  `job_id → message_id` and calls `dramatiq_abort.abort(...)`. If the job is
+  still queued the actor never runs (the middleware skips the message), so
+  `cancel_job` writes the terminal `cancelled` itself.
 
 **Trade-offs, stated plainly:**
 
