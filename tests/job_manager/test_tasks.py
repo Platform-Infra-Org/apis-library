@@ -93,6 +93,43 @@ async def test_cooperative_abort_writes_cancelled(wire, monkeypatch):
     assert record.status is JobStatus.CANCELLED
 
 
+@pytest.mark.asyncio
+async def test_midstream_abort_writes_cancelled_and_releases_lock(wire, monkeypatch):
+    # Abort lands between output chunks: first poll clean, second flagged.
+    repo, redis, set_executor, _ = wire
+    set_executor(FakeExecutor(["a", "b", "c"]))
+    await _seed(repo, "j5")
+
+    class _Msg:
+        message_id = "m5"
+
+    polls = iter([False, True])
+    monkeypatch.setattr(tasks.CurrentMessage, "get_current_message", staticmethod(lambda: _Msg()))
+    monkeypatch.setattr(tasks, "abort_requested", lambda mid: next(polls))
+
+    await tasks.run_job.fn.__wrapped__(job_id="j5", target="host-1", operation="op", params={})
+    record = await repo.get("j5")
+    assert record.status is JobStatus.CANCELLED
+    assert record.finished_at is not None
+    assert redis.last_lock.released is True
+
+
+@pytest.mark.asyncio
+async def test_cancelled_error_writes_cancelled_and_reraises(wire):
+    # The Abortable/AsyncIO middleware interrupts the actor by cancelling its task.
+    import asyncio
+
+    repo, redis, set_executor, _ = wire
+    set_executor(FakeExecutor(raises=asyncio.CancelledError()))
+    await _seed(repo, "j6")
+
+    with pytest.raises(asyncio.CancelledError):
+        await tasks.run_job.fn.__wrapped__(job_id="j6", target="host-1", operation="op", params={})
+    record = await repo.get("j6")
+    assert record.status is JobStatus.CANCELLED
+    assert redis.last_lock.released is True
+
+
 def test_actor_max_retries_is_zero():
     # Non-idempotent jobs must not be retried by Dramatiq's default of 20.
     assert tasks.run_job.options.get("max_retries") == 0

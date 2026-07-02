@@ -47,7 +47,10 @@ the task and routes don't change.
 
 Mirrors the `AWX` connector:
 
-- `launch_job(request) -> JobOperationResponse`
+- `launch_job(request) -> JobOperationResponse` — with an `idempotency_key`,
+  a repeat launch **reuses** the existing job while it is `pending`/`running`
+  (202 with the current status, nothing enqueued) and **creates a new run under
+  the same id** once it is terminal; without a key every launch is a new job.
 - `get_job(job_id) -> JobRecord`
 - `get_job_status(job_id) -> JobStatusResponse`
 - `list_jobs(*, target=None, status=None, limit=50, offset=0) -> list[JobRecord]`
