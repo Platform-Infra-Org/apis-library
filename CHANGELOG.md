@@ -15,6 +15,12 @@ setuptools-scm.
 
 - Migrate the job-manager queue engine from SAQ to Dramatiq + dramatiq-abort; the Redis-backed `JobRepository` is now the sole source of truth for status/result/history, the worker runs via `dramatiq ...:worker`, and cancellation is cooperative + abort-middleware driven (no monitoring UI — use the app's own surface + Prometheus)
 
+## [1.1.1] - 2026-07-02
+
+### Documentation
+
+- Add OIDC/JWKS how-to and SSO client-scope setup
+
 ## [1.1.0] - 2026-06-30
 
 ### Added

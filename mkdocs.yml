@@ -84,6 +84,7 @@ nav:
       - how-to/index.md
       - Read & write Bitbucket files: how-to/read-write-bitbucket.md
       - Drive AWX, ArgoCD & Vault: how-to/use-awx-argocd-vault.md
+      - Secure an API with OIDC &amp; JWKS: how-to/secure-with-oidc-jwks.md
       - Verify a token outside a request: how-to/verify-a-token.md
       - Call other services with SSO: how-to/call-services-with-sso.md
       - Enable the Remote Config API: how-to/enable-remote-config-api.md
