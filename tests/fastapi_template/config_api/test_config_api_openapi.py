@@ -13,6 +13,7 @@ from tashtiot_apis_library.fastapi_template.config_api import (
 API_PREFIX = "/api/v1/infra"
 CONFIG_PATH = f"{API_PREFIX}/config"
 NAMING_PATH = f"{API_PREFIX}/naming"
+BODY_PATH = f"{API_PREFIX}/config-body"
 
 
 def _router() -> APIRouter:
@@ -33,7 +34,7 @@ def _router() -> APIRouter:
 def app_with_openapi():
     app = FastAPI(title="Test API", version="1.0.0")
     app.include_router(_router())
-    app.openapi = make_config_openapi(app, config_path=CONFIG_PATH, naming_path=NAMING_PATH)
+    app.openapi = make_config_openapi(app, [CONFIG_PATH, NAMING_PATH])
     return app
 
 
@@ -71,3 +72,30 @@ class TestEnumInjection:
         app_with_openapi.openapi_schema = None
         regenerated = app_with_openapi.openapi()
         assert _params_for(regenerated, CONFIG_PATH)["region"]["schema"]["enum"] == ["us-east"]
+
+
+class TestBodyEnumInjection:
+    """Coordinates carried in a JSON request body (a Pydantic model, not Depends)
+    get enums injected into the referenced component schema, not `parameters`."""
+
+    def _body_app(self):
+        app = FastAPI(title="Body API", version="1.0.0")
+
+        @app.post(BODY_PATH)
+        async def _config_body(metadata: RequiredInfraMetadata):  # body model
+            return {}
+
+        app.openapi = make_config_openapi(app, [BODY_PATH])
+        return app
+
+    def test_body_model_coordinates_get_enums(self):
+        models.LIVE_ALLOWED_ENVIRONMENTS.update({"prod", "staging"})
+        app = self._body_app()
+        schema = app.openapi()
+        # The body op references the model by $ref; enums land on the component.
+        ref = schema["paths"][BODY_PATH]["post"]["requestBody"]["content"]["application/json"][
+            "schema"
+        ]["$ref"]
+        props = schema["components"]["schemas"][ref.rsplit("/", 1)[-1]]["properties"]
+        assert props["environment"]["enum"] == sorted(models.LIVE_ALLOWED_ENVIRONMENTS)
+        assert {"prod", "staging"} <= set(props["environment"]["enum"])

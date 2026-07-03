@@ -6,7 +6,7 @@ validation -> 422 handler, and registers the background allowlist poller. The
 service is left to define its own routes against the returned provider.
 """
 
-from typing import Optional
+from typing import Optional, Sequence
 
 import httpx
 from fastapi import FastAPI
@@ -23,8 +23,7 @@ def enable_remote_config_api(
     *,
     base_url: str,
     remote_prefix: str,
-    config_path: str,
-    naming_path: str,
+    coordinate_paths: Sequence[str],
     cache_ttl: int = 60,
     serve_stale_on_error: bool = False,
     poll_interval: int = 5,
@@ -39,9 +38,10 @@ def enable_remote_config_api(
     base_url, remote_prefix:
         Where the upstream Config API lives and the route prefix under which it
         serves ``/projects``, ``/config`` and ``/naming``.
-    config_path, naming_path:
+    coordinate_paths:
         This service's own route paths whose coordinate query params get the live
-        ``enum`` dropdowns injected.
+        ``enum`` dropdowns injected. Pass every route that takes coordinate params
+        (e.g. ``["/config", "/naming"]``); not limited to two.
     settings:
         Package-side ``CONFIG_REMOTE_*`` settings driving the outbound auth method;
         defaults to a freshly-read [`ConfigRemoteSettings`][ConfigRemoteSettings].
@@ -85,7 +85,7 @@ def enable_remote_config_api(
 
     # Wrap the existing app.openapi (preserving any bearer-security scheme) with the
     # dynamic enum patcher, and translate escaped coordinate validation -> 422.
-    app.openapi = make_config_openapi(app, config_path=config_path, naming_path=naming_path)
+    app.openapi = make_config_openapi(app, coordinate_paths)
     install_coordinate_validation_error_handler(app)
 
     if enable_polling:

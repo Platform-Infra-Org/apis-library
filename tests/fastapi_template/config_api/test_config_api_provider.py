@@ -274,7 +274,9 @@ class TestCrawlAndSyncKeys:
         assert models.LIVE_ALLOWED_REGIONS == {"us-east"}
         assert models.LIVE_ALLOWED_ISLANDS == {"compute-island-a"}
         assert models.LIVE_ALLOWED_ENVIRONMENTS == {"staging", "production"}
-        assert models.LIVE_ALLOWED_SPACES == {"core-infrastructure", "tenant-alpha"}
+        # Sourced from the /coordinates catalog (config tree), which only has
+        # `core-infrastructure` — `tenant-alpha` exists only in the naming doc.
+        assert models.LIVE_ALLOWED_SPACES == {"core-infrastructure"}
         assert models.LIVE_ALLOWED_PROJECTS == {
             "payment-gateway",
             "authentication-service",
@@ -297,7 +299,7 @@ class TestCrawlAndSyncKeys:
     @respx.mock(assert_all_called=False)
     async def test_exception_is_swallowed(self, respx_mock):
         register_token_route(respx_mock, TOKEN_URL)
-        respx_mock.get(f"{UPSTREAM_BASE}{REMOTE_PREFIX}/naming").mock(
+        respx_mock.get(f"{UPSTREAM_BASE}{REMOTE_PREFIX}/coordinates").mock(
             return_value=httpx.Response(500, text="boom")
         )
         prov = make_provider()

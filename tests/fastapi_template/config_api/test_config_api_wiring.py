@@ -93,8 +93,7 @@ class TestWiring:
             app,
             base_url=UPSTREAM_BASE,
             remote_prefix=REMOTE_PREFIX,
-            config_path=CONFIG_PATH,
-            naming_path=NAMING_PATH,
+            coordinate_paths=[CONFIG_PATH, NAMING_PATH],
             auth=sso_auth(SSO_CONFIG),
         )
         # Poller appended to the lifespan-read registry.
@@ -110,8 +109,7 @@ class TestWiring:
             app,
             base_url=UPSTREAM_BASE,
             remote_prefix=REMOTE_PREFIX,
-            config_path=CONFIG_PATH,
-            naming_path=NAMING_PATH,
+            coordinate_paths=[CONFIG_PATH, NAMING_PATH],
             settings=ConfigRemoteSettings(CONFIG_REMOTE_AUTH_METHOD="none"),
             enable_polling=False,
         )
@@ -130,8 +128,7 @@ class TestWiring:
             app,
             base_url=UPSTREAM_BASE,
             remote_prefix=REMOTE_PREFIX,
-            config_path=CONFIG_PATH,
-            naming_path=NAMING_PATH,
+            coordinate_paths=[CONFIG_PATH, NAMING_PATH],
             settings=ConfigRemoteSettings(CONFIG_REMOTE_AUTH_METHOD="none"),
             enable_polling=False,
         )

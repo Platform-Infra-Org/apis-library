@@ -96,29 +96,25 @@ class RemoteConfigProvider:
         the live allowlists, then invalidate the cached Swagger schema so the enum
         dropdowns regenerate on the next request.
 
-        Sourced over HTTP from the upstream's ``/naming`` (full dictionary) and
-        ``/projects`` routes, reusing the cached resolver methods below -- so a poll
-        within the cache TTL window costs no extra upstream calls."""
+        Sourced over HTTP from the upstream's ``/coordinates`` route (built from the
+        enterprise configuration tree, projects included), reusing the cached
+        resolver method below -- so a poll within the cache TTL window costs no extra
+        upstream calls."""
         try:
-            # 1. Naming convention coordinate tokens (keys of each per-level map).
-            naming = await self.resolve_naming_convention(InfraMetadata())
-            if naming:
-                LIVE_ALLOWED_NETWORKS.clear()
-                LIVE_ALLOWED_NETWORKS.update(naming.get("network", {}).keys())
-                LIVE_ALLOWED_REGIONS.clear()
-                LIVE_ALLOWED_REGIONS.update(naming.get("region", {}).keys())
-                LIVE_ALLOWED_ISLANDS.clear()
-                LIVE_ALLOWED_ISLANDS.update(naming.get("island", {}).keys())
-                LIVE_ALLOWED_ENVIRONMENTS.clear()
-                LIVE_ALLOWED_ENVIRONMENTS.update(naming.get("environment", {}).keys())
-                LIVE_ALLOWED_SPACES.clear()
-                LIVE_ALLOWED_SPACES.update(naming.get("space", {}).keys())
-
-            # 2. Global project registry catalog.
-            projects = await self.get_all_projects()
-            if projects:
-                LIVE_ALLOWED_PROJECTS.clear()
-                LIVE_ALLOWED_PROJECTS.update(projects)
+            # Coordinate values + projects from the upstream coordinate catalog.
+            catalog = await self.get_coordinate_catalog()
+            for live_set, key in (
+                (LIVE_ALLOWED_SPACES, "space"),
+                (LIVE_ALLOWED_NETWORKS, "network"),
+                (LIVE_ALLOWED_REGIONS, "region"),
+                (LIVE_ALLOWED_ISLANDS, "island"),
+                (LIVE_ALLOWED_ENVIRONMENTS, "environment"),
+                (LIVE_ALLOWED_PROJECTS, "projects"),
+            ):
+                values = catalog.get(key, [])
+                if values:  # stay permissive when a level is unseeded/empty
+                    live_set.clear()
+                    live_set.update(values)
 
             # Invalidate the cached OpenAPI schema so it regenerates with fresh enums.
             app_instance.openapi_schema = None

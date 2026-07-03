@@ -18,8 +18,7 @@ provider = enable_remote_config_api(
     app,
     base_url="https://config-api.example.com",  # where the upstream lives
     remote_prefix="/api/v1",                     # upstream prefix serving /projects, /config, /naming, /coordinates
-    config_path="/config",                       # your route whose coordinate params get enum dropdowns
-    naming_path="/naming",
+    coordinate_paths=["/config", "/naming"],     # your routes whose coordinate params get enum dropdowns
 )
 ```
 
@@ -49,6 +48,12 @@ async def get_coordinates_tree():
     # Same values, shaped as the nested config hierarchy.
     return await provider.get_coordinate_tree()
 ```
+
+Each route listed in `coordinate_paths` gets the live `enum` dropdowns injected into its coordinate
+fields **whether they arrive as query/path parameters** (a `Depends()` model, as above) **or inside a
+JSON request body** (the model as a plain body parameter). For a body model the enums are written onto
+the referenced component schema, so a model shared by several routes is decorated once. Enum injection
+matches by field name, so name the field after its coordinate (`region`, `island`, …).
 
 `get_coordinate_catalog` proxies the upstream's `/coordinates` route and returns a
 [`CoordinateCatalogResponse`](../reference/api/config-api.md#models-allowlists)-shaped dict — the

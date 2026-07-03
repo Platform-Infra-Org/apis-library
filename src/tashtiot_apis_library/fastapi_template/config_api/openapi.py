@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, Sequence
 
 from fastapi import FastAPI
 
@@ -12,10 +12,11 @@ from .models import (
 )
 
 
-def make_config_openapi(app: FastAPI, config_path: str, naming_path: str) -> Callable[[], dict]:
+def make_config_openapi(app: FastAPI, coordinate_paths: Sequence[str]) -> Callable[[], dict]:
     """Build an ``app.openapi`` replacement that injects the live allowlists as
-    ``enum`` values into the coordinate query parameters on the config/naming
-    routes.
+    ``enum`` values into the coordinate fields on each of the given
+    ``coordinate_paths`` -- whether they arrive as **query/path parameters** or
+    inside a **JSON request body**.
 
     This **wraps** whatever ``app.openapi`` is already installed rather than
     rebuilding the schema from scratch, so it composes with the library's other
@@ -33,31 +34,69 @@ def make_config_openapi(app: FastAPI, config_path: str, naming_path: str) -> Cal
     # bearer-security wrapper when auth is on, else FastAPI's default).
     base_openapi = app.openapi
 
+    # name -> live allowlist set (mutated in place by the poller, so a captured
+    # reference always reflects the current values).
+    allowlists = {
+        "space": LIVE_ALLOWED_SPACES,
+        "network": LIVE_ALLOWED_NETWORKS,
+        "region": LIVE_ALLOWED_REGIONS,
+        "island": LIVE_ALLOWED_ISLANDS,
+        "environment": LIVE_ALLOWED_ENVIRONMENTS,
+        "project": LIVE_ALLOWED_PROJECTS,
+    }
+
+    def _inject(schema: dict, name: str) -> None:
+        """Set ``schema['enum']`` from the live allowlist for ``name`` (a no-op
+        for non-coordinate names or an empty allowlist). ``schema`` is the JSON
+        Schema object for one field -- a parameter's ``schema`` or a body
+        model's property."""
+        values = allowlists.get(name)
+        if values:
+            schema["enum"] = sorted(values)
+
+    def _body_property_schemas(openapi_schema: dict, operation: dict) -> dict:
+        """Resolve an operation's JSON request body to the property schemas of
+        its referenced component (``{prop_name: schema}``), or ``{}`` if the body
+        isn't a ``$ref`` to a component schema."""
+        ref = (
+            operation.get("requestBody", {})
+            .get("content", {})
+            .get("application/json", {})
+            .get("schema", {})
+            .get("$ref", "")
+        )
+        prefix = "#/components/schemas/"
+        if not ref.startswith(prefix):
+            return {}
+        name = ref[len(prefix) :]
+        return (
+            openapi_schema.get("components", {})
+            .get("schemas", {})
+            .get(name, {})
+            .get("properties", {})
+        )
+
     def custom_openapi() -> dict:
         if app.openapi_schema:
             return app.openapi_schema
 
         openapi_schema = base_openapi()
 
-        target_paths = [config_path, naming_path]
         http_methods = ("get", "post", "put", "patch", "delete")
-        for path in target_paths:
+        for path in coordinate_paths:
             path_item = openapi_schema.get("paths", {}).get(path, {})
             for method in http_methods:
-                for param in path_item.get(method, {}).get("parameters", []):
-                    name = param.get("name")
-                    if name == "space" and LIVE_ALLOWED_SPACES:
-                        param["schema"]["enum"] = sorted(LIVE_ALLOWED_SPACES)
-                    elif name == "network" and LIVE_ALLOWED_NETWORKS:
-                        param["schema"]["enum"] = sorted(LIVE_ALLOWED_NETWORKS)
-                    elif name == "region" and LIVE_ALLOWED_REGIONS:
-                        param["schema"]["enum"] = sorted(LIVE_ALLOWED_REGIONS)
-                    elif name == "island" and LIVE_ALLOWED_ISLANDS:
-                        param["schema"]["enum"] = sorted(LIVE_ALLOWED_ISLANDS)
-                    elif name == "environment" and LIVE_ALLOWED_ENVIRONMENTS:
-                        param["schema"]["enum"] = sorted(LIVE_ALLOWED_ENVIRONMENTS)
-                    elif name == "project" and LIVE_ALLOWED_PROJECTS:
-                        param["schema"]["enum"] = sorted(LIVE_ALLOWED_PROJECTS)
+                operation = path_item.get(method, {})
+                # Query/path parameters.
+                for param in operation.get("parameters", []):
+                    _inject(param.get("schema", {}), param.get("name", ""))
+                # JSON request-body model. NOTE: the body's component schema is
+                # patched in place, so a model shared across several routes gets
+                # the enums on all of them -- intended (one source of truth).
+                for prop_name, prop_schema in _body_property_schemas(
+                    openapi_schema, operation
+                ).items():
+                    _inject(prop_schema, prop_name)
 
         app.openapi_schema = openapi_schema
         return app.openapi_schema
