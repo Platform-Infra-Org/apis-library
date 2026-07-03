@@ -25,3 +25,5 @@ assuming you already know roughly what you want. If you're new, start with the
 
 - **[Enable the Remote Config API](enable-remote-config-api.md)** — wire an authenticated proxy to an
   upstream Config API with live Swagger enum dropdowns.
+- **[Constrain a field by resolved config](constrain-field-by-config.md)** — validate a request field
+  against values configured at the request's coordinate leaf (app-side dependency).

@@ -123,3 +123,7 @@ provider = enable_remote_config_api(app, ..., auth=StaticBearerAuth("token"))
 
 - [API reference: Remote Config API](../reference/api/config-api.md)
 - [Configuration reference](../reference/configuration.md)
+- [Constrain a field by resolved config](constrain-field-by-config.md) — validate a field against the
+  config resolved for the request's coordinates.
+- [Dynamic config validation](../explanation/dynamic-config-validation.md) — where each check lives and
+  why.
