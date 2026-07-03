@@ -99,3 +99,45 @@ class TestBodyEnumInjection:
         props = schema["components"]["schemas"][ref.rsplit("/", 1)[-1]]["properties"]
         assert props["environment"]["enum"] == sorted(models.LIVE_ALLOWED_ENVIRONMENTS)
         assert {"prod", "staging"} <= set(props["environment"]["enum"])
+
+
+class TestRegexCoordinatePaths:
+    """coordinate_paths entries are regex strings matched with re.fullmatch."""
+
+    def _app(self, coordinate_paths):
+        app = FastAPI(title="Regex API", version="1.0.0")
+        app.include_router(_router())
+        app.openapi = make_config_openapi(app, coordinate_paths)
+        return app
+
+    def test_one_pattern_injects_into_all_matching_routes(self):
+        models.LIVE_ALLOWED_NETWORKS.update({"backbone-net"})
+        app = self._app([rf"{API_PREFIX}/(config|naming)"])  # one entry -> both routes
+        schema = app.openapi()
+        assert _params_for(schema, CONFIG_PATH)["network"]["schema"]["enum"] == ["backbone-net"]
+        assert _params_for(schema, NAMING_PATH)["network"]["schema"]["enum"] == ["backbone-net"]
+
+    def test_wildcard_pattern_matches(self):
+        models.LIVE_ALLOWED_REGIONS.update({"us-east"})
+        app = self._app([rf"{API_PREFIX}/.*"])
+        schema = app.openapi()
+        assert _params_for(schema, CONFIG_PATH)["region"]["schema"]["enum"] == ["us-east"]
+
+    def test_non_matching_pattern_injects_nothing(self):
+        models.LIVE_ALLOWED_NETWORKS.update({"backbone-net"})
+        app = self._app([r"/nope/.*"])
+        schema = app.openapi()
+        assert "enum" not in _params_for(schema, CONFIG_PATH)["network"]["schema"]
+
+    def test_plain_string_still_matches_only_its_route(self):
+        models.LIVE_ALLOWED_NETWORKS.update({"backbone-net"})
+        app = self._app([CONFIG_PATH])  # metachar-free -> exact behaviour
+        schema = app.openapi()
+        assert _params_for(schema, CONFIG_PATH)["network"]["schema"]["enum"] == ["backbone-net"]
+        assert "enum" not in _params_for(schema, NAMING_PATH)["network"]["schema"]
+
+    def test_invalid_regex_raises_at_wireup(self):
+        app = FastAPI(title="Bad", version="1.0.0")
+        app.include_router(_router())
+        with pytest.raises(ValueError, match="Invalid coordinate_paths regex"):
+            make_config_openapi(app, [r"[unclosed"])

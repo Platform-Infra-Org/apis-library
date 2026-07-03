@@ -97,14 +97,25 @@ caveats:
   await provider.crawl_and_sync_keys(app)   # populate the allowlists + tree once
   ```
 
-## Partial coordinates
+## Matching routes with `coordinate_paths`
 
-Enum injection is **name-matched and additive**: a route in `coordinate_paths` that declares only some
-coordinates gets dropdowns for just those — there is no "all six required" rule and no error, and any
-non-coordinate parameters on the route are left untouched. The flip side is that mistakes fail quietly:
-a mistyped `coordinate_paths` entry, or a field named differently from its coordinate, simply gets no
-dropdown (no warning). Name coordinate fields after their coordinate (`region`, `island`, …) and match
-`coordinate_paths` to your real route paths.
+Each `coordinate_paths` entry is a **regex string**, matched with `re.fullmatch` against every route
+path. A plain path is just a literal regex that matches only itself (so `["/config", "/naming"]` works
+exactly as you'd expect), but you can also match a **family of routes** with one entry:
+
+```python
+coordinate_paths=[r"/api/v\d+/infra/(config|naming)"]   # one entry, many/versioned routes
+```
+
+Because it's a full-path match, use `.*` for partials (`r"/api/v1/infra/.*"`); escape regex
+metacharacters (`.`, `+`, …) if you need them literal (rare in paths); FastAPI path params like `{id}`
+match literally. An invalid regex raises at wire-up.
+
+Enum injection is otherwise **name-matched and additive**: a matched route that declares only some
+coordinates gets dropdowns for just those — there's no "all six required" rule and no error, and any
+non-coordinate parameters are left untouched. The flip side is that mistakes fail quietly: a pattern
+that matches no route, or a field named differently from its coordinate, simply gets no dropdown (no
+warning). Name coordinate fields after their coordinate (`region`, `island`, …).
 
 ## Serve stale on upstream failure
 

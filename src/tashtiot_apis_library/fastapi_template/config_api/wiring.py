@@ -39,9 +39,11 @@ def enable_remote_config_api(
         Where the upstream Config API lives and the route prefix under which it
         serves ``/projects``, ``/config`` and ``/naming``.
     coordinate_paths:
-        This service's own route paths whose coordinate query params get the live
-        ``enum`` dropdowns injected. Pass every route that takes coordinate params
-        (e.g. ``["/config", "/naming"]``); not limited to two.
+        Route paths whose coordinate fields get the live ``enum`` dropdowns injected.
+        Each entry is a **regex string** (``re.fullmatch`` against route paths), so a
+        plain path targets exactly itself (``["/config", "/naming"]``) and a pattern
+        can target a family of routes (``[r"/api/v\\d+/.*/(config|naming)"]``). Not
+        limited to two.
     settings:
         Package-side ``CONFIG_REMOTE_*`` settings driving the outbound auth method;
         defaults to a freshly-read [`ConfigRemoteSettings`][ConfigRemoteSettings].

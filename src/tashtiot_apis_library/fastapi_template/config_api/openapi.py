@@ -1,3 +1,4 @@
+import re
 from typing import Callable, Sequence
 
 from fastapi import FastAPI
@@ -14,9 +15,16 @@ from .models import (
 
 def make_config_openapi(app: FastAPI, coordinate_paths: Sequence[str]) -> Callable[[], dict]:
     """Build an ``app.openapi`` replacement that injects the live allowlists as
-    ``enum`` values into the coordinate fields on each of the given
+    ``enum`` values into the coordinate fields on the routes matched by
     ``coordinate_paths`` -- whether they arrive as **query/path parameters** or
     inside a **JSON request body**.
+
+    Each ``coordinate_paths`` entry is a **regex string** matched with
+    ``re.fullmatch`` against every route path, so one entry can target a family of
+    routes (``r"/api/v\\d+/infra/(config|naming)"``). A plain path is just a literal
+    regex that matches only itself, so exact-path entries keep working; escape regex
+    metacharacters (``.``, ``+``, ...) if you need them literal. FastAPI path params
+    like ``{id}`` are matched literally. An entry that matches no route is a no-op.
 
     This **wraps** whatever ``app.openapi`` is already installed rather than
     rebuilding the schema from scratch, so it composes with the library's other
@@ -33,6 +41,13 @@ def make_config_openapi(app: FastAPI, coordinate_paths: Sequence[str]) -> Callab
     # Captured at wire-up time: the generator installed before us (the library's
     # bearer-security wrapper when auth is on, else FastAPI's default).
     base_openapi = app.openapi
+
+    # Compile each entry once (fail fast on a bad pattern); matched with fullmatch
+    # against route paths at schema-generation time. A plain path is a literal regex.
+    try:
+        path_patterns = [re.compile(p) for p in coordinate_paths]
+    except re.error as exc:
+        raise ValueError(f"Invalid coordinate_paths regex {exc.pattern!r}: {exc}") from exc
 
     # name -> live allowlist set (mutated in place by the poller, so a captured
     # reference always reflects the current values).
@@ -83,20 +98,22 @@ def make_config_openapi(app: FastAPI, coordinate_paths: Sequence[str]) -> Callab
         openapi_schema = base_openapi()
 
         http_methods = ("get", "post", "put", "patch", "delete")
-        for path in coordinate_paths:
-            path_item = openapi_schema.get("paths", {}).get(path, {})
-            for method in http_methods:
-                operation = path_item.get(method, {})
-                # Query/path parameters.
-                for param in operation.get("parameters", []):
-                    _inject(param.get("schema", {}), param.get("name", ""))
-                # JSON request-body model. NOTE: the body's component schema is
-                # patched in place, so a model shared across several routes gets
-                # the enums on all of them -- intended (one source of truth).
-                for prop_name, prop_schema in _body_property_schemas(
-                    openapi_schema, operation
-                ).items():
-                    _inject(prop_schema, prop_name)
+        for pattern in path_patterns:
+            for path, path_item in openapi_schema.get("paths", {}).items():
+                if not pattern.fullmatch(path):
+                    continue
+                for method in http_methods:
+                    operation = path_item.get(method, {})
+                    # Query/path parameters.
+                    for param in operation.get("parameters", []):
+                        _inject(param.get("schema", {}), param.get("name", ""))
+                    # JSON request-body model. NOTE: the body's component schema is
+                    # patched in place, so a model shared across several routes gets
+                    # the enums on all of them -- intended (one source of truth).
+                    for prop_name, prop_schema in _body_property_schemas(
+                        openapi_schema, operation
+                    ).items():
+                        _inject(prop_schema, prop_name)
 
         app.openapi_schema = openapi_schema
         return app.openapi_schema
