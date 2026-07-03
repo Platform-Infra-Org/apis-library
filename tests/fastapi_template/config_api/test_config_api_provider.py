@@ -285,6 +285,11 @@ class TestCrawlAndSyncKeys:
         }
         assert id(models.LIVE_ALLOWED_NETWORKS) == net_set_id
         assert id(models.LIVE_ALLOWED_PROJECTS) == proj_set_id
+        # The nested coordinate tree is refreshed from /coordinates/tree for the
+        # hierarchical (parent/child) validator.
+        assert models.LIVE_COORDINATE_TREE["coordinates"]["core-infrastructure"]["backbone-net"][
+            "us-east"
+        ]["compute-island-a"] == ["production", "staging"]
         assert app.openapi_schema is None
 
     @pytest.mark.asyncio

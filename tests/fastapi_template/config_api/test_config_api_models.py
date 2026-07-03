@@ -103,3 +103,72 @@ class TestRequiredInfraMetadata:
         coords["environment"] = "not-a-real-env"
         with pytest.raises(ValidationError):
             RequiredInfraMetadata(**coords)
+
+
+class TestCoordinateTreeHierarchy:
+    """Tier 2: a coordinate must sit under its selected parent per LIVE_COORDINATE_TREE.
+
+    The autouse conftest fixture clears the flat allowlists (permissive) and the tree
+    before each test, so the hierarchy check is the only gate exercised here.
+    """
+
+    TREE = {
+        "coordinates": {
+            "core-infrastructure": {
+                "backbone-net": {
+                    "us-east": {"compute-island-a": ["production", "staging"]},
+                },
+            },
+        },
+        "projects": ["payment-gateway"],
+    }
+
+    def _full(self, **overrides):
+        coords = {
+            "space": "core-infrastructure",
+            "network": "backbone-net",
+            "region": "us-east",
+            "island": "compute-island-a",
+            "environment": "production",
+            "project": "payment-gateway",
+        }
+        coords.update(overrides)
+        return coords
+
+    def test_valid_chain_passes(self):
+        models.LIVE_COORDINATE_TREE.update(self.TREE)
+        assert RequiredInfraMetadata(**self._full()).island == "compute-island-a"
+
+    def test_island_not_under_region_rejected(self):
+        models.LIVE_COORDINATE_TREE.update(self.TREE)
+        with pytest.raises(ValidationError) as exc:
+            RequiredInfraMetadata(**self._full(island="compute-island-z"))
+        assert "island" in str(exc.value)
+
+    def test_region_not_under_network_rejected(self):
+        models.LIVE_COORDINATE_TREE.update(self.TREE)
+        with pytest.raises(ValidationError) as exc:
+            RequiredInfraMetadata(**self._full(region="eu-west"))
+        assert "region" in str(exc.value)
+
+    def test_environment_not_in_leaf_rejected(self):
+        models.LIVE_COORDINATE_TREE.update(self.TREE)
+        with pytest.raises(ValidationError) as exc:
+            RequiredInfraMetadata(**self._full(environment="dev"))
+        assert "environment" in str(exc.value)
+
+    def test_partial_selection_is_permissive(self):
+        models.LIVE_COORDINATE_TREE.update(self.TREE)
+        # network omitted -> descent stops; deeper coordinates aren't constrained.
+        meta = InfraMetadata(space="core-infrastructure", region="anything", island="anything")
+        assert meta.region == "anything"
+
+    def test_empty_tree_is_permissive(self):
+        # tree left empty by the conftest reset -> any combination is accepted.
+        meta = RequiredInfraMetadata(**self._full(region="anywhere", island="anything"))
+        assert meta.space == "core-infrastructure"
+
+    def test_shallow_subtree_is_permissive(self):
+        models.LIVE_COORDINATE_TREE.update({"coordinates": {"core-infrastructure": {}}})
+        meta = InfraMetadata(space="core-infrastructure", network="anything")
+        assert meta.network == "anything"

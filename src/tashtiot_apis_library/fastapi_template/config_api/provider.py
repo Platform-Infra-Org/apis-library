@@ -14,6 +14,7 @@ from .models import (
     LIVE_ALLOWED_PROJECTS,
     LIVE_ALLOWED_REGIONS,
     LIVE_ALLOWED_SPACES,
+    LIVE_COORDINATE_TREE,
     InfraMetadata,
 )
 
@@ -96,12 +97,13 @@ class RemoteConfigProvider:
         the live allowlists, then invalidate the cached Swagger schema so the enum
         dropdowns regenerate on the next request.
 
-        Sourced over HTTP from the upstream's ``/coordinates`` route (built from the
-        enterprise configuration tree, projects included), reusing the cached
-        resolver method below -- so a poll within the cache TTL window costs no extra
-        upstream calls."""
+        Sourced over HTTP from the upstream's ``/coordinates`` route (flat per-level
+        allowlists + projects) and ``/coordinates/tree`` (the nested hierarchy for the
+        cross-field validator), both built from the enterprise configuration tree and
+        reusing the cached resolver methods below -- so a poll within the cache TTL
+        window costs no extra upstream calls."""
         try:
-            # Coordinate values + projects from the upstream coordinate catalog.
+            # Flat coordinate values + projects from the upstream coordinate catalog.
             catalog = await self.get_coordinate_catalog()
             for live_set, key in (
                 (LIVE_ALLOWED_SPACES, "space"),
@@ -115,6 +117,11 @@ class RemoteConfigProvider:
                 if values:  # stay permissive when a level is unseeded/empty
                     live_set.clear()
                     live_set.update(values)
+
+            # Nested hierarchy for the cross-field (parent/child) validator.
+            tree = await self.get_coordinate_tree()
+            LIVE_COORDINATE_TREE.clear()
+            LIVE_COORDINATE_TREE.update(tree)
 
             # Invalidate the cached OpenAPI schema so it regenerates with fresh enums.
             app_instance.openapi_schema = None

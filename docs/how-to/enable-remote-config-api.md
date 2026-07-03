@@ -74,6 +74,12 @@ hierarchy (`coordinates`: space → network → region → island → sorted env
   yourself.
 - A `pydantic.ValidationError → 422` handler so a coordinate outside its allowlist returns the same
   shape as any other invalid query parameter.
+- **Hierarchical validation.** Beyond the flat per-level allowlists, the coordinate models also
+  enforce the live **coordinate tree** (`/coordinates/tree`): a child must sit under its selected
+  parent — e.g. an `island` is only valid within the chosen `region`. This is a submit-time `422`,
+  not a Swagger dropdown (OpenAPI can't express dependent enums); expose `/coordinates/tree` if a
+  frontend needs cascading selects. It's permissive until the tree is populated and for partial
+  (omitted-coordinate) selections.
 
 ## Serve stale on upstream failure
 
