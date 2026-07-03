@@ -68,10 +68,10 @@ hierarchy (`coordinates`: space → network → region → island → sorted env
 ## What it sets up
 
 - A `RemoteConfigProvider` (returned) for resolving config / naming / projects.
-- A **background poller** (registered on `general_create_app`'s lifespan) that refreshes the live
-  coordinate allowlists from the upstream every `poll_interval` seconds, hot-patching both the
-  Pydantic validators and the OpenAPI `enum` dropdowns. Pass `enable_polling=False` to drive it
-  yourself.
+- A **startup seed + background poller** (registered on `general_create_app`'s lifespan). The
+  allowlists are fetched **once at startup regardless of `enable_polling`**; with polling on they're
+  then refreshed every `poll_interval` seconds, hot-patching both the Pydantic validators and the
+  OpenAPI `enum` dropdowns. Pass `enable_polling=False` for a one-time snapshot (seed only, no refresh).
 - A `pydantic.ValidationError → 422` handler so a coordinate outside its allowlist returns the same
   shape as any other invalid query parameter.
 - **Hierarchical validation.** Beyond the flat per-level allowlists, the coordinate models also
@@ -80,6 +80,31 @@ hierarchy (`coordinates`: space → network → region → island → sorted env
   not a Swagger dropdown (OpenAPI can't express dependent enums); expose `/coordinates/tree` if a
   frontend needs cascading selects. It's permissive until the tree is populated and for partial
   (omitted-coordinate) selections.
+
+## Seeded once, then refreshed
+
+The allowlists and coordinate tree are fetched **once at startup even with `enable_polling=False`**, so
+validation and enum dropdowns work off that snapshot; polling only keeps them fresh afterward. Two
+caveats:
+
+- Before that first fetch completes — a brief window at startup — the allowlists are empty, so
+  validation is permissive (accepts any value) and no dropdowns are injected. This is intentional
+  (`InfraMetadata` doesn't gate on an empty allowlist).
+- If the app **isn't** built by `general_create_app` (nothing launches the registered task), the seed
+  never runs automatically. Drive it yourself:
+
+  ```python
+  await provider.crawl_and_sync_keys(app)   # populate the allowlists + tree once
+  ```
+
+## Partial coordinates
+
+Enum injection is **name-matched and additive**: a route in `coordinate_paths` that declares only some
+coordinates gets dropdowns for just those — there is no "all six required" rule and no error, and any
+non-coordinate parameters on the route are left untouched. The flip side is that mistakes fail quietly:
+a mistyped `coordinate_paths` entry, or a field named differently from its coordinate, simply gets no
+dropdown (no warning). Name coordinate fields after their coordinate (`region`, `island`, …) and match
+`coordinate_paths` to your real route paths.
 
 ## Serve stale on upstream failure
 
