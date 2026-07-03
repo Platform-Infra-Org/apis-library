@@ -89,26 +89,55 @@ jobs:
 
       - name: Compute release version
         id: ver
-        run: echo "version=$(uvx git-cliff --config cliff.toml --bumped-version)" >> "$GITHUB_OUTPUT"
+        run: |
+          echo "version=$(uvx git-cliff --config cliff.toml --bumped-version)" >> "$GITHUB_OUTPUT"
+          # Release only if a version-bumping commit landed since the last tag. Docs-only (and the
+          # already-non-bumping chore/style/test) merges refresh the changelog's [Unreleased]
+          # section but don't cut a release — the docs/ tree isn't shipped in the wheel, so a
+          # docs-only release would republish a byte-identical artifact.
+          # ponytail: releasing-type list mirrors cliff.toml's bumping parsers; a footer-only
+          # "BREAKING CHANGE:" on a docs/chore commit won't trip this — mark such commits feat!/fix!.
+          latest="$(git describe --tags --abbrev=0 2>/dev/null || echo '')"
+          range="${latest:+${latest}..}HEAD"
+          rel='^(feat|fix|perf|refactor|revert|ci|build)(\(.+\))?!?:|^[a-z]+(\(.+\))?!:'
+          if git log "$range" --format='%s' | grep -qE "$rel"; then
+            echo "release=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "release=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Only non-releasing commits (docs/chore/…) since ${latest:-repo start}; refreshing changelog, no release."
+          fi
 
-      - name: Update CHANGELOG for the release
-        # --bump moves the "Unreleased" entries under the new vX.Y.Z heading + date.
-        run: uvx git-cliff --config cliff.toml --bump -o CHANGELOG.md
+      - name: Update CHANGELOG
+        run: |
+          if [ "${{ steps.ver.outputs.release }}" = "true" ]; then
+            # --bump moves the "Unreleased" entries under the new vX.Y.Z heading + date.
+            uvx git-cliff --config cliff.toml --bump -o CHANGELOG.md
+          else
+            # No bump: regenerate so docs-only commits land under [Unreleased].
+            uvx git-cliff --config cliff.toml -o CHANGELOG.md
+          fi
 
-      - name: Commit CHANGELOG and push the tag
+      - name: Commit CHANGELOG and (on release) push the tag
         env:
           VERSION: ${{ steps.ver.outputs.version }}
+          RELEASE: ${{ steps.ver.outputs.release }}
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add CHANGELOG.md
-          # No-op safe: only commit if git-cliff actually changed the file.
-          git diff --staged --quiet || git commit -m "chore(release): ${VERSION} [skip ci]"
-          git tag -a "${VERSION}" -m "Release ${VERSION}"
-          git push origin HEAD:master
-          git push origin "${VERSION}"
+          if [ "$RELEASE" = "true" ]; then
+            # No-op safe: only commit if git-cliff actually changed the file.
+            git diff --staged --quiet || git commit -m "chore(release): ${VERSION} [skip ci]"
+            git tag -a "${VERSION}" -m "Release ${VERSION}"
+            git push origin HEAD:master
+            git push origin "${VERSION}"
+          else
+            git diff --staged --quiet || git commit -m "chore(changelog): refresh unreleased [skip ci]"
+            git push origin HEAD:master
+          fi
 
       - name: Build the release artifacts
+        if: steps.ver.outputs.release == 'true'
         env:
           # Strip the leading "v" — setuptools-scm wants a PEP 440 version.
           SETUPTOOLS_SCM_PRETEND_VERSION: ${{ steps.ver.outputs.version }}
@@ -117,6 +146,7 @@ jobs:
           uv build
 
       - name: Generate an SBOM (CycloneDX)
+        if: steps.ver.outputs.release == 'true'
         # Scan a throwaway venv with the just-built wheel installed, so the SBOM
         # captures the package and its resolved dependency tree.
         run: |
@@ -126,14 +156,17 @@ jobs:
             -o dist/sbom.cdx.json || true
 
       - name: Attest build provenance
+        if: steps.ver.outputs.release == 'true'
         uses: actions/attest-build-provenance@v2
         with:
           subject-path: "dist/*.tar.gz, dist/*.whl"
 
       - name: Extract this release's notes
+        if: steps.ver.outputs.release == 'true'
         run: uvx git-cliff --config cliff.toml --latest --strip all -o RELEASE_NOTES.md
 
       - name: Create the GitHub Release
+        if: steps.ver.outputs.release == 'true'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.ver.outputs.version }}
