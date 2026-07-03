@@ -141,3 +141,44 @@ class TestRegexCoordinatePaths:
         app.include_router(_router())
         with pytest.raises(ValueError, match="Invalid coordinate_paths regex"):
             make_config_openapi(app, [r"[unclosed"])
+
+
+class TestInjectionLogging:
+    """One INFO log naming the routes that actually received coordinate enums."""
+
+    _MARK = "injected live coordinate enums"
+
+    def _app(self):
+        app = FastAPI(title="Log API", version="1.0.0")
+        app.include_router(_router())
+        app.openapi = make_config_openapi(app, [CONFIG_PATH, NAMING_PATH])
+        return app
+
+    def _capture(self, fn):
+        from loguru import logger
+
+        records: list = []
+        sink_id = logger.add(records.append, level="INFO", format="{message}")
+        try:
+            fn()
+        finally:
+            logger.remove(sink_id)
+        return [str(r) for r in records if self._MARK in str(r)]
+
+    def test_logs_injected_routes_once(self):
+        models.LIVE_ALLOWED_NETWORKS.update({"backbone-net"})
+        app = self._app()
+
+        def _gen():
+            app.openapi()  # first build -> logs once
+            app.openapi_schema = None
+            app.openapi()  # regenerate, same injected set -> no new log
+
+        msgs = self._capture(_gen)
+        assert len(msgs) == 1
+        assert CONFIG_PATH in msgs[0] and NAMING_PATH in msgs[0]
+
+    def test_no_log_when_nothing_injected(self):
+        # allowlists cleared by the autouse conftest fixture -> no enum -> no log
+        app = self._app()
+        assert self._capture(app.openapi) == []

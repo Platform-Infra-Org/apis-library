@@ -2,6 +2,7 @@ import re
 from typing import Callable, Sequence
 
 from fastapi import FastAPI
+from loguru import logger
 
 from .models import (
     LIVE_ALLOWED_ENVIRONMENTS,
@@ -60,14 +61,16 @@ def make_config_openapi(app: FastAPI, coordinate_paths: Sequence[str]) -> Callab
         "project": LIVE_ALLOWED_PROJECTS,
     }
 
-    def _inject(schema: dict, name: str) -> None:
-        """Set ``schema['enum']`` from the live allowlist for ``name`` (a no-op
-        for non-coordinate names or an empty allowlist). ``schema`` is the JSON
-        Schema object for one field -- a parameter's ``schema`` or a body
-        model's property."""
+    def _inject(schema: dict, name: str) -> bool:
+        """Set ``schema['enum']`` from the live allowlist for ``name`` and return
+        whether it did (a no-op returning ``False`` for non-coordinate names or an
+        empty allowlist). ``schema`` is the JSON Schema object for one field -- a
+        parameter's ``schema`` or a body model's property."""
         values = allowlists.get(name)
         if values:
             schema["enum"] = sorted(values)
+            return True
+        return False
 
     def _body_property_schemas(openapi_schema: dict, operation: dict) -> dict:
         """Resolve an operation's JSON request body to the property schemas of
@@ -91,29 +94,46 @@ def make_config_openapi(app: FastAPI, coordinate_paths: Sequence[str]) -> Callab
             .get("properties", {})
         )
 
+    # Last set of routes we logged an injection for -- so we log once per change,
+    # not on every schema regeneration (the poller nulls the schema each cycle).
+    logged_injection = None
+
     def custom_openapi() -> dict:
+        nonlocal logged_injection
         if app.openapi_schema:
             return app.openapi_schema
 
         openapi_schema = base_openapi()
 
         http_methods = ("get", "post", "put", "patch", "delete")
+        injected: set = set()  # routes that actually received a coordinate enum
         for pattern in path_patterns:
             for path, path_item in openapi_schema.get("paths", {}).items():
                 if not pattern.fullmatch(path):
                     continue
+                touched = False
                 for method in http_methods:
                     operation = path_item.get(method, {})
                     # Query/path parameters.
                     for param in operation.get("parameters", []):
-                        _inject(param.get("schema", {}), param.get("name", ""))
+                        touched |= _inject(param.get("schema", {}), param.get("name", ""))
                     # JSON request-body model. NOTE: the body's component schema is
                     # patched in place, so a model shared across several routes gets
                     # the enums on all of them -- intended (one source of truth).
                     for prop_name, prop_schema in _body_property_schemas(
                         openapi_schema, operation
                     ).items():
-                        _inject(prop_schema, prop_name)
+                        touched |= _inject(prop_schema, prop_name)
+                if touched:
+                    injected.add(path)
+
+        frozen = frozenset(injected)
+        if frozen and frozen != logged_injection:
+            logger.info(
+                "Remote Config API: injected live coordinate enums into routes: {}",
+                sorted(frozen),
+            )
+            logged_injection = frozen
 
         app.openapi_schema = openapi_schema
         return app.openapi_schema
