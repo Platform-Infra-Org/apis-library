@@ -5,6 +5,11 @@ All notable changes to this project are documented here. The format is based on
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). The version is derived from git tags by
 setuptools-scm.
 
+## [1.1.1] - 2026-07-02
+
+### Documentation
+
+- Add OIDC/JWKS how-to and SSO client-scope setup
 ## [1.1.0] - 2026-06-30
 
 ### Added
