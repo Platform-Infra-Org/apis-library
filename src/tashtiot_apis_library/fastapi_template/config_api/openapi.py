@@ -61,21 +61,72 @@ def make_config_openapi(app: FastAPI, coordinate_paths: Sequence[str]) -> Callab
         "project": LIVE_ALLOWED_PROJECTS,
     }
 
-    def _inject(schema: dict, name: str) -> bool:
-        """Set ``schema['enum']`` from the live allowlist for ``name`` and return
-        whether it did (a no-op returning ``False`` for non-coordinate names or an
-        empty allowlist). ``schema`` is the JSON Schema object for one field -- a
-        parameter's ``schema`` or a body model's property."""
-        values = allowlists.get(name)
-        if values:
-            schema["enum"] = sorted(values)
-            return True
-        return False
+    prefix = "#/components/schemas/"
 
-    def _body_property_schemas(openapi_schema: dict, operation: dict) -> dict:
-        """Resolve an operation's JSON request body to the property schemas of
-        its referenced component (``{prop_name: schema}``), or ``{}`` if the body
-        isn't a ``$ref`` to a component schema."""
+    def _inject(schema: dict, name: str) -> bool:
+        """Set the live-allowlist ``enum`` for coordinate field ``name`` on ``schema``
+        (the JSON Schema object for one field). Returns whether it did (a no-op for
+        non-coordinate names or an empty allowlist).
+
+        Optional/nullable fields render as ``{"anyOf": [{"type": "string"}, ...]}`` --
+        Swagger only shows a dropdown when the ``enum`` lives **inside** the string
+        branch, not as a top-level sibling of ``anyOf`` -- so place it there; flat
+        ``{"type": "string"}`` fields get it directly."""
+        values = allowlists.get(name)
+        if not values:
+            return False
+        enum = sorted(values)
+        branches = [
+            b
+            for key in ("anyOf", "oneOf")
+            for b in schema.get(key, [])
+            if isinstance(b, dict) and b.get("type") == "string"
+        ]
+        if branches:
+            for b in branches:
+                b["enum"] = enum
+        else:
+            schema["enum"] = enum
+        return True
+
+    def _refs_in(prop_schema: dict) -> list:
+        """Component-schema names reachable from a property schema -- directly, through
+        an ``anyOf``/``oneOf``/``allOf`` branch, or as array ``items``."""
+        out = []
+        if prop_schema.get("$ref"):
+            out.append(prop_schema["$ref"])
+        for key in ("anyOf", "oneOf", "allOf"):
+            out += [
+                s["$ref"] for s in prop_schema.get(key, []) if isinstance(s, dict) and s.get("$ref")
+            ]
+        items = prop_schema.get("items")
+        if isinstance(items, dict) and items.get("$ref"):
+            out.append(items["$ref"])
+        return [r[len(prefix) :] for r in out if isinstance(r, str) and r.startswith(prefix)]
+
+    def _inject_component(openapi_schema: dict, comp_name: str, visited: set) -> bool:
+        """Recursively inject coordinate enums into a component's properties and any
+        nested component it references (``visited`` guards against reference cycles).
+        NOTE: the component schema is patched in place, so a model shared across routes
+        gets the enums on all of them -- intended (one source of truth)."""
+        if comp_name in visited:
+            return False
+        visited.add(comp_name)
+        props = (
+            openapi_schema.get("components", {})
+            .get("schemas", {})
+            .get(comp_name, {})
+            .get("properties", {})
+        )
+        touched = False
+        for prop_name, prop_schema in props.items():
+            touched |= _inject(prop_schema, prop_name)
+            for ref in _refs_in(prop_schema):
+                touched |= _inject_component(openapi_schema, ref, visited)
+        return touched
+
+    def _inject_body(openapi_schema: dict, operation: dict) -> bool:
+        """Inject into the JSON request body's model (and everything it nests)."""
         ref = (
             operation.get("requestBody", {})
             .get("content", {})
@@ -83,16 +134,9 @@ def make_config_openapi(app: FastAPI, coordinate_paths: Sequence[str]) -> Callab
             .get("schema", {})
             .get("$ref", "")
         )
-        prefix = "#/components/schemas/"
         if not ref.startswith(prefix):
-            return {}
-        name = ref[len(prefix) :]
-        return (
-            openapi_schema.get("components", {})
-            .get("schemas", {})
-            .get(name, {})
-            .get("properties", {})
-        )
+            return False
+        return _inject_component(openapi_schema, ref[len(prefix) :], set())
 
     # Last set of routes we logged an injection for -- so we log once per change,
     # not on every schema regeneration (the poller nulls the schema each cycle).
@@ -117,13 +161,8 @@ def make_config_openapi(app: FastAPI, coordinate_paths: Sequence[str]) -> Callab
                     # Query/path parameters.
                     for param in operation.get("parameters", []):
                         touched |= _inject(param.get("schema", {}), param.get("name", ""))
-                    # JSON request-body model. NOTE: the body's component schema is
-                    # patched in place, so a model shared across several routes gets
-                    # the enums on all of them -- intended (one source of truth).
-                    for prop_name, prop_schema in _body_property_schemas(
-                        openapi_schema, operation
-                    ).items():
-                        touched |= _inject(prop_schema, prop_name)
+                    # JSON request body -- recursed into nested sub-models.
+                    touched |= _inject_body(openapi_schema, operation)
                 if touched:
                     injected.add(path)
 

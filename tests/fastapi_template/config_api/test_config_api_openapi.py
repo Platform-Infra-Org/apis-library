@@ -1,7 +1,10 @@
 """make_config_openapi injects the live allowlists as enum dropdowns."""
 
+from typing import List, Optional
+
 import pytest
 from fastapi import APIRouter, Depends, FastAPI
+from pydantic import BaseModel
 
 from tashtiot_apis_library.fastapi_template.config_api import (
     InfraMetadata,
@@ -42,6 +45,39 @@ def _params_for(schema, path, method="get"):
     return {p["name"]: p for p in schema["paths"][path][method]["parameters"]}
 
 
+def _enum_for(schema):
+    """The injected enum whether it's top-level (flat field) or inside an anyOf/oneOf
+    string branch (Optional/nullable field)."""
+    if "enum" in schema:
+        return schema["enum"]
+    for key in ("anyOf", "oneOf"):
+        for branch in schema.get(key, []):
+            if isinstance(branch, dict) and "enum" in branch:
+                return branch["enum"]
+    return None
+
+
+class _Spec(BaseModel):
+    ttl: int = 60
+
+
+class _NestedOptional(BaseModel):  # mirrors DNSRecordCreate: coordinates nested under `metadata`
+    metadata: InfraMetadata
+    spec: _Spec
+
+
+class _NestedRequired(BaseModel):
+    metadata: RequiredInfraMetadata
+
+
+class _TreeNode(BaseModel):  # self-referential -> exercises the recursion cycle guard
+    network: Optional[str] = None
+    children: List["_TreeNode"] = []
+
+
+_TreeNode.model_rebuild()
+
+
 class TestEnumInjection:
     def test_no_enums_when_allowlists_empty(self, app_with_openapi):
         schema = app_with_openapi.openapi()
@@ -61,7 +97,8 @@ class TestEnumInjection:
             ["payment-gateway", "authentication-service"]
         )
         naming_params = _params_for(schema, NAMING_PATH)
-        assert naming_params["network"]["schema"]["enum"] == ["backbone-net", "edge-net"]
+        # /naming uses the all-optional InfraMetadata -> anyOf-shaped param schema.
+        assert _enum_for(naming_params["network"]["schema"]) == ["backbone-net", "edge-net"]
 
     def test_schema_is_cached_until_invalidated(self, app_with_openapi):
         first = app_with_openapi.openapi()
@@ -115,7 +152,7 @@ class TestRegexCoordinatePaths:
         app = self._app([rf"{API_PREFIX}/(config|naming)"])  # one entry -> both routes
         schema = app.openapi()
         assert _params_for(schema, CONFIG_PATH)["network"]["schema"]["enum"] == ["backbone-net"]
-        assert _params_for(schema, NAMING_PATH)["network"]["schema"]["enum"] == ["backbone-net"]
+        assert _enum_for(_params_for(schema, NAMING_PATH)["network"]["schema"]) == ["backbone-net"]
 
     def test_wildcard_pattern_matches(self):
         models.LIVE_ALLOWED_REGIONS.update({"us-east"})
@@ -182,3 +219,39 @@ class TestInjectionLogging:
         # allowlists cleared by the autouse conftest fixture -> no enum -> no log
         app = self._app()
         assert self._capture(app.openapi) == []
+
+
+class TestNestedBodyInjection:
+    """Coordinate enums reach coordinate fields nested inside a request-body sub-model
+    (e.g. `metadata: InfraMetadata`), at any depth."""
+
+    def _schema(self, model):
+        app = FastAPI(title="Nested API", version="1.0.0")
+
+        @app.post(CONFIG_PATH)
+        async def _create(payload: model):  # noqa: ANN001 - runtime model
+            return {}
+
+        app.openapi = make_config_openapi(app, [CONFIG_PATH])
+        return app.openapi()
+
+    def _prop(self, schema, component, field):
+        return schema["components"]["schemas"][component]["properties"][field]
+
+    def test_optional_nested_metadata_enum_in_anyof_branch(self):
+        models.LIVE_ALLOWED_NETWORKS.update({"backbone-net", "edge-net"})
+        net = self._prop(self._schema(_NestedOptional), "InfraMetadata", "network")
+        assert _enum_for(net) == ["backbone-net", "edge-net"]
+        assert "enum" not in net  # placed inside the anyOf string branch, not top-level
+
+    def test_required_nested_metadata_enum_top_level(self):
+        models.LIVE_ALLOWED_REGIONS.update({"us-east"})
+        reg = self._prop(self._schema(_NestedRequired), "RequiredInfraMetadata", "region")
+        assert reg.get("enum") == ["us-east"]  # flat field -> top-level enum
+
+    def test_self_referential_model_terminates(self):
+        models.LIVE_ALLOWED_NETWORKS.update({"backbone-net"})
+        node = self._prop(
+            self._schema(_TreeNode), "_TreeNode", "network"
+        )  # must not recurse forever
+        assert _enum_for(node) == ["backbone-net"]
