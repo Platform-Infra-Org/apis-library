@@ -2,7 +2,6 @@ import asyncio
 from typing import Any, Dict, List, Optional
 
 import httpx
-from aiocache import Cache
 from fastapi import HTTPException
 from loguru import logger
 
@@ -47,6 +46,11 @@ class RemoteConfigProvider:
         cache_ttl: int = 60,
         serve_stale_on_error: bool = False,
     ):
+        # Imported lazily so merely importing this module (e.g. via the top-level
+        # package, which re-exports the coordinate models) never drags in aiocache --
+        # it loads only when a provider is actually built.
+        from aiocache import Cache
+
         self._base_url = base_url.rstrip("/")
         self._prefix = remote_prefix
         self._auth = auth

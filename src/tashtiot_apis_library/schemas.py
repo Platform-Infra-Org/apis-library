@@ -11,6 +11,8 @@ from pydantic import (
     field_validator,
 )
 
+from .fastapi_template.config_api import InfraMetadata, RequiredInfraMetadata
+
 __all__ = [
     "OperationRequest",
     "ResourceSpec",
@@ -81,6 +83,28 @@ class MetadataRequest(BaseModel):
 
 class OperationRequest(BaseModel):
     metadata: MetadataRequest = Field(..., description="Metadata of every operation request.")
+
+
+class InfraOperationRequest(BaseModel):
+    """Operation request whose ``metadata`` is the dynamic [`InfraMetadata`][tashtiot_apis_library.fastapi_template.config_api.InfraMetadata]
+    coordinate model — validated against the live allowlists + coordinate tree, all
+    coordinates optional. Use when the request's coordinates should track the infra config."""
+
+    metadata: InfraMetadata = Field(
+        ...,
+        description="Metadata of every operation request, updated dynamically from the infrastructure config.",
+    )
+
+
+class RequiredInfraOperationRequest(BaseModel):
+    """Strict variant of [`InfraOperationRequest`][tashtiot_apis_library.InfraOperationRequest] whose
+    ``metadata`` uses [`RequiredInfraMetadata`][tashtiot_apis_library.fastapi_template.config_api.RequiredInfraMetadata]
+    — every coordinate is mandatory (a missing one yields a 422)."""
+
+    metadata: RequiredInfraMetadata = Field(
+        ...,
+        description="Metadata of every operation request, updated dynamically from the infrastructure config. Strictly required fields.",
+    )
 
 
 class NameNamespace(BaseModel):

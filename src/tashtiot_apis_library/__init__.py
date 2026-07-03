@@ -17,7 +17,14 @@ from .connectors.errors import (
 # Re-export FastAPI template
 from .fastapi_template import general_create_app
 from .fastapi_template.errors import AuthConfigError, SSOError, TokenError
-from .schemas import DefaultMetaSpec, NameNamespace, OperationRequest, ResourceSpec
+from .schemas import (
+    DefaultMetaSpec,
+    InfraOperationRequest,
+    NameNamespace,
+    OperationRequest,
+    RequiredInfraOperationRequest,
+    ResourceSpec,
+)
 
 __all__ = [
     "ArgoCD",
@@ -37,4 +44,6 @@ __all__ = [
     "ResourceSpec",
     "DefaultMetaSpec",
     "NameNamespace",
+    "InfraOperationRequest",
+    "RequiredInfraOperationRequest",
 ]
