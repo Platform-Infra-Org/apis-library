@@ -51,3 +51,5 @@ a dependency.**
 - [Constrain a field by resolved config](../how-to/constrain-field-by-config.md) — the app-side recipe.
 - [Enable the Remote Config API](../how-to/enable-remote-config-api.md) — the coordinate allowlists and
   hierarchy in context.
+- [OpenAPI & Swagger injection](openapi-swagger-injection.md) — how the live values become Swagger
+  dropdowns.

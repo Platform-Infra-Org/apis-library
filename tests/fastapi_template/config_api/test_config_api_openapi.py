@@ -255,3 +255,52 @@ class TestNestedBodyInjection:
             self._schema(_TreeNode), "_TreeNode", "network"
         )  # must not recurse forever
         assert _enum_for(node) == ["backbone-net"]
+
+
+class TestSharedComponentInjection:
+    """The InfraMetadata / RequiredInfraMetadata component schemas are patched too, so the
+    Swagger 'Schemas' section shows enums even for query-param usage (which FastAPI inlines,
+    leaving the shared component untouched by the per-route pass)."""
+
+    def _schema(self, model):
+        app = FastAPI(title="Shared API", version="1.0.0")
+
+        class _Resp(BaseModel):  # a response model that $refs the coordinate component
+            metadata: model  # noqa: ANN001
+
+        @app.get(CONFIG_PATH, response_model=_Resp)
+        async def _read(m: model = Depends()):  # noqa: ANN001 - query params via Depends
+            return {}
+
+        app.openapi = make_config_openapi(app, [CONFIG_PATH])
+        return app.openapi()
+
+    def test_optional_component_gets_enum_for_query_usage(self):
+        models.LIVE_ALLOWED_NETWORKS.update({"backbone-net", "edge-net"})
+        schema = self._schema(InfraMetadata)
+        net = schema["components"]["schemas"]["InfraMetadata"]["properties"]["network"]
+        assert _enum_for(net) == ["backbone-net", "edge-net"]  # component patched (anyOf branch)
+
+    def test_required_component_gets_enum_for_query_usage(self):
+        models.LIVE_ALLOWED_REGIONS.update({"us-east"})
+        schema = self._schema(RequiredInfraMetadata)
+        reg = schema["components"]["schemas"]["RequiredInfraMetadata"]["properties"]["region"]
+        assert reg.get("enum") == ["us-east"]
+
+    def test_static_metadata_component_is_not_patched(self):
+        # OperationRequest -> MetadataRequest shares the coordinate field names but is the
+        # deliberately-static model. Used as a RESPONSE (no body recursion), only the named
+        # component pass could reach it -- and it must not, since it's name-scoped.
+        from tashtiot_apis_library import OperationRequest
+
+        models.LIVE_ALLOWED_NETWORKS.update({"backbone-net"})
+        app = FastAPI(title="Static API", version="1.0.0")
+
+        @app.get(CONFIG_PATH, response_model=OperationRequest)
+        async def _read():
+            return {}
+
+        app.openapi = make_config_openapi(app, [CONFIG_PATH])
+        schema = app.openapi()
+        meta = schema["components"]["schemas"]["MetadataRequest"]["properties"]["network"]
+        assert _enum_for(meta) is None

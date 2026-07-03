@@ -108,6 +108,7 @@ nav:
       - Architecture: explanation/architecture.md
       - Authentication design: explanation/authentication.md
       - Dynamic config validation: explanation/dynamic-config-validation.md
+      - OpenAPI & Swagger injection: explanation/openapi-swagger-injection.md
       - Logging: explanation/logging.md
   - Contributing:
       - contributing/index.md

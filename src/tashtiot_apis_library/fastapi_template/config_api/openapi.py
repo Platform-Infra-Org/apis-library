@@ -11,7 +11,15 @@ from .models import (
     LIVE_ALLOWED_PROJECTS,
     LIVE_ALLOWED_REGIONS,
     LIVE_ALLOWED_SPACES,
+    InfraMetadata,
+    RequiredInfraMetadata,
 )
+
+# The dynamic coordinate models whose shared `components.schemas` entry we also patch
+# (so the Swagger "Schemas" section shows enums even when they're used as query params,
+# which FastAPI inlines rather than $ref-ing). Scoped by name so the static
+# `MetadataRequest` -- same field names, deliberately not dynamic -- is left alone.
+_DYNAMIC_COMPONENTS = (InfraMetadata.__name__, RequiredInfraMetadata.__name__)
 
 
 def make_config_openapi(app: FastAPI, coordinate_paths: Sequence[str]) -> Callable[[], dict]:
@@ -165,6 +173,18 @@ def make_config_openapi(app: FastAPI, coordinate_paths: Sequence[str]) -> Callab
                     touched |= _inject_body(openapi_schema, operation)
                 if touched:
                     injected.add(path)
+
+        # Patch the shared dynamic coordinate-model components too, so the "Schemas"
+        # section (and response models / bodies that $ref them) shows the live options
+        # even for query-param usage (which FastAPI inlines, leaving the component
+        # untouched by the per-route pass above). Not route-scoped -- the component is
+        # shared; guarded by presence so absent models are skipped.
+        component_schemas = openapi_schema.get("components", {}).get("schemas", {})
+        for comp_name in _DYNAMIC_COMPONENTS:
+            for prop_name, prop_schema in (
+                component_schemas.get(comp_name, {}).get("properties", {}).items()
+            ):
+                _inject(prop_schema, prop_name)
 
         frozen = frozenset(injected)
         if frozen and frozen != logged_injection:

@@ -163,3 +163,5 @@ provider = enable_remote_config_api(app, ..., auth=StaticBearerAuth("token"))
   config resolved for the request's coordinates.
 - [Dynamic config validation](../explanation/dynamic-config-validation.md) — where each check lives and
   why.
+- [OpenAPI & Swagger injection](../explanation/openapi-swagger-injection.md) — how the live enum
+  dropdowns get into Swagger.
