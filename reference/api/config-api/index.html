@@ -580,6 +580,8 @@
       
         
       
+        
+      
     
     
     
@@ -789,6 +791,34 @@
     
   
     Enable the Remote Config API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../how-to/constrain-field-by-config/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Constrain a field by resolved config
   
 
     
@@ -1727,6 +1757,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template.config_api.models.LIVE_COORDINATE_TREE" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LIVE_COORDINATE_TREE
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#tashtiot_apis_library.fastapi_template.config_api.models.InfraMetadata" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2224,6 +2265,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -2321,6 +2366,62 @@
     
   
     Authentication design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../explanation/dynamic-config-validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dynamic config validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../explanation/openapi-swagger-injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenAPI & Swagger injection
   
 
     
@@ -2975,6 +3076,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template.config_api.models.LIVE_COORDINATE_TREE" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LIVE_COORDINATE_TREE
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#tashtiot_apis_library.fastapi_template.config_api.models.InfraMetadata" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3411,7 +3523,7 @@
 
 
 <a href="#tashtiot_apis_library.fastapi_template.config_api.wiring.enable_remote_config_api" class="headerlink" title="Permanent link">&para;</a></h2>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">enable_remote_config_api</span><span class="p">(</span><span class="n">app</span><span class="p">:</span> <span class="n">FastAPI</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">base_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">remote_prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">config_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">naming_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cache_ttl</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">60</span><span class="p">,</span> <span class="n">serve_stale_on_error</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">poll_interval</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">settings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ConfigRemoteSettings</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">auth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Auth</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">enable_polling</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RemoteConfigProvider</span>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">enable_remote_config_api</span><span class="p">(</span><span class="n">app</span><span class="p">:</span> <span class="n">FastAPI</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">base_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">remote_prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">coordinate_paths</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">cache_ttl</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">60</span><span class="p">,</span> <span class="n">serve_stale_on_error</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">poll_interval</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">settings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ConfigRemoteSettings</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">auth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Auth</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">enable_polling</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RemoteConfigProvider</span>
 </code></pre></div>
 
     <div class="doc doc-contents first">
@@ -3421,9 +3533,12 @@
 <p>base_url, remote_prefix:
     Where the upstream Config API lives and the route prefix under which it
     serves <code>/projects</code>, <code>/config</code> and <code>/naming</code>.
-config_path, naming_path:
-    This service's own route paths whose coordinate query params get the live
-    <code>enum</code> dropdowns injected.
+coordinate_paths:
+    Route paths whose coordinate fields get the live <code>enum</code> dropdowns injected.
+    Each entry is a <strong>regex string</strong> (<code>re.fullmatch</code> against route paths), so a
+    plain path targets exactly itself (<code>["/config", "/naming"]</code>) and a pattern
+    can target a family of routes (<code>[r"/api/v\d+/.*/(config|naming)"]</code>). Not
+    limited to two.
 settings:
     Package-side <code>CONFIG_REMOTE_*</code> settings driving the outbound auth method;
     defaults to a freshly-read <a class="autorefs autorefs-internal" title="ConfigRemoteSettings" href="#tashtiot_apis_library.fastapi_template.config_api.conf.ConfigRemoteSettings"><code>ConfigRemoteSettings</code></a>.
@@ -3515,9 +3630,11 @@ client-side SSO (<code>sso_auth(config=...)</code>), a static bearer
         <p>Discover allowed coordinate values from the <strong>upstream</strong> and hot-patch
 the live allowlists, then invalidate the cached Swagger schema so the enum
 dropdowns regenerate on the next request.</p>
-<p>Sourced over HTTP from the upstream's <code>/naming</code> (full dictionary) and
-<code>/projects</code> routes, reusing the cached resolver methods below -- so a poll
-within the cache TTL window costs no extra upstream calls.</p>
+<p>Sourced over HTTP from the upstream's <code>/coordinates</code> route (flat per-level
+allowlists + projects) and <code>/coordinates/tree</code> (the nested hierarchy for the
+cross-field validator), both built from the enterprise configuration tree and
+reusing the cached resolver methods below -- so a poll within the cache TTL
+window costs no extra upstream calls.</p>
 
 
     </div>
@@ -4070,14 +4187,21 @@ when the chosen method is missing its required configuration.</p>
 
 
 <a href="#tashtiot_apis_library.fastapi_template.config_api.openapi.make_config_openapi" class="headerlink" title="Permanent link">&para;</a></h2>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">make_config_openapi</span><span class="p">(</span><span class="n">app</span><span class="p">:</span> <span class="n">FastAPI</span><span class="p">,</span> <span class="n">config_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">naming_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="nb">dict</span><span class="p">]</span>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">make_config_openapi</span><span class="p">(</span><span class="n">app</span><span class="p">:</span> <span class="n">FastAPI</span><span class="p">,</span> <span class="n">coordinate_paths</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="nb">dict</span><span class="p">]</span>
 </code></pre></div>
 
     <div class="doc doc-contents first">
 
         <p>Build an <code>app.openapi</code> replacement that injects the live allowlists as
-<code>enum</code> values into the coordinate query parameters on the config/naming
-routes.</p>
+<code>enum</code> values into the coordinate fields on the routes matched by
+<code>coordinate_paths</code> -- whether they arrive as <strong>query/path parameters</strong> or
+inside a <strong>JSON request body</strong>.</p>
+<p>Each <code>coordinate_paths</code> entry is a <strong>regex string</strong> matched with
+<code>re.fullmatch</code> against every route path, so one entry can target a family of
+routes (<code>r"/api/v\d+/infra/(config|naming)"</code>). A plain path is just a literal
+regex that matches only itself, so exact-path entries keep working; escape regex
+metacharacters (<code>.</code>, <code>+</code>, ...) if you need them literal. FastAPI path params
+like <code>{id}</code> are matched literally. An entry that matches no route is a no-op.</p>
 <p>This <strong>wraps</strong> whatever <code>app.openapi</code> is already installed rather than
 rebuilding the schema from scratch, so it composes with the library's other
 OpenAPI customizations -- notably the bearer-auth security scheme that
@@ -4274,6 +4398,28 @@ dropdowns.</p>
 
 <a href="#tashtiot_apis_library.fastapi_template.config_api.models.LIVE_ALLOWED_PROJECTS" class="headerlink" title="Permanent link">&para;</a></h3>
 <div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">LIVE_ALLOWED_PROJECTS</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="tashtiot_apis_library.fastapi_template.config_api.models.LIVE_COORDINATE_TREE" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">LIVE_COORDINATE_TREE</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.fastapi_template.config_api.models.LIVE_COORDINATE_TREE" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">LIVE_COORDINATE_TREE</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">

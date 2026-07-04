@@ -11,10 +11,10 @@
       
       
       
-        <link rel="prev" href="../">
+        <link rel="prev" href="../enable-remote-config-api/">
       
       
-        <link rel="next" href="../authentication/">
+        <link rel="next" href="../generate-auth-material/">
       
       
         
@@ -25,7 +25,7 @@
     
     
       
-        <title>Architecture - Tashtiot APIs Library</title>
+        <title>Constrain a field by resolved config - Tashtiot APIs Library</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#architecture" class="md-skip">
+        <a href="#constrain-a-field-by-resolved-config" class="md-skip">
           Skip to content
         </a>
       
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Architecture
+              Constrain a field by resolved config
             
           </span>
         </div>
@@ -250,11 +250,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../how-to/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
           
   
   
@@ -294,13 +296,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../explanation/" class="md-tabs__link">
           
   
   
@@ -553,6 +553,8 @@
       
   
   
+    
+  
   
   
     
@@ -586,20 +588,23 @@
     
     
       
+        
+        
+      
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../how-to/" class="md-nav__link ">
+            <a href="../" class="md-nav__link ">
               
   
   
@@ -617,13 +622,13 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -643,7 +648,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../how-to/read-write-bitbucket/" class="md-nav__link">
+      <a href="../read-write-bitbucket/" class="md-nav__link">
         
   
   
@@ -671,7 +676,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../how-to/use-awx-argocd-vault/" class="md-nav__link">
+      <a href="../use-awx-argocd-vault/" class="md-nav__link">
         
   
   
@@ -699,7 +704,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../how-to/secure-with-oidc-jwks/" class="md-nav__link">
+      <a href="../secure-with-oidc-jwks/" class="md-nav__link">
         
   
   
@@ -727,7 +732,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../how-to/verify-a-token/" class="md-nav__link">
+      <a href="../verify-a-token/" class="md-nav__link">
         
   
   
@@ -755,7 +760,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../how-to/call-services-with-sso/" class="md-nav__link">
+      <a href="../call-services-with-sso/" class="md-nav__link">
         
   
   
@@ -783,7 +788,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../how-to/enable-remote-config-api/" class="md-nav__link">
+      <a href="../enable-remote-config-api/" class="md-nav__link">
         
   
   
@@ -808,10 +813,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../how-to/constrain-field-by-config/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Constrain a field by resolved config
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -827,6 +859,81 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The pattern
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-it-reads" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How it reads
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#use-cases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use cases
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fail-open-vs-fail-closed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fail-open vs fail-closed
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See also
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -839,7 +946,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../how-to/generate-auth-material/" class="md-nav__link">
+      <a href="../generate-auth-material/" class="md-nav__link">
         
   
   
@@ -867,7 +974,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../how-to/add-a-connector/" class="md-nav__link">
+      <a href="../add-a-connector/" class="md-nav__link">
         
   
   
@@ -895,7 +1002,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../how-to/extend-the-template/" class="md-nav__link">
+      <a href="../extend-the-template/" class="md-nav__link">
         
   
   
@@ -1335,8 +1442,6 @@
       
   
   
-    
-  
   
   
     
@@ -1360,23 +1465,20 @@
     
     
       
-        
-        
-      
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../" class="md-nav__link ">
+            <a href="../../explanation/" class="md-nav__link ">
               
   
   
@@ -1394,13 +1496,13 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="">
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1417,37 +1519,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Architecture
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../explanation/architecture/" class="md-nav__link">
         
   
   
@@ -1463,87 +1538,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#two-independent-toolsets-one-package" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Two independent toolsets, one package
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#the-three-layer-connector-pattern" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        The three-layer connector pattern
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="The three-layer connector pattern">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#standardized-responses-and-errors" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Standardized responses and errors
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#the-public-surface-vs-_internal" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        The public surface vs _internal
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#imports-within-the-package" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Imports within the package
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1556,7 +1550,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../authentication/" class="md-nav__link">
+      <a href="../../explanation/authentication/" class="md-nav__link">
         
   
   
@@ -1584,7 +1578,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../dynamic-config-validation/" class="md-nav__link">
+      <a href="../../explanation/dynamic-config-validation/" class="md-nav__link">
         
   
   
@@ -1612,7 +1606,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../openapi-swagger-injection/" class="md-nav__link">
+      <a href="../../explanation/openapi-swagger-injection/" class="md-nav__link">
         
   
   
@@ -1640,7 +1634,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../logging/" class="md-nav__link">
+      <a href="../../explanation/logging/" class="md-nav__link">
         
   
   
@@ -1826,10 +1820,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#two-independent-toolsets-one-package" class="md-nav__link">
+  <a href="#the-pattern" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Two independent toolsets, one package
+        The pattern
       
     </span>
   </a>
@@ -1837,38 +1831,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-three-layer-connector-pattern" class="md-nav__link">
+  <a href="#how-it-reads" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The three-layer connector pattern
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="The three-layer connector pattern">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#standardized-responses-and-errors" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Standardized responses and errors
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#the-public-surface-vs-_internal" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        The public surface vs _internal
+        How it reads
       
     </span>
   </a>
@@ -1876,10 +1842,32 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#imports-within-the-package" class="md-nav__link">
+  <a href="#use-cases" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Imports within the package
+        Use cases
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fail-open-vs-fail-closed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fail-open vs fail-closed
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See also
       
     </span>
   </a>
@@ -1903,99 +1891,99 @@
 
 
 
-<h1 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h1>
-<p>This page explains how the package is organised and why.</p>
-<h2 id="two-independent-toolsets-one-package">Two independent toolsets, one package<a class="headerlink" href="#two-independent-toolsets-one-package" title="Permanent link">&para;</a></h2>
-<p>The library ships two largely independent toolsets under one distribution:</p>
-<ol>
-<li><strong>Infrastructure connectors</strong> (<code>connectors/</code>) — async clients for ArgoCD, AWX, Bitbucket Server,
-   and Vault.</li>
-<li><strong>FastAPI template</strong> (<code>fastapi_template/</code>) — the <code>general_create_app</code> application factory and its
-   middleware, metrics, probes, auth, and Remote Config capability.</li>
-</ol>
-<p>They're bundled together for convenience, but a consumer can use either alone. The one dependency
-direction between them: connectors depend on <code>fastapi_template.utils.BaseAPI</code> (the shared outbound
-HTTP wrapper), so <strong>the FastAPI template is a dependency of the connectors, not the reverse.</strong></p>
-<h2 id="the-three-layer-connector-pattern">The three-layer connector pattern<a class="headerlink" href="#the-three-layer-connector-pattern" title="Permanent link">&para;</a></h2>
-<p>Every connector under <code>connectors/&lt;name&gt;/</code> is split into exactly three modules, and new ones must
-follow suit (see <a href="../../how-to/add-a-connector/">Add a new connector</a>):</p>
-<table>
-<thead>
-<tr>
-<th>Layer</th>
-<th>File</th>
-<th>Responsibility</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>Models</strong></td>
-<td><code>models.py</code></td>
-<td>Pydantic request/response shapes. Aliases for camelCase JSON; tolerate unknown fields.</td>
-</tr>
-<tr>
-<td><strong>Client</strong></td>
-<td><code>client.py</code></td>
-<td>Low-level HTTP via <code>BaseAPI</code>. Converts error status codes into typed exceptions; returns parsed models, never raw dicts.</td>
-</tr>
-<tr>
-<td><strong>Service</strong></td>
-<td><code>service.py</code></td>
-<td>The high-level class users instantiate (<code>AWX</code>, <code>Git</code>, …). <strong>Composes</strong> the client and adds orchestration: polling, <code>wait_for_*</code>, retries.</td>
-</tr>
-</tbody>
-</table>
-<p>Adding a capability means touching the layers bottom-up: model (if new shapes) → client method →
-service method.</p>
-<p>The FastAPI template's outbound-SSO area follows the same model/logic split — its Pydantic data
-models (<code>SSOConfig</code>, <code>TokenResponse</code>) live in a co-located <code>_internal/security/models.py</code>, while the
-client/auth classes stay in <code>_internal/security/sso.py</code>.</p>
-<h3 id="standardized-responses-and-errors">Standardized responses and errors<a class="headerlink" href="#standardized-responses-and-errors" title="Permanent link">&para;</a></h3>
-<p>Service methods return <code>OperationResponse</code> subclasses (<code>status</code>, <code>status_code</code>, <code>return_code</code>,
-<code>stdout</code>) rather than raw API payloads — <code>AWXOperationResponse</code> adds <code>job_id</code>, <code>ArgoOperationResponse</code>
-adds <code>app_name</code>. Errors are a parallel hierarchy: <code>ExternalServiceError(HTTPException)</code> subclassed per
-connector (<code>ArgoCDError</code>, <code>GitError</code>, <code>VaultError</code>, <code>AWXError</code>). Because they extend
-<code>fastapi.HTTPException</code>, raising one inside a route surfaces directly as an HTTP response.</p>
-<h2 id="the-public-surface-vs-_internal">The public surface vs <code>_internal</code><a class="headerlink" href="#the-public-surface-vs-_internal" title="Permanent link">&para;</a></h2>
-<p>The FastAPI template keeps a deliberately narrow public surface; everything under <code>_internal/</code> is
-private implementation. The public modules are organised <strong>by concern</strong>, each a stable import home:</p>
-<table>
-<thead>
-<tr>
-<th>Module</th>
-<th>Concern</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>fastapi_template</code></td>
-<td><code>general_create_app</code> (+ lazy <code>enable_remote_config_api</code>)</td>
-</tr>
-<tr>
-<td><code>fastapi_template.utils</code></td>
-<td>infra utilities — <code>BaseAPI</code>, <code>settings</code></td>
-</tr>
-<tr>
-<td><code>fastapi_template.auth</code></td>
-<td>inbound JWT — <code>get_current_claims</code>, <code>JWTVerifier</code>, <code>verify_token</code>, <code>AuthMode</code>, keygen</td>
-</tr>
-<tr>
-<td><code>fastapi_template.security</code></td>
-<td>outbound SSO — <code>sso_authenticated_api</code>, <code>SSOConfig</code>, <code>StaticBearerAuth</code>, …</td>
-</tr>
-<tr>
-<td><code>fastapi_template.errors</code></td>
-<td>the auth error types</td>
-</tr>
-</tbody>
-</table>
-<p>These public modules are thin re-export facades over <code>_internal</code>. This split lets the heavy
-dependencies stay lazy (see <a href="../authentication/">Authentication design</a> and <a href="../logging/">Logging</a>) and
-gives consumers a small, intention-revealing API to import from.</p>
-<h2 id="imports-within-the-package">Imports within the package<a class="headerlink" href="#imports-within-the-package" title="Permanent link">&para;</a></h2>
-<p>Internal code uses <strong>relative imports</strong> (<code>from .client import ...</code>, <code>from ..errors import ...</code>,
-<code>from ...fastapi_template.utils import BaseAPI</code>). Absolute self-imports are avoided because the
-distribution name is rewritten at build time — an absolute self-import would be fragile.</p>
+<h1 id="constrain-a-field-by-resolved-config">Constrain a field by resolved config<a class="headerlink" href="#constrain-a-field-by-resolved-config" title="Permanent link">&para;</a></h1>
+<p>Sometimes a request field's valid values depend on the <strong>config resolved for the request's own
+coordinates</strong> — e.g. the OS templates a VM may use differ at every leaf of the enterprise config. The
+library deliberately <strong>doesn't ship</strong> a helper for this (the config key, the field, and the request
+model are all app-specific). Instead, write a small FastAPI dependency in your app. Here's the pattern.</p>
+<p>For <em>why</em> this is a dependency rather than a Pydantic validator, see
+<a href="../../explanation/dynamic-config-validation/">Dynamic config validation</a>.</p>
+<h2 id="the-pattern">The pattern<a class="headerlink" href="#the-pattern" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">Depends</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fastapi.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">RequestValidationError</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="kn">from</span><span class="w"> </span><span class="nn">tashtiot_apis_library.fastapi_template.config_api</span><span class="w"> </span><span class="kn">import</span> <span class="n">RequiredInfraMetadata</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="k">class</span><span class="w"> </span><span class="nc">VMSpec</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="n">os_template</span><span class="p">:</span> <span class="nb">str</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="n">instance_size</span><span class="p">:</span> <span class="nb">str</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="k">class</span><span class="w"> </span><span class="nc">VMRequest</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    <span class="n">metadata</span><span class="p">:</span> <span class="n">RequiredInfraMetadata</span>      <span class="c1"># coordinates — validated against the allowlists + tree</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>    <span class="n">spec</span><span class="p">:</span> <span class="n">VMSpec</span>                          <span class="c1"># the fields whose allowed values depend on the config</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="k">def</span><span class="w"> </span><span class="nf">constrain_vm</span><span class="p">(</span><span class="n">provider</span><span class="p">):</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">dependency</span><span class="p">(</span><span class="n">req</span><span class="p">:</span> <span class="n">VMRequest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VMRequest</span><span class="p">:</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>        <span class="c1"># The coordinate + spec models were already validated when the body was parsed.</span>
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>        <span class="c1"># Resolve the config for THIS request&#39;s coordinates, then check each field.</span>
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>        <span class="n">config</span> <span class="o">=</span> <span class="k">await</span> <span class="n">provider</span><span class="o">.</span><span class="n">resolve_infra_config</span><span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">metadata</span><span class="p">)</span>
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>        <span class="n">errors</span> <span class="o">=</span> <span class="p">[]</span>
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>        <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">config_key</span> <span class="ow">in</span> <span class="p">(</span>
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>            <span class="p">(</span><span class="s2">&quot;os_template&quot;</span><span class="p">,</span> <span class="s2">&quot;os_templates&quot;</span><span class="p">),</span>
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>            <span class="p">(</span><span class="s2">&quot;instance_size&quot;</span><span class="p">,</span> <span class="s2">&quot;instance_sizes&quot;</span><span class="p">),</span>
+<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>        <span class="p">):</span>
+<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>            <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">spec</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span>
+<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>            <span class="n">allowed</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">config_key</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[]</span>
+<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>            <span class="k">if</span> <span class="n">allowed</span> <span class="ow">and</span> <span class="n">value</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">allowed</span><span class="p">:</span>          <span class="c1"># permissive when the config is unset/empty</span>
+<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>                <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>                    <span class="p">{</span>
+<a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>                        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;value_error&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>                        <span class="s2">&quot;loc&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;body&quot;</span><span class="p">,</span> <span class="s2">&quot;spec&quot;</span><span class="p">,</span> <span class="n">field</span><span class="p">),</span>    <span class="c1"># points clients at the offending field</span>
+<a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a>                        <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&#39; is not permitted for the selected coordinates; &quot;</span>
+<a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a>                        <span class="sa">f</span><span class="s2">&quot;allowed: </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">allowed</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a>                        <span class="s2">&quot;input&quot;</span><span class="p">:</span> <span class="n">value</span><span class="p">,</span>
+<a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a>                    <span class="p">}</span>
+<a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a>                <span class="p">)</span>
+<a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a>        <span class="k">if</span> <span class="n">errors</span><span class="p">:</span>
+<a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a>            <span class="k">raise</span> <span class="n">RequestValidationError</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span>           <span class="c1"># -&gt; a standard 422, one entry per field</span>
+<a id="__codelineno-0-42" name="__codelineno-0-42" href="#__codelineno-0-42"></a>        <span class="k">return</span> <span class="n">req</span>
+<a id="__codelineno-0-43" name="__codelineno-0-43" href="#__codelineno-0-43"></a>
+<a id="__codelineno-0-44" name="__codelineno-0-44" href="#__codelineno-0-44"></a>    <span class="k">return</span> <span class="n">dependency</span>
+<a id="__codelineno-0-45" name="__codelineno-0-45" href="#__codelineno-0-45"></a>
+<a id="__codelineno-0-46" name="__codelineno-0-46" href="#__codelineno-0-46"></a>
+<a id="__codelineno-0-47" name="__codelineno-0-47" href="#__codelineno-0-47"></a><span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/vms&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-48" name="__codelineno-0-48" href="#__codelineno-0-48"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">create_vm</span><span class="p">(</span><span class="n">req</span><span class="p">:</span> <span class="n">VMRequest</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">constrain_vm</span><span class="p">(</span><span class="n">provider</span><span class="p">))):</span>
+<a id="__codelineno-0-49" name="__codelineno-0-49" href="#__codelineno-0-49"></a>    <span class="o">...</span>   <span class="c1"># req is fully validated: coordinates AND spec.os_template / spec.instance_size</span>
+</code></pre></div>
+<p><code>provider</code> is the <code>RemoteConfigProvider</code> returned by
+<a href="../enable-remote-config-api/"><code>enable_remote_config_api</code></a>.</p>
+<h2 id="how-it-reads">How it reads<a class="headerlink" href="#how-it-reads" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>The request is a JSON body.</strong> A plain model parameter on the dependency function
+  (<code>req: VMRequest</code>) is parsed as the request body — you don't have to make the coordinates query
+  parameters. FastAPI validates it (running the coordinate allowlist + hierarchy checks) <em>before</em> the
+  dependency runs.</li>
+<li><strong><code>req.metadata</code> drives the lookup.</strong> The coordinate submodel is passed to <code>resolve_infra_config</code>,
+  which returns the merged config for that leaf. Your config places each field's allowed values under a
+  known key (<code>os_templates</code>, <code>instance_sizes</code>, …).</li>
+<li><strong>The constrained fields can sit anywhere</strong> in the body — here they're under <code>spec</code>, reached with
+  plain attribute access (<code>req.spec.os_template</code>). Match the <code>loc</code> to the field's real position so the
+  <code>422</code> points clients at the right place.</li>
+<li><strong>It runs after the model's own validators</strong>, so by the time the dependency executes the coordinates
+  are already known-valid.</li>
+</ul>
+<h2 id="use-cases">Use cases<a class="headerlink" href="#use-cases" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Per-leaf VM <strong>OS templates / images</strong>.</li>
+<li><strong>Instance sizes / flavors</strong> permitted in a given region or island.</li>
+<li>Allowed <strong>backup targets</strong> or <strong>networks</strong> per environment.</li>
+<li><strong>Quotas</strong> or <strong>feature toggles</strong> resolved per leaf.</li>
+</ul>
+<h2 id="fail-open-vs-fail-closed">Fail-open vs fail-closed<a class="headerlink" href="#fail-open-vs-fail-closed" title="Permanent link">&para;</a></h2>
+<p>The example is <strong>permissive</strong>: if the config doesn't list the key (or the list is empty), the field is
+accepted. That mirrors the coordinate validators, which don't reject when their allowlist is empty
+(pre-poll or upstream missing). To <strong>fail closed</strong> instead — reject anything not explicitly allowed —
+drop the <code>allowed and</code> guard and require a non-empty <code>allowed</code>.</p>
+<h2 id="see-also">See also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../../explanation/dynamic-config-validation/">Dynamic config validation</a> — why this is a dependency,
+  not a validator.</li>
+<li><a href="../enable-remote-config-api/">Enable the Remote Config API</a> — the provider and coordinate models.</li>
+</ul>
 
 
 

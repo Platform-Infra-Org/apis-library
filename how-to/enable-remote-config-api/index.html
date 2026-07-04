@@ -14,7 +14,7 @@
         <link rel="prev" href="../call-services-with-sso/">
       
       
-        <link rel="next" href="../generate-auth-material/">
+        <link rel="next" href="../constrain-field-by-config/">
       
       
         
@@ -582,6 +582,8 @@
       
         
       
+        
+      
     
     
     
@@ -879,6 +881,28 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#seeded-once-then-refreshed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Seeded once, then refreshed
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#matching-routes-with-coordinate_paths" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Matching routes with coordinate_paths
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#serve-stale-on-upstream-failure" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -915,6 +939,34 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../constrain-field-by-config/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Constrain a field by resolved config
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -1438,6 +1490,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -1535,6 +1591,62 @@
     
   
     Authentication design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/dynamic-config-validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dynamic config validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/openapi-swagger-injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenAPI & Swagger injection
   
 
     
@@ -1774,6 +1886,28 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#seeded-once-then-refreshed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Seeded once, then refreshed
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#matching-routes-with-coordinate_paths" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Matching routes with coordinate_paths
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#serve-stale-on-upstream-failure" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1839,9 +1973,8 @@ Swagger dropdowns and request validation in sync with the upstream's live allowl
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">app</span><span class="p">,</span>
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">base_url</span><span class="o">=</span><span class="s2">&quot;https://config-api.example.com&quot;</span><span class="p">,</span>  <span class="c1"># where the upstream lives</span>
 <a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="n">remote_prefix</span><span class="o">=</span><span class="s2">&quot;/api/v1&quot;</span><span class="p">,</span>                     <span class="c1"># upstream prefix serving /projects, /config, /naming, /coordinates</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="n">config_path</span><span class="o">=</span><span class="s2">&quot;/config&quot;</span><span class="p">,</span>                       <span class="c1"># your route whose coordinate params get enum dropdowns</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    <span class="n">naming_path</span><span class="o">=</span><span class="s2">&quot;/naming&quot;</span><span class="p">,</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="p">)</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="n">coordinate_paths</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;/config&quot;</span><span class="p">,</span> <span class="s2">&quot;/naming&quot;</span><span class="p">],</span>     <span class="c1"># your routes whose coordinate params get enum dropdowns</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="p">)</span>
 </code></pre></div>
 <h2 id="define-routes-against-the-provider">Define routes against the provider<a class="headerlink" href="#define-routes-against-the-provider" title="Permanent link">&para;</a></h2>
 <p>The returned <code>RemoteConfigProvider</code> exposes <code>resolve_infra_config</code>, <code>resolve_naming_convention</code>,
@@ -1866,6 +1999,11 @@ seconds, default 60):</p>
 <a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>    <span class="c1"># Same values, shaped as the nested config hierarchy.</span>
 <a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>    <span class="k">return</span> <span class="k">await</span> <span class="n">provider</span><span class="o">.</span><span class="n">get_coordinate_tree</span><span class="p">()</span>
 </code></pre></div>
+<p>Each route listed in <code>coordinate_paths</code> gets the live <code>enum</code> dropdowns injected into its coordinate
+fields <strong>whether they arrive as query/path parameters</strong> (a <code>Depends()</code> model, as above) <strong>or inside a
+JSON request body</strong> (the model as a plain body parameter). For a body model the enums are written onto
+the referenced component schema, so a model shared by several routes is decorated once. Enum injection
+matches by field name, so name the field after its coordinate (<code>region</code>, <code>island</code>, …).</p>
 <p><code>get_coordinate_catalog</code> proxies the upstream's <code>/coordinates</code> route and returns a
 <a href="../../reference/api/config-api/#models-allowlists"><code>CoordinateCatalogResponse</code></a>-shaped dict — the
 sorted set of values for each of <code>space</code> / <code>network</code> / <code>region</code> / <code>island</code> / <code>environment</code>, plus
@@ -1877,18 +2015,51 @@ hierarchy (<code>coordinates</code>: space → network → region → island →
 <h2 id="what-it-sets-up">What it sets up<a class="headerlink" href="#what-it-sets-up" title="Permanent link">&para;</a></h2>
 <ul>
 <li>A <code>RemoteConfigProvider</code> (returned) for resolving config / naming / projects.</li>
-<li>A <strong>background poller</strong> (registered on <code>general_create_app</code>'s lifespan) that refreshes the live
-  coordinate allowlists from the upstream every <code>poll_interval</code> seconds, hot-patching both the
-  Pydantic validators and the OpenAPI <code>enum</code> dropdowns. Pass <code>enable_polling=False</code> to drive it
-  yourself.</li>
+<li>A <strong>startup seed + background poller</strong> (registered on <code>general_create_app</code>'s lifespan). The
+  allowlists are fetched <strong>once at startup regardless of <code>enable_polling</code></strong>; with polling on they're
+  then refreshed every <code>poll_interval</code> seconds, hot-patching both the Pydantic validators and the
+  OpenAPI <code>enum</code> dropdowns. Pass <code>enable_polling=False</code> for a one-time snapshot (seed only, no refresh).</li>
 <li>A <code>pydantic.ValidationError → 422</code> handler so a coordinate outside its allowlist returns the same
   shape as any other invalid query parameter.</li>
+<li><strong>Hierarchical validation.</strong> Beyond the flat per-level allowlists, the coordinate models also
+  enforce the live <strong>coordinate tree</strong> (<code>/coordinates/tree</code>): a child must sit under its selected
+  parent — e.g. an <code>island</code> is only valid within the chosen <code>region</code>. This is a submit-time <code>422</code>,
+  not a Swagger dropdown (OpenAPI can't express dependent enums); expose <code>/coordinates/tree</code> if a
+  frontend needs cascading selects. It's permissive until the tree is populated and for partial
+  (omitted-coordinate) selections.</li>
 </ul>
+<h2 id="seeded-once-then-refreshed">Seeded once, then refreshed<a class="headerlink" href="#seeded-once-then-refreshed" title="Permanent link">&para;</a></h2>
+<p>The allowlists and coordinate tree are fetched <strong>once at startup even with <code>enable_polling=False</code></strong>, so
+validation and enum dropdowns work off that snapshot; polling only keeps them fresh afterward. Two
+caveats:</p>
+<ul>
+<li>Before that first fetch completes — a brief window at startup — the allowlists are empty, so
+  validation is permissive (accepts any value) and no dropdowns are injected. This is intentional
+  (<code>InfraMetadata</code> doesn't gate on an empty allowlist).</li>
+<li>If the app <strong>isn't</strong> built by <code>general_create_app</code> (nothing launches the registered task), the seed
+  never runs automatically. Drive it yourself:</li>
+</ul>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">await</span> <span class="n">provider</span><span class="o">.</span><span class="n">crawl_and_sync_keys</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>   <span class="c1"># populate the allowlists + tree once</span>
+</code></pre></div>
+<h2 id="matching-routes-with-coordinate_paths">Matching routes with <code>coordinate_paths</code><a class="headerlink" href="#matching-routes-with-coordinate_paths" title="Permanent link">&para;</a></h2>
+<p>Each <code>coordinate_paths</code> entry is a <strong>regex string</strong>, matched with <code>re.fullmatch</code> against every route
+path. A plain path is just a literal regex that matches only itself (so <code>["/config", "/naming"]</code> works
+exactly as you'd expect), but you can also match a <strong>family of routes</strong> with one entry:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">coordinate_paths</span><span class="o">=</span><span class="p">[</span><span class="sa">r</span><span class="s2">&quot;/api/v\d+/infra/(config|naming)&quot;</span><span class="p">]</span>   <span class="c1"># one entry, many/versioned routes</span>
+</code></pre></div>
+<p>Because it's a full-path match, use <code>.*</code> for partials (<code>r"/api/v1/infra/.*"</code>); escape regex
+metacharacters (<code>.</code>, <code>+</code>, …) if you need them literal (rare in paths); FastAPI path params like <code>{id}</code>
+match literally. An invalid regex raises at wire-up.</p>
+<p>Enum injection is otherwise <strong>name-matched and additive</strong>: a matched route that declares only some
+coordinates gets dropdowns for just those — there's no "all six required" rule and no error, and any
+non-coordinate parameters are left untouched. The flip side is that mistakes fail quietly: a pattern
+that matches no route, or a field named differently from its coordinate, simply gets no dropdown (no
+warning). Name coordinate fields after their coordinate (<code>region</code>, <code>island</code>, …).</p>
 <h2 id="serve-stale-on-upstream-failure">Serve stale on upstream failure<a class="headerlink" href="#serve-stale-on-upstream-failure" title="Permanent link">&para;</a></h2>
 <p>By default an unreachable or <code>5xx</code> upstream propagates as a <code>502</code> (the strict, fail-closed contract).
 Pass <code>serve_stale_on_error=True</code> to instead fall back to the <strong>last successfully-fetched value for
 that key</strong> (last-known-good) when the upstream is down:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">provider</span> <span class="o">=</span> <span class="n">enable_remote_config_api</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="n">serve_stale_on_error</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">provider</span> <span class="o">=</span> <span class="n">enable_remote_config_api</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="n">serve_stale_on_error</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </code></pre></div>
 <p>Notes:</p>
 <ul>
@@ -1912,9 +2083,9 @@ the SSO</strong>, so the client just needs it granted — and set <code>CONFIG_R
 providers can instead send the audience as a parameter via <code>CONFIG_REMOTE_SSO_AUDIENCE</code>.) The same
 pattern for securing your <em>own</em> API is covered in <a href="../secure-with-oidc-jwks/">Secure an API with OIDC &amp; JWKS</a>.</p>
 <p>To override settings entirely (tests / escape hatch), pass an explicit <code>httpx.Auth</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">tashtiot_apis_library.fastapi_template.security</span><span class="w"> </span><span class="kn">import</span> <span class="n">StaticBearerAuth</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">provider</span> <span class="o">=</span> <span class="n">enable_remote_config_api</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="n">auth</span><span class="o">=</span><span class="n">StaticBearerAuth</span><span class="p">(</span><span class="s2">&quot;token&quot;</span><span class="p">))</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">tashtiot_apis_library.fastapi_template.security</span><span class="w"> </span><span class="kn">import</span> <span class="n">StaticBearerAuth</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">provider</span> <span class="o">=</span> <span class="n">enable_remote_config_api</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="n">auth</span><span class="o">=</span><span class="n">StaticBearerAuth</span><span class="p">(</span><span class="s2">&quot;token&quot;</span><span class="p">))</span>
 </code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Lazy dependency</p>
@@ -1926,6 +2097,12 @@ need <code>aiocache</code>.</p>
 <ul>
 <li><a href="../../reference/api/config-api/">API reference: Remote Config API</a></li>
 <li><a href="../../reference/configuration/">Configuration reference</a></li>
+<li><a href="../constrain-field-by-config/">Constrain a field by resolved config</a> — validate a field against the
+  config resolved for the request's coordinates.</li>
+<li><a href="../../explanation/dynamic-config-validation/">Dynamic config validation</a> — where each check lives and
+  why.</li>
+<li><a href="../../explanation/openapi-swagger-injection/">OpenAPI &amp; Swagger injection</a> — how the live enum
+  dropdowns get into Swagger.</li>
 </ul>
 
 

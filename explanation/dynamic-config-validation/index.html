@@ -11,10 +11,10 @@
       
       
       
-        <link rel="prev" href="../">
+        <link rel="prev" href="../authentication/">
       
       
-        <link rel="next" href="../authentication/">
+        <link rel="next" href="../openapi-swagger-injection/">
       
       
         
@@ -25,7 +25,7 @@
     
     
       
-        <title>Architecture - Tashtiot APIs Library</title>
+        <title>Dynamic config validation - Tashtiot APIs Library</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#architecture" class="md-skip">
+        <a href="#dynamic-config-validation" class="md-skip">
           Skip to content
         </a>
       
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Architecture
+              Dynamic config validation
             
           </span>
         </div>
@@ -1417,37 +1417,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Architecture
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
         
   
   
@@ -1463,87 +1436,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#two-independent-toolsets-one-package" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Two independent toolsets, one package
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#the-three-layer-connector-pattern" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        The three-layer connector pattern
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="The three-layer connector pattern">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#standardized-responses-and-errors" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Standardized responses and errors
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#the-public-surface-vs-_internal" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        The public surface vs _internal
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#imports-within-the-package" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Imports within the package
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1581,10 +1473,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../dynamic-config-validation/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dynamic config validation
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1600,6 +1519,59 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#coordinate-checks-live-in-pydantic-validators" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Coordinate checks live in Pydantic validators
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#config-dependent-fields-do-not" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Config-dependent fields do not
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See also
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1826,10 +1798,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#two-independent-toolsets-one-package" class="md-nav__link">
+  <a href="#coordinate-checks-live-in-pydantic-validators" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Two independent toolsets, one package
+        Coordinate checks live in Pydantic validators
       
     </span>
   </a>
@@ -1837,38 +1809,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-three-layer-connector-pattern" class="md-nav__link">
+  <a href="#config-dependent-fields-do-not" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The three-layer connector pattern
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="The three-layer connector pattern">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#standardized-responses-and-errors" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Standardized responses and errors
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#the-public-surface-vs-_internal" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        The public surface vs _internal
+        Config-dependent fields do not
       
     </span>
   </a>
@@ -1876,10 +1820,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#imports-within-the-package" class="md-nav__link">
+  <a href="#see-also" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Imports within the package
+        See also
       
     </span>
   </a>
@@ -1903,99 +1847,54 @@
 
 
 
-<h1 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h1>
-<p>This page explains how the package is organised and why.</p>
-<h2 id="two-independent-toolsets-one-package">Two independent toolsets, one package<a class="headerlink" href="#two-independent-toolsets-one-package" title="Permanent link">&para;</a></h2>
-<p>The library ships two largely independent toolsets under one distribution:</p>
+<h1 id="dynamic-config-validation">Dynamic config validation<a class="headerlink" href="#dynamic-config-validation" title="Permanent link">&para;</a></h1>
+<p>The Remote Config capability validates a request's coordinates against values that change at runtime
+(the poller refreshes them from the upstream). Those checks live in two different places — some in the
+Pydantic model, some in a route dependency — and the split is deliberate. This page explains where each
+kind of check belongs and, in particular, <strong>why a field whose allowed values come from the resolved
+config must be validated in a dependency, not a Pydantic validator</strong>.</p>
+<h2 id="coordinate-checks-live-in-pydantic-validators">Coordinate checks live in Pydantic validators<a class="headerlink" href="#coordinate-checks-live-in-pydantic-validators" title="Permanent link">&para;</a></h2>
+<p>The coordinate values and their hierarchy are validated <strong>inside <code>InfraMetadata</code></strong>, because everything
+they need is held in memory:</p>
+<ul>
+<li>Each coordinate is checked against its live allowlist (<code>LIVE_ALLOWED_*</code>) by a <code>field_validator</code>.</li>
+<li>The parent/child <em>combination</em> is checked against the live coordinate tree
+  (<code>LIVE_COORDINATE_TREE</code>) by a <code>model_validator</code> — e.g. an <code>island</code> must sit under the chosen
+  <code>region</code>.</li>
+</ul>
+<p>Both read module-level state that the background poller repopulates in place. They're <strong>cheap,
+synchronous, and side-effect-free</strong>, so a Pydantic validator is the natural home: the model can't be
+constructed with an invalid coordinate, anywhere it's constructed.</p>
+<h2 id="config-dependent-fields-do-not">Config-dependent fields do not<a class="headerlink" href="#config-dependent-fields-do-not" title="Permanent link">&para;</a></h2>
+<p>Some fields aren't validated against a fixed allowlist at all — their valid values depend on the
+<strong>config resolved for the request's own coordinates</strong>. For example, the OS templates available to a VM
+differ at every leaf of the enterprise config; the allowed set for <code>os_template</code> is whatever that
+specific leaf configures.</p>
+<p>That check <strong>cannot</strong> be a Pydantic validator, for three concrete reasons:</p>
 <ol>
-<li><strong>Infrastructure connectors</strong> (<code>connectors/</code>) — async clients for ArgoCD, AWX, Bitbucket Server,
-   and Vault.</li>
-<li><strong>FastAPI template</strong> (<code>fastapi_template/</code>) — the <code>general_create_app</code> application factory and its
-   middleware, metrics, probes, auth, and Remote Config capability.</li>
+<li><strong>It needs async I/O.</strong> Resolving the value means <code>await provider.resolve_infra_config(...)</code>, an
+   upstream HTTP call. Pydantic v2 validators are <strong>synchronous</strong> — there is no async validation hook
+   during model construction.</li>
+<li><strong>It needs the provider.</strong> A validator has no handle on the <code>RemoteConfigProvider</code>, and FastAPI
+   passes no context into model validation when it parses a request, so the provider can't reach the
+   validator.</li>
+<li><strong>Validation should stay pure.</strong> Models are constructed in tests, in serialization round-trips, and
+   in internal code paths — none of which should trigger a network call. Keeping I/O out of validation
+   keeps the model cheap and predictable.</li>
 </ol>
-<p>They're bundled together for convenience, but a consumer can use either alone. The one dependency
-direction between them: connectors depend on <code>fastapi_template.utils.BaseAPI</code> (the shared outbound
-HTTP wrapper), so <strong>the FastAPI template is a dependency of the connectors, not the reverse.</strong></p>
-<h2 id="the-three-layer-connector-pattern">The three-layer connector pattern<a class="headerlink" href="#the-three-layer-connector-pattern" title="Permanent link">&para;</a></h2>
-<p>Every connector under <code>connectors/&lt;name&gt;/</code> is split into exactly three modules, and new ones must
-follow suit (see <a href="../../how-to/add-a-connector/">Add a new connector</a>):</p>
-<table>
-<thead>
-<tr>
-<th>Layer</th>
-<th>File</th>
-<th>Responsibility</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>Models</strong></td>
-<td><code>models.py</code></td>
-<td>Pydantic request/response shapes. Aliases for camelCase JSON; tolerate unknown fields.</td>
-</tr>
-<tr>
-<td><strong>Client</strong></td>
-<td><code>client.py</code></td>
-<td>Low-level HTTP via <code>BaseAPI</code>. Converts error status codes into typed exceptions; returns parsed models, never raw dicts.</td>
-</tr>
-<tr>
-<td><strong>Service</strong></td>
-<td><code>service.py</code></td>
-<td>The high-level class users instantiate (<code>AWX</code>, <code>Git</code>, …). <strong>Composes</strong> the client and adds orchestration: polling, <code>wait_for_*</code>, retries.</td>
-</tr>
-</tbody>
-</table>
-<p>Adding a capability means touching the layers bottom-up: model (if new shapes) → client method →
-service method.</p>
-<p>The FastAPI template's outbound-SSO area follows the same model/logic split — its Pydantic data
-models (<code>SSOConfig</code>, <code>TokenResponse</code>) live in a co-located <code>_internal/security/models.py</code>, while the
-client/auth classes stay in <code>_internal/security/sso.py</code>.</p>
-<h3 id="standardized-responses-and-errors">Standardized responses and errors<a class="headerlink" href="#standardized-responses-and-errors" title="Permanent link">&para;</a></h3>
-<p>Service methods return <code>OperationResponse</code> subclasses (<code>status</code>, <code>status_code</code>, <code>return_code</code>,
-<code>stdout</code>) rather than raw API payloads — <code>AWXOperationResponse</code> adds <code>job_id</code>, <code>ArgoOperationResponse</code>
-adds <code>app_name</code>. Errors are a parallel hierarchy: <code>ExternalServiceError(HTTPException)</code> subclassed per
-connector (<code>ArgoCDError</code>, <code>GitError</code>, <code>VaultError</code>, <code>AWXError</code>). Because they extend
-<code>fastapi.HTTPException</code>, raising one inside a route surfaces directly as an HTTP response.</p>
-<h2 id="the-public-surface-vs-_internal">The public surface vs <code>_internal</code><a class="headerlink" href="#the-public-surface-vs-_internal" title="Permanent link">&para;</a></h2>
-<p>The FastAPI template keeps a deliberately narrow public surface; everything under <code>_internal/</code> is
-private implementation. The public modules are organised <strong>by concern</strong>, each a stable import home:</p>
-<table>
-<thead>
-<tr>
-<th>Module</th>
-<th>Concern</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>fastapi_template</code></td>
-<td><code>general_create_app</code> (+ lazy <code>enable_remote_config_api</code>)</td>
-</tr>
-<tr>
-<td><code>fastapi_template.utils</code></td>
-<td>infra utilities — <code>BaseAPI</code>, <code>settings</code></td>
-</tr>
-<tr>
-<td><code>fastapi_template.auth</code></td>
-<td>inbound JWT — <code>get_current_claims</code>, <code>JWTVerifier</code>, <code>verify_token</code>, <code>AuthMode</code>, keygen</td>
-</tr>
-<tr>
-<td><code>fastapi_template.security</code></td>
-<td>outbound SSO — <code>sso_authenticated_api</code>, <code>SSOConfig</code>, <code>StaticBearerAuth</code>, …</td>
-</tr>
-<tr>
-<td><code>fastapi_template.errors</code></td>
-<td>the auth error types</td>
-</tr>
-</tbody>
-</table>
-<p>These public modules are thin re-export facades over <code>_internal</code>. This split lets the heavy
-dependencies stay lazy (see <a href="../authentication/">Authentication design</a> and <a href="../logging/">Logging</a>) and
-gives consumers a small, intention-revealing API to import from.</p>
-<h2 id="imports-within-the-package">Imports within the package<a class="headerlink" href="#imports-within-the-package" title="Permanent link">&para;</a></h2>
-<p>Internal code uses <strong>relative imports</strong> (<code>from .client import ...</code>, <code>from ..errors import ...</code>,
-<code>from ...fastapi_template.utils import BaseAPI</code>). Absolute self-imports are avoided because the
-distribution name is rewritten at build time — an absolute self-import would be fragile.</p>
+<p>So this kind of check belongs at the <strong>request boundary</strong> — a small FastAPI dependency (or a check in
+the route body) that the application writes, running after the model's own validators and resolving
+the config once per request.</p>
+<p>The rule of thumb: <strong>validate against in-memory data in the model; validate against resolved config in
+a dependency.</strong></p>
+<h2 id="see-also">See also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../../how-to/constrain-field-by-config/">Constrain a field by resolved config</a> — the app-side recipe.</li>
+<li><a href="../../how-to/enable-remote-config-api/">Enable the Remote Config API</a> — the coordinate allowlists and
+  hierarchy in context.</li>
+<li><a href="../openapi-swagger-injection/">OpenAPI &amp; Swagger injection</a> — how the live values become Swagger
+  dropdowns.</li>
+</ul>
 
 
 

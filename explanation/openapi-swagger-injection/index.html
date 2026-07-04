@@ -11,10 +11,10 @@
       
       
       
-        <link rel="prev" href="../">
+        <link rel="prev" href="../dynamic-config-validation/">
       
       
-        <link rel="next" href="../authentication/">
+        <link rel="next" href="../logging/">
       
       
         
@@ -25,7 +25,7 @@
     
     
       
-        <title>Architecture - Tashtiot APIs Library</title>
+        <title>OpenAPI & Swagger injection - Tashtiot APIs Library</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#architecture" class="md-skip">
+        <a href="#openapi-swagger-and-dynamic-enum-injection" class="md-skip">
           Skip to content
         </a>
       
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Architecture
+              OpenAPI & Swagger injection
             
           </span>
         </div>
@@ -1417,37 +1417,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Architecture
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
         
   
   
@@ -1463,87 +1436,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#two-independent-toolsets-one-package" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Two independent toolsets, one package
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#the-three-layer-connector-pattern" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        The three-layer connector pattern
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="The three-layer connector pattern">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#standardized-responses-and-errors" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Standardized responses and errors
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#the-public-surface-vs-_internal" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        The public surface vs _internal
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#imports-within-the-package" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Imports within the package
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1609,10 +1501,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../openapi-swagger-injection/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenAPI & Swagger injection
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1628,6 +1547,103 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#openapi-vs-swagger-ui" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OpenAPI vs Swagger UI
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-shape-that-matters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The shape that matters
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-we-post-process-the-document" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why we post-process the document
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-mechanism-make_config_openapi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The mechanism (make_config_openapi)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-query-params-and-bodies-behave-differently-the-subtle-bit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why query params and bodies behave differently (the subtle bit)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#caveats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Caveats
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See also
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1826,10 +1842,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#two-independent-toolsets-one-package" class="md-nav__link">
+  <a href="#openapi-vs-swagger-ui" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Two independent toolsets, one package
+        OpenAPI vs Swagger UI
       
     </span>
   </a>
@@ -1837,38 +1853,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-three-layer-connector-pattern" class="md-nav__link">
+  <a href="#the-shape-that-matters" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The three-layer connector pattern
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="The three-layer connector pattern">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#standardized-responses-and-errors" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Standardized responses and errors
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#the-public-surface-vs-_internal" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        The public surface vs _internal
+        The shape that matters
       
     </span>
   </a>
@@ -1876,10 +1864,54 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#imports-within-the-package" class="md-nav__link">
+  <a href="#why-we-post-process-the-document" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Imports within the package
+        Why we post-process the document
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-mechanism-make_config_openapi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The mechanism (make_config_openapi)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-query-params-and-bodies-behave-differently-the-subtle-bit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why query params and bodies behave differently (the subtle bit)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#caveats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Caveats
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See also
       
     </span>
   </a>
@@ -1903,99 +1935,101 @@
 
 
 
-<h1 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h1>
-<p>This page explains how the package is organised and why.</p>
-<h2 id="two-independent-toolsets-one-package">Two independent toolsets, one package<a class="headerlink" href="#two-independent-toolsets-one-package" title="Permanent link">&para;</a></h2>
-<p>The library ships two largely independent toolsets under one distribution:</p>
-<ol>
-<li><strong>Infrastructure connectors</strong> (<code>connectors/</code>) — async clients for ArgoCD, AWX, Bitbucket Server,
-   and Vault.</li>
-<li><strong>FastAPI template</strong> (<code>fastapi_template/</code>) — the <code>general_create_app</code> application factory and its
-   middleware, metrics, probes, auth, and Remote Config capability.</li>
-</ol>
-<p>They're bundled together for convenience, but a consumer can use either alone. The one dependency
-direction between them: connectors depend on <code>fastapi_template.utils.BaseAPI</code> (the shared outbound
-HTTP wrapper), so <strong>the FastAPI template is a dependency of the connectors, not the reverse.</strong></p>
-<h2 id="the-three-layer-connector-pattern">The three-layer connector pattern<a class="headerlink" href="#the-three-layer-connector-pattern" title="Permanent link">&para;</a></h2>
-<p>Every connector under <code>connectors/&lt;name&gt;/</code> is split into exactly three modules, and new ones must
-follow suit (see <a href="../../how-to/add-a-connector/">Add a new connector</a>):</p>
-<table>
-<thead>
-<tr>
-<th>Layer</th>
-<th>File</th>
-<th>Responsibility</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>Models</strong></td>
-<td><code>models.py</code></td>
-<td>Pydantic request/response shapes. Aliases for camelCase JSON; tolerate unknown fields.</td>
-</tr>
-<tr>
-<td><strong>Client</strong></td>
-<td><code>client.py</code></td>
-<td>Low-level HTTP via <code>BaseAPI</code>. Converts error status codes into typed exceptions; returns parsed models, never raw dicts.</td>
-</tr>
-<tr>
-<td><strong>Service</strong></td>
-<td><code>service.py</code></td>
-<td>The high-level class users instantiate (<code>AWX</code>, <code>Git</code>, …). <strong>Composes</strong> the client and adds orchestration: polling, <code>wait_for_*</code>, retries.</td>
-</tr>
-</tbody>
-</table>
-<p>Adding a capability means touching the layers bottom-up: model (if new shapes) → client method →
-service method.</p>
-<p>The FastAPI template's outbound-SSO area follows the same model/logic split — its Pydantic data
-models (<code>SSOConfig</code>, <code>TokenResponse</code>) live in a co-located <code>_internal/security/models.py</code>, while the
-client/auth classes stay in <code>_internal/security/sso.py</code>.</p>
-<h3 id="standardized-responses-and-errors">Standardized responses and errors<a class="headerlink" href="#standardized-responses-and-errors" title="Permanent link">&para;</a></h3>
-<p>Service methods return <code>OperationResponse</code> subclasses (<code>status</code>, <code>status_code</code>, <code>return_code</code>,
-<code>stdout</code>) rather than raw API payloads — <code>AWXOperationResponse</code> adds <code>job_id</code>, <code>ArgoOperationResponse</code>
-adds <code>app_name</code>. Errors are a parallel hierarchy: <code>ExternalServiceError(HTTPException)</code> subclassed per
-connector (<code>ArgoCDError</code>, <code>GitError</code>, <code>VaultError</code>, <code>AWXError</code>). Because they extend
-<code>fastapi.HTTPException</code>, raising one inside a route surfaces directly as an HTTP response.</p>
-<h2 id="the-public-surface-vs-_internal">The public surface vs <code>_internal</code><a class="headerlink" href="#the-public-surface-vs-_internal" title="Permanent link">&para;</a></h2>
-<p>The FastAPI template keeps a deliberately narrow public surface; everything under <code>_internal/</code> is
-private implementation. The public modules are organised <strong>by concern</strong>, each a stable import home:</p>
-<table>
-<thead>
-<tr>
-<th>Module</th>
-<th>Concern</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>fastapi_template</code></td>
-<td><code>general_create_app</code> (+ lazy <code>enable_remote_config_api</code>)</td>
-</tr>
-<tr>
-<td><code>fastapi_template.utils</code></td>
-<td>infra utilities — <code>BaseAPI</code>, <code>settings</code></td>
-</tr>
-<tr>
-<td><code>fastapi_template.auth</code></td>
-<td>inbound JWT — <code>get_current_claims</code>, <code>JWTVerifier</code>, <code>verify_token</code>, <code>AuthMode</code>, keygen</td>
-</tr>
-<tr>
-<td><code>fastapi_template.security</code></td>
-<td>outbound SSO — <code>sso_authenticated_api</code>, <code>SSOConfig</code>, <code>StaticBearerAuth</code>, …</td>
-</tr>
-<tr>
-<td><code>fastapi_template.errors</code></td>
-<td>the auth error types</td>
-</tr>
-</tbody>
-</table>
-<p>These public modules are thin re-export facades over <code>_internal</code>. This split lets the heavy
-dependencies stay lazy (see <a href="../authentication/">Authentication design</a> and <a href="../logging/">Logging</a>) and
-gives consumers a small, intention-revealing API to import from.</p>
-<h2 id="imports-within-the-package">Imports within the package<a class="headerlink" href="#imports-within-the-package" title="Permanent link">&para;</a></h2>
-<p>Internal code uses <strong>relative imports</strong> (<code>from .client import ...</code>, <code>from ..errors import ...</code>,
-<code>from ...fastapi_template.utils import BaseAPI</code>). Absolute self-imports are avoided because the
-distribution name is rewritten at build time — an absolute self-import would be fragile.</p>
+<h1 id="openapi-swagger-and-dynamic-enum-injection">OpenAPI, Swagger, and dynamic enum injection<a class="headerlink" href="#openapi-swagger-and-dynamic-enum-injection" title="Permanent link">&para;</a></h1>
+<p>The Remote Config capability makes Swagger show <strong>live dropdowns</strong> of the allowed coordinate values —
+values that change at runtime as the poller refreshes them. This page explains how that works, starting
+from OpenAPI/Swagger basics, because the mechanism is "patch the generated schema," not a FastAPI
+feature.</p>
+<h2 id="openapi-vs-swagger-ui">OpenAPI vs Swagger UI<a class="headerlink" href="#openapi-vs-swagger-ui" title="Permanent link">&para;</a></h2>
+<p>Two different things people conflate:</p>
+<ul>
+<li><strong>OpenAPI</strong> is a <em>document</em> — a JSON (or YAML) description of your API: its paths, each method's
+  parameters / request body, and every shape described with <strong>JSON Schema</strong>. It's just data.</li>
+<li><strong>Swagger UI</strong> is a <em>renderer</em> — a JavaScript app that reads an OpenAPI document and draws the
+  interactive docs (the "Try it out" forms, dropdowns, the "Schemas" catalog at the bottom). It knows
+  nothing about your Python code; it only knows the JSON.</li>
+</ul>
+<p>FastAPI introspects your routes + Pydantic models and builds the OpenAPI dict via <code>get_openapi(...)</code>,
+caching it on the app:</p>
+<ul>
+<li><code>app.openapi()</code> — the callable that returns the document.</li>
+<li><code>app.openapi_schema</code> — the cache. Set it to <code>None</code> and the next <code>app.openapi()</code> rebuilds.</li>
+<li><code>/openapi.json</code> returns <code>app.openapi()</code>; Swagger UI at <code>/docs</code> fetches that and renders it.</li>
+</ul>
+<h2 id="the-shape-that-matters">The shape that matters<a class="headerlink" href="#the-shape-that-matters" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>{
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  &quot;paths&quot;: { &quot;/config&quot;: { &quot;get&quot;: {
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>      &quot;parameters&quot;: [ { &quot;name&quot;: &quot;region&quot;, &quot;in&quot;: &quot;query&quot;,
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>                        &quot;schema&quot;: { &quot;type&quot;: &quot;string&quot; } } ],       // query/path params, inline
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>      &quot;requestBody&quot;: { &quot;content&quot;: { &quot;application/json&quot;: {
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>                        &quot;schema&quot;: { &quot;$ref&quot;: &quot;#/components/schemas/DNSRecordCreate&quot; } } } } } } },
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>  &quot;components&quot;: { &quot;schemas&quot;: {                                     // every model, once, by name
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>      &quot;DNSRecordCreate&quot;: { &quot;properties&quot;: { &quot;metadata&quot;: { &quot;$ref&quot;: &quot;#/components/schemas/InfraMetadata&quot; } } },
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>      &quot;InfraMetadata&quot;:   { &quot;properties&quot;: { &quot;region&quot;: { &quot;anyOf&quot;: [{&quot;type&quot;:&quot;string&quot;},{&quot;type&quot;:&quot;null&quot;}] } } } } }
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>}
+</code></pre></div>
+<ul>
+<li><strong><code>enum</code></strong> is what Swagger turns into a <strong>dropdown</strong>. No <code>enum</code> → free-text box.</li>
+<li><strong>Query/path params</strong> are written <strong>inline</strong> under each operation's <code>parameters</code>.</li>
+<li><strong>Bodies (and response models)</strong> are <em>not</em> inlined: the schema is a <strong><code>$ref</code></strong> into the single shared
+  <code>components.schemas</code> entry, and models nest by <code>$ref</code>-ing each other.</li>
+<li><strong>Optional/nullable</strong> fields render as <code>{"anyOf": [{"type":"string"}, {"type":"null"}]}</code> — the string
+  type is in a <em>branch</em>, not at the top level.</li>
+</ul>
+<h2 id="why-we-post-process-the-document">Why we post-process the document<a class="headerlink" href="#why-we-post-process-the-document" title="Permanent link">&para;</a></h2>
+<p>The valid coordinate values are dynamic (the poller refreshes <code>LIVE_ALLOWED_*</code> at runtime). A normal
+Pydantic <code>Enum</code>/<code>Literal</code> is frozen at import, so it can't track them. Instead the library <strong>patches the
+generated OpenAPI document</strong> every time it's built, writing the current allowlist values in as <code>enum</code>.
+That's the injection.</p>
+<h2 id="the-mechanism-make_config_openapi">The mechanism (<code>make_config_openapi</code>)<a class="headerlink" href="#the-mechanism-make_config_openapi" title="Permanent link">&para;</a></h2>
+<p><code>enable_remote_config_api</code> installs it: <code>app.openapi = make_config_openapi(app, coordinate_paths)</code>.</p>
+<ul>
+<li><strong>Wrap, don't replace.</strong> It captures the previous <code>app.openapi</code> and calls it. This matters because
+  <code>general_create_app</code> already wrapped <code>app.openapi</code> to add the Bearer "Authorize" scheme; wrapping
+  composes (<code>enum wrapper → bearer wrapper → FastAPI</code>), replacing would drop the Authorize button.</li>
+<li><strong>Live values by reference.</strong> It captures the <code>LIVE_ALLOWED_*</code> sets; the poller mutates them in place,
+  so the captured references always see current values.</li>
+<li><strong>Regex path match.</strong> Each <code>coordinate_paths</code> entry is a regex <code>fullmatch</code>ed against every route path.</li>
+<li><strong><code>_inject</code></strong> is name-matched: only fields <em>named</em> after a coordinate (<code>space</code>/<code>network</code>/…) get an
+  <code>enum</code>, and only when that allowlist is non-empty. It places the enum <strong>inside the <code>anyOf</code> string
+  branch</strong> for Optional fields (where Swagger's model renderer looks) and top-level for flat ones.</li>
+<li><strong>Recursion.</strong> For bodies it descends through nested <code>$ref</code> components (so <code>DNSRecordCreate → metadata:
+  InfraMetadata → region</code> works), with a visited-set cycle guard.</li>
+<li><strong>Refresh.</strong> The poller nulls <code>app.openapi_schema</code> each cycle, so the next <code>/openapi.json</code> request
+  rebuilds + re-patches with the latest values — no restart.</li>
+<li><strong>Log.</strong> One INFO line names the routes that received values (once per change), which doubles as a
+  "did my <code>coordinate_paths</code> match?" check.</li>
+</ul>
+<h2 id="why-query-params-and-bodies-behave-differently-the-subtle-bit">Why query params and bodies behave differently (the subtle bit)<a class="headerlink" href="#why-query-params-and-bodies-behave-differently-the-subtle-bit" title="Permanent link">&para;</a></h2>
+<p>OpenAPI represents the two kinds of input differently, and it shows up in Swagger:</p>
+<ul>
+<li>A <strong>body / response model</strong> is a single object in <code>components.schemas</code>, referenced by <code>$ref</code>. The
+  "Try it out" body form <strong>and</strong> the bottom "Schemas" section both render that same object. Patch it once
+  → both show the enums.</li>
+<li><strong>Query params</strong> are <strong>inlined copies</strong> of each field into the operation's <code>parameters</code> list — there
+  is no shared component for "a bag of query params." Patching the inlined copy makes the dropdown work,
+  but the standalone <code>InfraMetadata</code> component (present because response models <code>$ref</code> it) is a
+  <em>different</em> object the params don't point to.</li>
+</ul>
+<p>So for query-param usage the injector patches the inlined params (dropdown works), and additionally
+patches the <strong>shared component</strong> for the dynamic models (<code>InfraMetadata</code> / <code>RequiredInfraMetadata</code>) so the
+"Schemas" section shows the options too. That component pass is scoped <strong>by name</strong> — the static
+<code>MetadataRequest</code> shares the field names but is intentionally not dynamic, so it's left untouched.</p>
+<h2 id="caveats">Caveats<a class="headerlink" href="#caveats" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Name-matched and additive.</strong> A field must be <em>named</em> after a coordinate to get a dropdown; a mistyped
+  path, non-coordinate field, or empty allowlist just yields nothing (hence the INFO log).</li>
+<li><strong><code>coordinate_paths</code> is <code>fullmatch</code>ed.</strong> Use <code>.*</code> for partials; a non-matching entry is a silent no-op.</li>
+<li><strong>Components are shared.</strong> Patching a component (body/response models, and the named dynamic-model pass)
+  shows the enums everywhere that component is <code>$ref</code>'d — one source of truth, not route-specific.</li>
+</ul>
+<h2 id="see-also">See also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../../how-to/enable-remote-config-api/">Enable the Remote Config API</a> — wiring, <code>coordinate_paths</code>, the
+  seed/poller.</li>
+<li><a href="../dynamic-config-validation/">Dynamic config validation</a> — where each coordinate check lives (model
+  validators vs a dependency).</li>
+</ul>
 
 
 
