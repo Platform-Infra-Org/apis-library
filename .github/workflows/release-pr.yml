@@ -91,15 +91,16 @@ jobs:
         id: ver
         run: |
           echo "version=$(uvx git-cliff --config cliff.toml --bumped-version)" >> "$GITHUB_OUTPUT"
-          # Release only if a version-bumping commit landed since the last tag. Docs-only (and the
-          # already-non-bumping chore/style/test) merges refresh the changelog's [Unreleased]
-          # section but don't cut a release — the docs/ tree isn't shipped in the wheel, so a
-          # docs-only release would republish a byte-identical artifact.
-          # ponytail: releasing-type list mirrors cliff.toml's bumping parsers; a footer-only
-          # "BREAKING CHANGE:" on a docs/chore commit won't trip this — mark such commits feat!/fix!.
+          # Release only if a version-bumping commit landed since the last tag. Docs-only and
+          # ci-only (plus the already-non-bumping chore/style/test) merges refresh the changelog's
+          # [Unreleased] section but don't cut a release — none of docs/ or CI config is shipped in
+          # the wheel, so such a release would republish a byte-identical artifact. `build` stays a
+          # releasing type (it can change dependencies/packaging that do ship).
+          # ponytail: releasing-type list mirrors cliff.toml's bumping parsers minus ci (excluded
+          # like docs); a footer-only "BREAKING CHANGE:" won't trip this — mark such commits feat!/fix!.
           latest="$(git describe --tags --abbrev=0 2>/dev/null || echo '')"
           range="${latest:+${latest}..}HEAD"
-          rel='^(feat|fix|perf|refactor|revert|ci|build)(\(.+\))?!?:|^[a-z]+(\(.+\))?!:'
+          rel='^(feat|fix|perf|refactor|revert|build)(\(.+\))?!?:|^[a-z]+(\(.+\))?!:'
           if git log "$range" --format='%s' | grep -qE "$rel"; then
             echo "release=true" >> "$GITHUB_OUTPUT"
           else
