@@ -6,7 +6,7 @@ validation -> 422 handler, and registers the background allowlist poller. The
 service is left to define its own routes against the returned provider.
 """
 
-from typing import Optional
+from typing import Optional, Sequence
 
 import httpx
 from fastapi import FastAPI
@@ -23,8 +23,7 @@ def enable_remote_config_api(
     *,
     base_url: str,
     remote_prefix: str,
-    config_path: str,
-    naming_path: str,
+    coordinate_paths: Sequence[str],
     cache_ttl: int = 60,
     serve_stale_on_error: bool = False,
     poll_interval: int = 5,
@@ -39,9 +38,12 @@ def enable_remote_config_api(
     base_url, remote_prefix:
         Where the upstream Config API lives and the route prefix under which it
         serves ``/projects``, ``/config`` and ``/naming``.
-    config_path, naming_path:
-        This service's own route paths whose coordinate query params get the live
-        ``enum`` dropdowns injected.
+    coordinate_paths:
+        Route paths whose coordinate fields get the live ``enum`` dropdowns injected.
+        Each entry is a **regex string** (``re.fullmatch`` against route paths), so a
+        plain path targets exactly itself (``["/config", "/naming"]``) and a pattern
+        can target a family of routes (``[r"/api/v\\d+/.*/(config|naming)"]``). Not
+        limited to two.
     settings:
         Package-side ``CONFIG_REMOTE_*`` settings driving the outbound auth method;
         defaults to a freshly-read [`ConfigRemoteSettings`][ConfigRemoteSettings].
@@ -85,24 +87,27 @@ def enable_remote_config_api(
 
     # Wrap the existing app.openapi (preserving any bearer-security scheme) with the
     # dynamic enum patcher, and translate escaped coordinate validation -> 422.
-    app.openapi = make_config_openapi(app, config_path=config_path, naming_path=naming_path)
+    app.openapi = make_config_openapi(app, coordinate_paths)
     install_coordinate_validation_error_handler(app)
 
-    if enable_polling:
-
-        async def _poll() -> None:
+    # Always seed the allowlists once at startup so validation + enum injection work even
+    # with polling off; when polling is on, keep refreshing after that first crawl.
+    async def _background() -> None:
+        if enable_polling:
             await provider.start_periodic_polling(app, interval_seconds=poll_interval)
+        else:
+            await provider.crawl_and_sync_keys(app)
 
-        registry = getattr(app.state, "async_background_tasks", None)
-        if registry is None:
-            # App not built by general_create_app: keep the registry available, but
-            # note the lifespan won't launch it -- the caller must drive polling.
-            app.state.async_background_tasks = []
-            registry = app.state.async_background_tasks
-            logger.warning(
-                "enable_remote_config_api: app has no general_create_app lifespan; "
-                "the allowlist poller was registered but will not auto-start."
-            )
-        registry.append(_poll)
+    registry = getattr(app.state, "async_background_tasks", None)
+    if registry is None:
+        # App not built by general_create_app: keep the registry available, but note the
+        # lifespan won't launch it -- the caller must seed/poll themselves.
+        app.state.async_background_tasks = []
+        registry = app.state.async_background_tasks
+        logger.warning(
+            "enable_remote_config_api: app has no general_create_app lifespan; the allowlist "
+            "task was registered but will not auto-start -- seed it yourself with crawl_and_sync_keys()."
+        )
+    registry.append(_background)
 
     return provider

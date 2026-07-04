@@ -18,8 +18,7 @@ provider = enable_remote_config_api(
     app,
     base_url="https://config-api.example.com",  # where the upstream lives
     remote_prefix="/api/v1",                     # upstream prefix serving /projects, /config, /naming, /coordinates
-    config_path="/config",                       # your route whose coordinate params get enum dropdowns
-    naming_path="/naming",
+    coordinate_paths=["/config", "/naming"],     # your routes whose coordinate params get enum dropdowns
 )
 ```
 
@@ -50,6 +49,12 @@ async def get_coordinates_tree():
     return await provider.get_coordinate_tree()
 ```
 
+Each route listed in `coordinate_paths` gets the live `enum` dropdowns injected into its coordinate
+fields **whether they arrive as query/path parameters** (a `Depends()` model, as above) **or inside a
+JSON request body** (the model as a plain body parameter). For a body model the enums are written onto
+the referenced component schema, so a model shared by several routes is decorated once. Enum injection
+matches by field name, so name the field after its coordinate (`region`, `island`, …).
+
 `get_coordinate_catalog` proxies the upstream's `/coordinates` route and returns a
 [`CoordinateCatalogResponse`](../reference/api/config-api.md#models-allowlists)-shaped dict — the
 sorted set of values for each of `space` / `network` / `region` / `island` / `environment`, plus
@@ -63,12 +68,54 @@ hierarchy (`coordinates`: space → network → region → island → sorted env
 ## What it sets up
 
 - A `RemoteConfigProvider` (returned) for resolving config / naming / projects.
-- A **background poller** (registered on `general_create_app`'s lifespan) that refreshes the live
-  coordinate allowlists from the upstream every `poll_interval` seconds, hot-patching both the
-  Pydantic validators and the OpenAPI `enum` dropdowns. Pass `enable_polling=False` to drive it
-  yourself.
+- A **startup seed + background poller** (registered on `general_create_app`'s lifespan). The
+  allowlists are fetched **once at startup regardless of `enable_polling`**; with polling on they're
+  then refreshed every `poll_interval` seconds, hot-patching both the Pydantic validators and the
+  OpenAPI `enum` dropdowns. Pass `enable_polling=False` for a one-time snapshot (seed only, no refresh).
 - A `pydantic.ValidationError → 422` handler so a coordinate outside its allowlist returns the same
   shape as any other invalid query parameter.
+- **Hierarchical validation.** Beyond the flat per-level allowlists, the coordinate models also
+  enforce the live **coordinate tree** (`/coordinates/tree`): a child must sit under its selected
+  parent — e.g. an `island` is only valid within the chosen `region`. This is a submit-time `422`,
+  not a Swagger dropdown (OpenAPI can't express dependent enums); expose `/coordinates/tree` if a
+  frontend needs cascading selects. It's permissive until the tree is populated and for partial
+  (omitted-coordinate) selections.
+
+## Seeded once, then refreshed
+
+The allowlists and coordinate tree are fetched **once at startup even with `enable_polling=False`**, so
+validation and enum dropdowns work off that snapshot; polling only keeps them fresh afterward. Two
+caveats:
+
+- Before that first fetch completes — a brief window at startup — the allowlists are empty, so
+  validation is permissive (accepts any value) and no dropdowns are injected. This is intentional
+  (`InfraMetadata` doesn't gate on an empty allowlist).
+- If the app **isn't** built by `general_create_app` (nothing launches the registered task), the seed
+  never runs automatically. Drive it yourself:
+
+  ```python
+  await provider.crawl_and_sync_keys(app)   # populate the allowlists + tree once
+  ```
+
+## Matching routes with `coordinate_paths`
+
+Each `coordinate_paths` entry is a **regex string**, matched with `re.fullmatch` against every route
+path. A plain path is just a literal regex that matches only itself (so `["/config", "/naming"]` works
+exactly as you'd expect), but you can also match a **family of routes** with one entry:
+
+```python
+coordinate_paths=[r"/api/v\d+/infra/(config|naming)"]   # one entry, many/versioned routes
+```
+
+Because it's a full-path match, use `.*` for partials (`r"/api/v1/infra/.*"`); escape regex
+metacharacters (`.`, `+`, …) if you need them literal (rare in paths); FastAPI path params like `{id}`
+match literally. An invalid regex raises at wire-up.
+
+Enum injection is otherwise **name-matched and additive**: a matched route that declares only some
+coordinates gets dropdowns for just those — there's no "all six required" rule and no error, and any
+non-coordinate parameters are left untouched. The flip side is that mistakes fail quietly: a pattern
+that matches no route, or a field named differently from its coordinate, simply gets no dropdown (no
+warning). Name coordinate fields after their coordinate (`region`, `island`, …).
 
 ## Serve stale on upstream failure
 
@@ -121,3 +168,9 @@ provider = enable_remote_config_api(app, ..., auth=StaticBearerAuth("token"))
 
 - [API reference: Remote Config API](../reference/api/config-api.md)
 - [Configuration reference](../reference/configuration.md)
+- [Constrain a field by resolved config](constrain-field-by-config.md) — validate a field against the
+  config resolved for the request's coordinates.
+- [Dynamic config validation](../explanation/dynamic-config-validation.md) — where each check lives and
+  why.
+- [OpenAPI & Swagger injection](../explanation/openapi-swagger-injection.md) — how the live enum
+  dropdowns get into Swagger.

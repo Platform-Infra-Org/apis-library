@@ -93,8 +93,7 @@ class TestWiring:
             app,
             base_url=UPSTREAM_BASE,
             remote_prefix=REMOTE_PREFIX,
-            config_path=CONFIG_PATH,
-            naming_path=NAMING_PATH,
+            coordinate_paths=[CONFIG_PATH, NAMING_PATH],
             auth=sso_auth(SSO_CONFIG),
         )
         # Poller appended to the lifespan-read registry.
@@ -110,8 +109,7 @@ class TestWiring:
             app,
             base_url=UPSTREAM_BASE,
             remote_prefix=REMOTE_PREFIX,
-            config_path=CONFIG_PATH,
-            naming_path=NAMING_PATH,
+            coordinate_paths=[CONFIG_PATH, NAMING_PATH],
             settings=ConfigRemoteSettings(CONFIG_REMOTE_AUTH_METHOD="none"),
             enable_polling=False,
         )
@@ -123,19 +121,40 @@ class TestWiring:
         params = {p["name"]: p for p in schema["paths"][CONFIG_PATH]["get"]["parameters"]}
         assert params["network"]["schema"]["enum"] == ["backbone-net", "edge-net"]
 
-    def test_enable_polling_false_registers_no_task(self):
+    def test_enable_polling_false_still_registers_a_seed_task(self):
+        # Even with polling off, one background task is registered to seed the allowlists once.
         app = self._app()
         before = len(app.state.async_background_tasks)
         enable_remote_config_api(
             app,
             base_url=UPSTREAM_BASE,
             remote_prefix=REMOTE_PREFIX,
-            config_path=CONFIG_PATH,
-            naming_path=NAMING_PATH,
+            coordinate_paths=[CONFIG_PATH, NAMING_PATH],
             settings=ConfigRemoteSettings(CONFIG_REMOTE_AUTH_METHOD="none"),
             enable_polling=False,
         )
-        assert len(app.state.async_background_tasks) == before
+        assert len(app.state.async_background_tasks) == before + 1
+
+    @pytest.mark.asyncio
+    @respx.mock(assert_all_called=False)
+    async def test_polling_false_seed_task_populates_allowlists(self, respx_mock):
+        register_upstream_routes(respx_mock, ALL_SEED_DOCS, UPSTREAM_BASE, REMOTE_PREFIX)
+        app = self._app()
+        enable_remote_config_api(
+            app,
+            base_url=UPSTREAM_BASE,
+            remote_prefix=REMOTE_PREFIX,
+            coordinate_paths=[CONFIG_PATH, NAMING_PATH],
+            settings=ConfigRemoteSettings(CONFIG_REMOTE_AUTH_METHOD="none"),
+            enable_polling=False,
+        )
+        # Running the one-shot seed task (as the lifespan would) fills the allowlists + tree.
+        await app.state.async_background_tasks[-1]()
+        assert models.LIVE_ALLOWED_SPACES == {"core-infrastructure"}
+        assert models.LIVE_ALLOWED_NETWORKS == {"backbone-net"}
+        assert models.LIVE_COORDINATE_TREE["coordinates"]["core-infrastructure"]["backbone-net"][
+            "us-east"
+        ]["compute-island-a"] == ["production", "staging"]
 
 
 # --------------------------------------------------------------------------- #

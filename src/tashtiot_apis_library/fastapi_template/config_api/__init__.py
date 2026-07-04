@@ -20,6 +20,7 @@ from .models import (
     LIVE_ALLOWED_PROJECTS,
     LIVE_ALLOWED_REGIONS,
     LIVE_ALLOWED_SPACES,
+    LIVE_COORDINATE_TREE,
     AllProjectsResponse,
     ConfigResolutionResponse,
     CoordinateCatalogResponse,
@@ -51,4 +52,5 @@ __all__ = [
     "LIVE_ALLOWED_ENVIRONMENTS",
     "LIVE_ALLOWED_SPACES",
     "LIVE_ALLOWED_PROJECTS",
+    "LIVE_COORDINATE_TREE",
 ]

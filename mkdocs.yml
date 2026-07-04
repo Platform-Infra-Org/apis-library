@@ -88,6 +88,7 @@ nav:
       - Verify a token outside a request: how-to/verify-a-token.md
       - Call other services with SSO: how-to/call-services-with-sso.md
       - Enable the Remote Config API: how-to/enable-remote-config-api.md
+      - Constrain a field by resolved config: how-to/constrain-field-by-config.md
       - Generate dev auth material: how-to/generate-auth-material.md
       - Add a new connector: how-to/add-a-connector.md
       - Extend the FastAPI template: how-to/extend-the-template.md
@@ -107,6 +108,8 @@ nav:
       - explanation/index.md
       - Architecture: explanation/architecture.md
       - Authentication design: explanation/authentication.md
+      - Dynamic config validation: explanation/dynamic-config-validation.md
+      - OpenAPI & Swagger injection: explanation/openapi-swagger-injection.md
       - Logging: explanation/logging.md
   - Contributing:
       - contributing/index.md

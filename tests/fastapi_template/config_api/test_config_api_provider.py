@@ -274,7 +274,9 @@ class TestCrawlAndSyncKeys:
         assert models.LIVE_ALLOWED_REGIONS == {"us-east"}
         assert models.LIVE_ALLOWED_ISLANDS == {"compute-island-a"}
         assert models.LIVE_ALLOWED_ENVIRONMENTS == {"staging", "production"}
-        assert models.LIVE_ALLOWED_SPACES == {"core-infrastructure", "tenant-alpha"}
+        # Sourced from the /coordinates catalog (config tree), which only has
+        # `core-infrastructure` — `tenant-alpha` exists only in the naming doc.
+        assert models.LIVE_ALLOWED_SPACES == {"core-infrastructure"}
         assert models.LIVE_ALLOWED_PROJECTS == {
             "payment-gateway",
             "authentication-service",
@@ -283,6 +285,11 @@ class TestCrawlAndSyncKeys:
         }
         assert id(models.LIVE_ALLOWED_NETWORKS) == net_set_id
         assert id(models.LIVE_ALLOWED_PROJECTS) == proj_set_id
+        # The nested coordinate tree is refreshed from /coordinates/tree for the
+        # hierarchical (parent/child) validator.
+        assert models.LIVE_COORDINATE_TREE["coordinates"]["core-infrastructure"]["backbone-net"][
+            "us-east"
+        ]["compute-island-a"] == ["production", "staging"]
         assert app.openapi_schema is None
 
     @pytest.mark.asyncio
@@ -297,7 +304,7 @@ class TestCrawlAndSyncKeys:
     @respx.mock(assert_all_called=False)
     async def test_exception_is_swallowed(self, respx_mock):
         register_token_route(respx_mock, TOKEN_URL)
-        respx_mock.get(f"{UPSTREAM_BASE}{REMOTE_PREFIX}/naming").mock(
+        respx_mock.get(f"{UPSTREAM_BASE}{REMOTE_PREFIX}/coordinates").mock(
             return_value=httpx.Response(500, text="boom")
         )
         prov = make_provider()

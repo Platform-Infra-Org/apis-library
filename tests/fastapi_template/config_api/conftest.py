@@ -57,9 +57,11 @@ def reset_live_allowlists():
     ]
     for s in sets:
         s.clear()
+    models.LIVE_COORDINATE_TREE.clear()
     yield
     for s in sets:
         s.clear()
+    models.LIVE_COORDINATE_TREE.clear()
 
 
 @pytest.fixture(autouse=True)

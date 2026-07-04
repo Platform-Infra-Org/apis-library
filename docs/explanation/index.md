@@ -9,5 +9,9 @@ decisions, the structure, and the trade-offs. Read these when you want context, 
   pattern, and the public-surface / `_internal` boundary.
 - **[Authentication design](authentication.md)** — the dual-gate, the three verification modes plus
   OIDC discovery, inbound vs outbound, and why PyJWT is imported lazily.
+- **[Dynamic config validation](dynamic-config-validation.md)** — where each coordinate/config check
+  lives, and why config-dependent fields are validated in a dependency, not a Pydantic validator.
+- **[OpenAPI & Swagger injection](openapi-swagger-injection.md)** — OpenAPI/Swagger basics and how the
+  library patches the generated schema so Swagger shows live coordinate dropdowns.
 - **[Logging](logging.md)** — how a single global Loguru logger is configured once at import and
   shared everywhere.
