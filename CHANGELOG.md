@@ -5,6 +5,20 @@ All notable changes to this project are documented here. The format is based on
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). The version is derived from git tags by
 setuptools-scm.
 
+## [Unreleased]
+
+### CI
+
+- Split build/ci changelog groups and exclude ci from releasing
+## [1.1.1] - 2026-07-02
+
+### Documentation
+
+- Add OIDC/JWKS how-to and SSO client-scope setup
+
+### CI
+
+- Skip release for docs-only merges, refresh unreleased changelog
 ## [1.1.0] - 2026-06-30
 
 ### Added
@@ -57,12 +71,15 @@ setuptools-scm.
 - Fix broken config-api anchor link + validate anchors
 - Document GitHub Actions release process in MAINTAINERS.md
 
-### Build & CI
+### Build
 
 - Configure Ruff, ty, and uv (no lockfile) + docs deps
-- Enforce Ruff/ty/pytest via pre-commit and Woodpecker
 - Remove redundant MANIFEST.in
 - Require Python >=3.10 and use scoped mkdocstrings cross-references
+
+### CI
+
+- Enforce Ruff/ty/pytest via pre-commit and Woodpecker
 - Add git-cliff release automation and GitHub Actions workflows
 - Deploy docs to Pages via GitHub Actions instead of gh-deploy
 - Run checks via uv-managed venv instead of --system

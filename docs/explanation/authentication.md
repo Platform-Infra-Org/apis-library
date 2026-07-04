@@ -77,5 +77,6 @@ used.
 ## See also
 
 - [Secure your API](../tutorials/secure-your-api.md) — the inbound side, hands-on.
+- [Secure an API with OIDC & JWKS](../how-to/secure-with-oidc-jwks.md) — the production inbound path against the platform SSO.
 - [Call other services with SSO](../how-to/call-services-with-sso.md) — the outbound side.
 - [Configuration](../reference/configuration.md) — every `AUTH_*` / `AUTH_SSO_*` variable.

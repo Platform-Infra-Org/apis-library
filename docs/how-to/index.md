@@ -15,6 +15,9 @@ assuming you already know roughly what you want. If you're new, start with the
 
 ## Authentication
 
+- **[Secure an API with OIDC & JWKS](secure-with-oidc-jwks.md)** — verify platform-SSO tokens in
+  JWKS mode: what to request from the SSO team, configure inbound verification, and how callers get a
+  token.
 - **[Verify a token outside a request](verify-a-token.md)** — check a JWT in a worker or script.
 - **[Call other services with SSO](call-services-with-sso.md)** — attach auto-refreshing
   OAuth2 `client_credentials` tokens to outbound calls.

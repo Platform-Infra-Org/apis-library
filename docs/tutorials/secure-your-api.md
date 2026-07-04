@@ -94,6 +94,8 @@ bearer token.
 
 ## Next steps
 
+- **[Secure an API with OIDC & JWKS](../how-to/secure-with-oidc-jwks.md)** — the production path:
+  verify platform-SSO tokens and what to set up in the SSO.
 - **[Verify a token outside a request](../how-to/verify-a-token.md)** — for workers and scripts.
 - **[Call other services with SSO](../how-to/call-services-with-sso.md)** — the outbound side.
 - **[Authentication design](../explanation/authentication.md)** — the verification modes (HS256 /
