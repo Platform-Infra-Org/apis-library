@@ -5,15 +5,30 @@ All notable changes to this project are documented here. The format is based on
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). The version is derived from git tags by
 setuptools-scm.
 
-## [Unreleased]
+## [1.1.2] - 2026-07-04
 
 ### CI
 
 - Split build/ci changelog groups and exclude ci from releasing
 ## [1.1.1] - 2026-07-02
 
+### Added
+
+- Coordinate_paths list, request-body enums, catalog-sourced allowlists
+- Hierarchical coordinate validation against the live tree
+- Seed the allowlists once at startup regardless of polling
+- Coordinate_paths entries are regex strings
+- InfraOperationRequest wrappers + keep aiocache import lazy
+- Log the routes that receive coordinate-enum injection
+
+### Fixed
+
+- Inject coordinate enums into nested body sub-models
+- Patch shared coordinate-model components for query-param usage
+
 ### Documentation
 
+- Document app-side config-dependent field validation
 - Add OIDC/JWKS how-to and SSO client-scope setup
 
 ### CI
