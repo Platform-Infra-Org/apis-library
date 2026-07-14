@@ -29,10 +29,11 @@ class Git:
         ssh_port: int = 7995,
     ) -> None:
         logger.debug(
-            "Initialising Git service with Bitbucket Server: base_url={}, project_key={}, repo_slug={}",
-            base_url,
-            project_key,
+            "Initialising Git service with Bitbucket Server: repo_slug={}, default_ref={}, ssh_key_file_path={}, ssh_port={}",
             repo_slug,
+            default_ref,
+            ssh_key_file_path,
+            ssh_port,
         )
         self.client = GitClient(
             base_url,
