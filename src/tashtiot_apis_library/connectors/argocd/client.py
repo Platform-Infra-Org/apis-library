@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from typing import Any, Mapping, Union
+from typing import Any, Mapping, Optional, Union
 
 from pydantic import BaseModel
 
@@ -68,6 +68,41 @@ class ArgoCDClient:
         response_json = response.json()
         _handle_response(response_json, response.status_code)
         return ArgoApplication.model_validate(response_json)
+
+    async def create_app(
+        self,
+        app_definition: Union[ArgoApplication, Mapping[str, Any], BaseModel],
+        validate: bool = True,
+    ) -> ArgoApplication:
+        uri = "/api/v1/applications"
+
+        if isinstance(app_definition, BaseModel):
+            payload = app_definition.model_dump(exclude_none=True)
+        else:
+            payload = dict(app_definition)
+
+        response = await self.api.post(
+            uri, params={"validate": str(validate).lower()}, json=payload
+        )
+        response_json = response.json()
+        _handle_response(response_json, response.status_code)
+        return ArgoApplication.model_validate(response_json)
+
+    async def delete_app(
+        self,
+        app_name: str,
+        app_namespace: Optional[str] = None,
+        cascade: bool = True,
+    ) -> None:
+        uri = f"/api/v1/applications/{app_name}"
+
+        params: dict[str, Any] = {"cascade": str(cascade).lower()}
+        if app_namespace:
+            params["appNamespace"] = app_namespace
+
+        response = await self.api.delete(uri, params=params)
+        response_json = response.json()
+        _handle_response(response_json, response.status_code)
 
     async def patch_app(
         self,

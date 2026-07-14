@@ -260,6 +260,25 @@ class ArgoCD:
         logger.info(f"Syncing {app_name}")
         await self.client.sync_app(app_name)
 
+    async def create_app(
+        self,
+        app_definition: Union[ArgoApplication, Mapping[str, object], BaseModel],
+        validate: bool = True,
+    ) -> ArgoApplication:
+        """Create a new Argo CD Application from a full manifest (metadata + spec)."""
+        logger.info("Creating ArgoCD application")
+        return await self.client.create_app(app_definition, validate=validate)
+
+    async def delete_app(
+        self,
+        app_name: str,
+        app_namespace: Optional[str] = None,
+        cascade: bool = True,
+    ) -> None:
+        """Delete an Argo CD Application."""
+        logger.info(f"Deleting ArgoCD application {app_name}")
+        await self.client.delete_app(app_name, app_namespace=app_namespace, cascade=cascade)
+
     async def get_app_status(self, app_name: str) -> ArgoOperationResponse:
         logger.info(f"Getting status for {app_name}")
         response = await self.client.get_app(app_name)
