@@ -21,7 +21,11 @@ APP_MANIFEST = {
     "metadata": {"name": APP_NAME, "namespace": "argocd"},
     "spec": {
         "project": "default",
-        "source": {"repoURL": "https://example.com/repo.git", "targetRevision": "HEAD", "path": "."},
+        "source": {
+            "repoURL": "https://example.com/repo.git",
+            "targetRevision": "HEAD",
+            "path": ".",
+        },
         "destination": {"server": "https://kubernetes.default.svc", "namespace": "default"},
     },
 }
