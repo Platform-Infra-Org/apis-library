@@ -79,6 +79,10 @@ def _server_browse_endpoint(project_key: str, repo_slug: str, path: str) -> str:
     return f"/projects/{project_key}/repos/{repo_slug}/browse/{path.lstrip('/')}"
 
 
+def _server_raw_endpoint(project_key: str, repo_slug: str, path: str) -> str:
+    return f"/projects/{project_key}/repos/{repo_slug}/raw/{path.lstrip('/')}"
+
+
 class GitClient:
     """Bitbucket Server API client."""
 
@@ -117,10 +121,12 @@ class GitClient:
         meta_data = _safe_json(meta_response)
         _handle_response(meta_data, meta_response.status_code)
 
-        # Get raw content
-        raw_params = {"at": ref, "raw": 1}
+        # Get raw content. Bitbucket Server's `browse` endpoint ignores `raw=1` (it always
+        # returns the `{"lines": [...]}` JSON wrapper) and returns 406 for a non-JSON Accept
+        # header on that endpoint; the dedicated `raw` endpoint is the real way to fetch bytes.
+        raw_endpoint = _server_raw_endpoint(self.project_key, self.repo_slug, path)
         raw_response = await self.api.get(
-            endpoint, params=raw_params, headers={"Accept": "application/octet-stream"}
+            raw_endpoint, params={"at": ref}, headers={"Accept": "application/octet-stream"}
         )
         _handle_response(_safe_json(raw_response), raw_response.status_code)
         content_bytes = raw_response.content
