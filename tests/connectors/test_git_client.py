@@ -53,9 +53,9 @@ async def test_get_file_fetches_content_from_dedicated_raw_endpoint(client):
 
     assert browse_route.called
     assert raw_route.called
-    # Bitbucket Server's `browse` endpoint doesn't support `raw=1`/octet-stream content
-    # negotiation (returns 406) — content must come from the dedicated `raw` endpoint, not
-    # `browse` with a `raw=1` query param.
+    # Bitbucket Server's `browse` endpoint doesn't support `raw=1` / octet-stream.
+    # Content must come from the dedicated `raw` endpoint, not `browse?raw=1`.
+    # (The endpoint returns 406 on non-JSON Accept headers.)
     assert "raw=1" not in str(browse_route.calls.last.request.url)
     assert base64.b64decode(result.content) == b"name: acme\n"
 
