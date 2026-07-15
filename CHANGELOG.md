@@ -5,6 +5,11 @@ All notable changes to this project are documented here. The format is based on
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). The version is derived from git tags by
 setuptools-scm.
 
+## [1.1.3] - 2026-07-15
+
+### Fixed
+
+- Fetch raw file content from the dedicated raw endpoint, not browse?raw=1 (#13)
 ## [1.1.2] - 2026-07-04
 
 ### CI
