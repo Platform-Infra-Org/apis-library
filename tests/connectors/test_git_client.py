@@ -1,4 +1,4 @@
-"""Tests for GitClient's file-content fetch, mocking the HTTP layer with respx."""
+"""Tests for GitClient's file-content fetch and ssh_host construction, mocking the HTTP layer with respx."""
 
 import base64
 
@@ -14,6 +14,8 @@ PROJECT_KEY = "PROJ"
 REPO_SLUG = "repo"
 PATH = "consumers/acme/config.yaml"
 
+SSH_BASE_URL = "https://bitbucket.example.com/rest/api/1.0"
+
 
 @pytest.fixture
 def client():
@@ -25,6 +27,17 @@ def client():
         repo_slug=REPO_SLUG,
         default_ref="master",
         ssh_key_file_path="/etc/.ssh/private_key",
+    )
+
+
+def _client(**kwargs) -> GitClient:
+    return GitClient(
+        SSH_BASE_URL,
+        "svc-account",
+        "token",
+        "PROJECT",
+        "repo",
+        **kwargs,
     )
 
 
@@ -74,3 +87,13 @@ async def test_get_file_raises_on_raw_endpoint_error(client):
         await client.get_file(PATH, ref="master")
 
     assert exc_info.value.status_code == 404
+
+
+def test_ssh_host_defaults_to_port_7995():
+    client = _client()
+    assert client.ssh_host == "bitbucket.example.com:7995"
+
+
+def test_ssh_host_honours_ssh_port_override():
+    client = _client(ssh_port=7999)
+    assert client.ssh_host == "bitbucket.example.com:7999"
