@@ -32,11 +32,11 @@ def client():
 
 def _client(**kwargs) -> GitClient:
     return GitClient(
-        SSH_BASE_URL,
-        "svc-account",
-        "token",
-        "PROJECT",
-        "repo",
+        base_url=SSH_BASE_URL,
+        username_or_email="svc-account",
+        token="token",
+        project_key="PROJECT",
+        repo_slug="repo",
         **kwargs,
     )
 
