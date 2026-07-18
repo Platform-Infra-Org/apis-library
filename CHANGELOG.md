@@ -5,6 +5,11 @@ All notable changes to this project are documented here. The format is based on
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). The version is derived from git tags by
 setuptools-scm.
 
+## [1.2.1] - 2026-07-18
+
+### Fixed
+
+- Allow overriding the hardcoded SSH port (7995) (#12)
 ## [1.2.0] - 2026-07-18
 
 ### Added
