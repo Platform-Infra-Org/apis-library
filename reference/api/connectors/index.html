@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -29,7 +29,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -1391,6 +1391,28 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.connectors.argocd.service.ArgoCD.create_app" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        create_app
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.connectors.argocd.service.ArgoCD.delete_app" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        delete_app
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#tashtiot_apis_library.connectors.argocd.service.ArgoCD.get_app_status" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1782,6 +1804,28 @@
     <span class="md-ellipsis">
       
         get_app
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.connectors.argocd.client.ArgoCDClient.create_app" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        create_app
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.connectors.argocd.client.ArgoCDClient.delete_app" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        delete_app
       
     </span>
   </a>
@@ -4584,6 +4628,28 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.connectors.argocd.service.ArgoCD.create_app" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        create_app
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.connectors.argocd.service.ArgoCD.delete_app" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        delete_app
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#tashtiot_apis_library.connectors.argocd.service.ArgoCD.get_app_status" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -4975,6 +5041,28 @@
     <span class="md-ellipsis">
       
         get_app
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.connectors.argocd.client.ArgoCDClient.create_app" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        create_app
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.connectors.argocd.client.ArgoCDClient.delete_app" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        delete_app
       
     </span>
   </a>
@@ -8049,6 +8137,60 @@ Returns the latest Application object when a change is detected.</p>
 <div class="doc doc-object doc-function">
 
 
+<h3 id="tashtiot_apis_library.connectors.argocd.service.ArgoCD.create_app" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">create_app</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.connectors.argocd.service.ArgoCD.create_app" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">create_app</span><span class="p">(</span><span class="n">app_definition</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ArgoApplication</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">],</span> <span class="n">BaseModel</span><span class="p">],</span> <span class="n">validate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">upsert</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ArgoApplication</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Create a new Argo CD Application from a full manifest (metadata + spec).</p>
+<p>Pass <code>wait=True</code> to block until the created Application is visible via
+<code>wait_for_app_creation</code>, guarding against eventual consistency right after creation.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="tashtiot_apis_library.connectors.argocd.service.ArgoCD.delete_app" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">delete_app</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.connectors.argocd.service.ArgoCD.delete_app" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">delete_app</span><span class="p">(</span><span class="n">app_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">app_namespace</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">cascade</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Delete an Argo CD Application.</p>
+<p>Argo CD's DELETE returns as soon as the delete is accepted; finalizers tear down the
+Application's resources in the background afterward, so a returned <code>delete_app</code> does not
+mean the app is actually gone. Pass <code>wait=True</code> to block until <code>wait_for_app_deletion</code>
+confirms it's gone — required before recreating an Application under the same name.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
 <h3 id="tashtiot_apis_library.connectors.argocd.service.ArgoCD.get_app_status" class="doc doc-heading">
             <span class="doc doc-object-name doc-function-name">get_app_status</span>
 
@@ -9253,6 +9395,50 @@ service helpers.</p>
 
 <a href="#tashtiot_apis_library.connectors.argocd.client.ArgoCDClient.get_app" class="headerlink" title="Permanent link">&para;</a></h3>
 <div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">get_app</span><span class="p">(</span><span class="n">app_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ArgoApplication</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="tashtiot_apis_library.connectors.argocd.client.ArgoCDClient.create_app" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">create_app</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.connectors.argocd.client.ArgoCDClient.create_app" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">create_app</span><span class="p">(</span><span class="n">app_definition</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ArgoApplication</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">BaseModel</span><span class="p">],</span> <span class="n">validate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">upsert</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ArgoApplication</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="tashtiot_apis_library.connectors.argocd.client.ArgoCDClient.delete_app" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">delete_app</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.connectors.argocd.client.ArgoCDClient.delete_app" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">delete_app</span><span class="p">(</span><span class="n">app_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">app_namespace</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">cascade</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -13821,7 +14007,7 @@ per-connector models below).</p>
       <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.indexes", "content.code.copy", "content.code.annotate", "toc.follow"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>
