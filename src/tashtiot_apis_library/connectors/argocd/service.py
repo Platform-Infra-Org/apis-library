@@ -36,6 +36,23 @@ class _AppFingerprint:
     history_len: int
 
 
+def _extract_app_name(
+    app_definition: Union[ArgoApplication, Mapping[str, object], BaseModel],
+) -> Optional[str]:
+    """Best-effort extraction of an app's name from its manifest, for logging."""
+    if isinstance(app_definition, ArgoApplication):
+        metadata = app_definition.metadata or {}
+    elif isinstance(app_definition, BaseModel):
+        metadata = getattr(app_definition, "metadata", None) or {}
+    elif isinstance(app_definition, Mapping):
+        metadata = app_definition.get("metadata") or {}
+    else:
+        metadata = {}
+
+    name = metadata.get("name") if isinstance(metadata, Mapping) else None
+    return str(name) if name else None
+
+
 def _load_status(
     status: Optional[Union[ArgoApplicationStatus, Mapping[str, object]]],
 ) -> ArgoApplicationStatus:
@@ -264,20 +281,40 @@ class ArgoCD:
         self,
         app_definition: Union[ArgoApplication, Mapping[str, object], BaseModel],
         validate: bool = True,
+        upsert: bool = False,
+        wait: bool = False,
     ) -> ArgoApplication:
-        """Create a new Argo CD Application from a full manifest (metadata + spec)."""
-        logger.info("Creating ArgoCD application")
-        return await self.client.create_app(app_definition, validate=validate)
+        """Create a new Argo CD Application from a full manifest (metadata + spec).
+
+        Pass `wait=True` to block until the created Application is visible via
+        `wait_for_app_creation`, guarding against eventual consistency right after creation.
+        """
+        app_name = _extract_app_name(app_definition)
+        logger.info(f"Creating ArgoCD application {app_name or '<unnamed>'}")
+        result = await self.client.create_app(app_definition, validate=validate, upsert=upsert)
+        if wait:
+            created_name = (result.metadata or {}).get("name") if result.metadata else app_name
+            await self.wait_for_app_creation(created_name or app_name)
+        return result
 
     async def delete_app(
         self,
         app_name: str,
         app_namespace: Optional[str] = None,
         cascade: bool = True,
+        wait: bool = False,
     ) -> None:
-        """Delete an Argo CD Application."""
+        """Delete an Argo CD Application.
+
+        Argo CD's DELETE returns as soon as the delete is accepted; finalizers tear down the
+        Application's resources in the background afterward, so a returned `delete_app` does not
+        mean the app is actually gone. Pass `wait=True` to block until `wait_for_app_deletion`
+        confirms it's gone — required before recreating an Application under the same name.
+        """
         logger.info(f"Deleting ArgoCD application {app_name}")
         await self.client.delete_app(app_name, app_namespace=app_namespace, cascade=cascade)
+        if wait:
+            await self.wait_for_app_deletion(app_name)
 
     async def get_app_status(self, app_name: str) -> ArgoOperationResponse:
         logger.info(f"Getting status for {app_name}")

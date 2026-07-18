@@ -1,10 +1,13 @@
 """Tests for ArgoCD Application lifecycle (create/delete), mocking HTTP with respx."""
 
+import json
+
 import httpx
 import pytest
 import respx
 
 from tashtiot_apis_library.connectors.argocd.client import ArgoCDClient
+from tashtiot_apis_library.connectors.argocd.models import ArgoApplication
 from tashtiot_apis_library.connectors.errors import ArgoCDError
 
 BASE_URL = "https://example.com"
@@ -43,19 +46,50 @@ async def test_create_app_posts_manifest_to_applications_endpoint(client):
     assert route.called
     request = route.calls.last.request
     assert request.url.params["validate"] == "false"
+    assert json.loads(request.content) == APP_MANIFEST
     assert result.metadata["name"] == APP_NAME
 
 
 @pytest.mark.asyncio
 @respx.mock
-async def test_create_app_defaults_validate_true(client):
+async def test_create_app_accepts_basemodel_instance(client):
+    """Passing an ArgoApplication (a BaseModel) exercises the model_dump payload branch."""
+    route = respx.post(f"{BASE_URL}/api/v1/applications").mock(
+        return_value=httpx.Response(200, json=APP_MANIFEST)
+    )
+    app_definition = ArgoApplication.model_validate(APP_MANIFEST)
+
+    result = await client.create_app(app_definition, validate=False)
+
+    request = route.calls.last.request
+    assert json.loads(request.content) == app_definition.model_dump(exclude_none=True)
+    assert result.metadata["name"] == APP_NAME
+
+
+@pytest.mark.asyncio
+@respx.mock
+async def test_create_app_defaults_validate_true_and_upsert_false(client):
     route = respx.post(f"{BASE_URL}/api/v1/applications").mock(
         return_value=httpx.Response(200, json=APP_MANIFEST)
     )
 
     await client.create_app(APP_MANIFEST)
 
-    assert route.calls.last.request.url.params["validate"] == "true"
+    params = route.calls.last.request.url.params
+    assert params["validate"] == "true"
+    assert params["upsert"] == "false"
+
+
+@pytest.mark.asyncio
+@respx.mock
+async def test_create_app_passes_upsert_true(client):
+    route = respx.post(f"{BASE_URL}/api/v1/applications").mock(
+        return_value=httpx.Response(200, json=APP_MANIFEST)
+    )
+
+    await client.create_app(APP_MANIFEST, upsert=True)
+
+    assert route.calls.last.request.url.params["upsert"] == "true"
 
 
 @pytest.mark.asyncio
@@ -111,3 +145,14 @@ async def test_delete_app_raises_on_error(client):
         await client.delete_app(APP_NAME)
 
     assert exc_info.value.status_code == 403
+
+
+@pytest.mark.asyncio
+@respx.mock
+async def test_delete_app_handles_empty_response_body(client):
+    """Argo CD can respond to a delete with an empty body; this must not raise on .json()."""
+    respx.delete(f"{BASE_URL}/api/v1/applications/{APP_NAME}").mock(
+        return_value=httpx.Response(200, content=b"")
+    )
+
+    await client.delete_app(APP_NAME)
