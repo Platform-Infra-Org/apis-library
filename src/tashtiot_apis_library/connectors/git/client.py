@@ -10,6 +10,7 @@ import shutil
 import tempfile
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
+from urllib.parse import urlparse
 
 from loguru import logger
 
@@ -95,6 +96,7 @@ class GitClient:
         repo_slug: str,
         default_ref: str = "main",
         ssh_key_file_path: str = "/etc/.ssh/private_key",
+        ssh_port: int = 7995,
     ) -> None:
         headers = {
             "Authorization": f"Bearer {token}",
@@ -104,7 +106,7 @@ class GitClient:
         self.repo_slug = repo_slug
         self._default_ref = default_ref
         self.project_key = project_key
-        self.ssh_host = f"{base_url.replace('https://', '').split('/')[0]}:7995"
+        self.ssh_host = f"{urlparse(base_url).hostname}:{ssh_port}"
 
         self._git_env = os.environ.copy()
         self._git_env["GIT_SSH_COMMAND"] = f"ssh -i {ssh_key_file_path} -o StrictHostKeyChecking=no"
