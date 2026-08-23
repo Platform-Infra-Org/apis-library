@@ -5,6 +5,11 @@ All notable changes to this project are documented here. The format is based on
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). The version is derived from git tags by
 setuptools-scm.
 
+## [1.2.2] - 2026-08-23
+
+### Fixed
+
+- Map AWXJobStatus to HTTP status codes; use enum-aware mapper in AWX service (#16)
 ## [1.2.1] - 2026-07-18
 
 ### Fixed
