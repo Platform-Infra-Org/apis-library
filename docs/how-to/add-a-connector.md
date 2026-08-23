@@ -26,7 +26,7 @@ Builds its `httpx.AsyncClient` via `BaseAPI(...).client`, converts HTTP error st
 typed exception, and returns parsed Pydantic models — **never raw dicts**.
 
 ```python
-from ...fastapi_template.utils import BaseAPI   # relative import — see below
+from ...fastapi_template.utils import BaseAPI  # relative import — see below
 from ..errors import MyServiceError
 from .models import MyModel
 ```

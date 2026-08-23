@@ -9,9 +9,9 @@ from tashtiot_apis_library.fastapi_template.auth import verify_token
 from tashtiot_apis_library.fastapi_template.errors import TokenError
 
 try:
-    claims = verify_token(token)      # returns the decoded claims dict
+    claims = verify_token(token)  # returns the decoded claims dict
 except TokenError as exc:
-    ...                               # invalid signature, expired, wrong audience, etc.
+    ...  # invalid signature, expired, wrong audience, etc.
 ```
 
 `verify_token` uses the same configuration as the middleware (it reads the package `settings`), so it

@@ -35,7 +35,8 @@ from fastapi import Depends
 from tashtiot_apis_library import general_create_app
 from tashtiot_apis_library.fastapi_template.auth import get_current_claims
 
-app = general_create_app(enable_auth=True)   # gate 1: the code flag
+app = general_create_app(enable_auth=True)  # gate 1: the code flag
+
 
 @app.get("/me")
 def me(claims: dict = Depends(get_current_claims)):

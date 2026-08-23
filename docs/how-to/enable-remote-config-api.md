@@ -17,8 +17,11 @@ app = general_create_app()
 provider = enable_remote_config_api(
     app,
     base_url="https://config-api.example.com",  # where the upstream lives
-    remote_prefix="/api/v1",                     # upstream prefix serving /projects, /config, /naming, /coordinates
-    coordinate_paths=["/config", "/naming"],     # your routes whose coordinate params get enum dropdowns
+    remote_prefix="/api/v1",  # upstream prefix serving /projects, /config, /naming, /coordinates
+    coordinate_paths=[
+        "/config",
+        "/naming",
+    ],  # your routes whose coordinate params get enum dropdowns
 )
 ```
 
@@ -31,17 +34,22 @@ seconds, default 60):
 ```python
 from fastapi import Depends
 from tashtiot_apis_library.fastapi_template.config_api import (
-    RequiredInfraMetadata, CoordinateCatalogResponse, CoordinateTreeResponse,
+    RequiredInfraMetadata,
+    CoordinateCatalogResponse,
+    CoordinateTreeResponse,
 )
+
 
 @app.get("/config")
 async def get_config(meta: RequiredInfraMetadata = Depends()):
     return await provider.resolve_infra_config(meta)
 
+
 @app.get("/coordinates", response_model=CoordinateCatalogResponse)
 async def get_coordinates():
     # Discovery: the valid values per coordinate level plus the project list.
     return await provider.get_coordinate_catalog()
+
 
 @app.get("/coordinates/tree", response_model=CoordinateTreeResponse)
 async def get_coordinates_tree():
@@ -94,7 +102,7 @@ caveats:
   never runs automatically. Drive it yourself:
 
   ```python
-  await provider.crawl_and_sync_keys(app)   # populate the allowlists + tree once
+  await provider.crawl_and_sync_keys(app)  # populate the allowlists + tree once
   ```
 
 ## Matching routes with `coordinate_paths`
@@ -104,7 +112,7 @@ path. A plain path is just a literal regex that matches only itself (so `["/conf
 exactly as you'd expect), but you can also match a **family of routes** with one entry:
 
 ```python
-coordinate_paths=[r"/api/v\d+/infra/(config|naming)"]   # one entry, many/versioned routes
+coordinate_paths = [r"/api/v\d+/infra/(config|naming)"]  # one entry, many/versioned routes
 ```
 
 Because it's a full-path match, use `.*` for partials (`r"/api/v1/infra/.*"`); escape regex

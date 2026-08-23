@@ -24,8 +24,8 @@ class VMSpec(BaseModel):
 
 
 class VMRequest(BaseModel):
-    metadata: RequiredInfraMetadata      # coordinates — validated against the allowlists + tree
-    spec: VMSpec                          # the fields whose allowed values depend on the config
+    metadata: RequiredInfraMetadata  # coordinates — validated against the allowlists + tree
+    spec: VMSpec  # the fields whose allowed values depend on the config
 
 
 def constrain_vm(provider):
@@ -40,26 +40,27 @@ def constrain_vm(provider):
         ):
             value = getattr(req.spec, field)
             allowed = config.get(config_key) or []
-            if allowed and value not in allowed:          # permissive when the config is unset/empty
+            if allowed and value not in allowed:  # permissive when the config is unset/empty
                 errors.append(
                     {
                         "type": "value_error",
-                        "loc": ("body", "spec", field),    # points clients at the offending field
+                        "loc": ("body", "spec", field),  # points clients at the offending field
                         "msg": f"'{value}' is not permitted for the selected coordinates; "
                         f"allowed: {sorted(allowed)}",
                         "input": value,
                     }
                 )
         if errors:
-            raise RequestValidationError(errors)           # -> a standard 422, one entry per field
+            raise RequestValidationError(errors)  # -> a standard 422, one entry per field
         return req
 
     return dependency
 
 
 @app.post("/vms")
-async def create_vm(req: VMRequest = Depends(constrain_vm(provider))):
-    ...   # req is fully validated: coordinates AND spec.os_template / spec.instance_size
+async def create_vm(
+    req: VMRequest = Depends(constrain_vm(provider)),
+): ...  # req is fully validated: coordinates AND spec.os_template / spec.instance_size
 ```
 
 `provider` is the `RemoteConfigProvider` returned by

@@ -51,10 +51,11 @@ FastAPI application factory:
 from tashtiot_apis_library import general_create_app
 from tashtiot_apis_library.fastapi_template.utils import settings
 
-app = general_create_app()   # root route, /metrics, health probes, /docs, logging — all wired
+app = general_create_app()  # root route, /metrics, health probes, /docs, logging — all wired
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=settings.PORT)
 ```
 

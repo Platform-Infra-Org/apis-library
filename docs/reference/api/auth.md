@@ -4,8 +4,14 @@ The public inbound-JWT surface. Import everything here from `tashtiot_apis_libra
 
 ```python
 from tashtiot_apis_library.fastapi_template.auth import (
-    get_current_claims, verify_token, JWTVerifier, AuthMode,
-    generate_keypair, mint_token, load_keypair, derive_public_pem,
+    get_current_claims,
+    verify_token,
+    JWTVerifier,
+    AuthMode,
+    generate_keypair,
+    mint_token,
+    load_keypair,
+    derive_public_pem,
 )
 ```
 

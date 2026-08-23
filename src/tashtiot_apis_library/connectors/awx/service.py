@@ -8,7 +8,7 @@ from typing import Any, Awaitable, Callable, Dict, Optional
 from loguru import logger
 
 from .client import AWXClient
-from .models import AWXOperationResponse, AWXJobStatus
+from .models import AWXJobStatus, AWXOperationResponse
 
 __all__ = ["AWX", "logger"]
 

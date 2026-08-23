@@ -7,7 +7,10 @@ The Remote Config capability — an authenticated proxy to an upstream Config AP
 ```python
 from tashtiot_apis_library.fastapi_template import enable_remote_config_api
 from tashtiot_apis_library.fastapi_template.config_api import (
-    RemoteConfigProvider, ConfigRemoteSettings, RequiredInfraMetadata, InfraMetadata,
+    RemoteConfigProvider,
+    ConfigRemoteSettings,
+    RequiredInfraMetadata,
+    InfraMetadata,
 )
 ```
 

@@ -11,7 +11,11 @@ package):
 
 ```python
 from tashtiot_apis_library.connectors.errors import (
-    ExternalServiceError, ArgoCDError, GitError, VaultError, AWXError,
+    ExternalServiceError,
+    ArgoCDError,
+    GitError,
+    VaultError,
+    AWXError,
 )
 ```
 

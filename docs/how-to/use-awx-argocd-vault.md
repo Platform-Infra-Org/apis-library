@@ -35,12 +35,12 @@ from tashtiot_apis_library import ArgoCD
 argo = ArgoCD(
     base_url="https://argo.example.com",
     api_key="token",
-    application_set_timeout=30,   # seconds to wait for sync/delete
+    application_set_timeout=30,  # seconds to wait for sync/delete
 )
 
 await argo.sync("my-app")
-app = await argo.wait_for_update("my-app")        # ArgoApplication once healthy/synced
-status = await argo.get_app_status("my-app")      # ArgoOperationResponse
+app = await argo.wait_for_update("my-app")  # ArgoApplication once healthy/synced
+status = await argo.get_app_status("my-app")  # ArgoOperationResponse
 ```
 
 Other helpers include `wait_for_app_creation`, `wait_for_app_deletion`, `get_app_values`,
@@ -53,7 +53,7 @@ from tashtiot_apis_library import Vault
 
 vault = Vault(base_url="https://vault.example.com", token="token")
 
-secret = await vault.read_secret("secret/data/myapp")     # VaultSecret (.data, .metadata)
+secret = await vault.read_secret("secret/data/myapp")  # VaultSecret (.data, .metadata)
 await vault.write_secret("secret/data/myapp", {"api_key": "value"})
 await vault.delete_secret("secret/data/myapp")
 ```

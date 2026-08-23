@@ -6,6 +6,7 @@ routes and middleware to it directly — no library changes needed:
 ```python
 app = general_create_app()
 
+
 @app.get("/custom")
 def custom():
     return {"ok": True}
@@ -24,6 +25,7 @@ under `_internal/`, toggled by a keyword argument.
    from fastapi import Request
    from loguru import logger
    from starlette.middleware.base import BaseHTTPMiddleware
+
 
    class MyMiddleware(BaseHTTPMiddleware):
        async def dispatch(self, request: Request, call_next):
@@ -55,6 +57,7 @@ under `_internal/`, toggled by a keyword argument.
    from fastapi import APIRouter
 
    router = APIRouter(prefix="/my-feature", tags=["My Feature"])
+
 
    @router.get("/status")
    async def status():
