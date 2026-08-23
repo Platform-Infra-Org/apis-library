@@ -5,6 +5,11 @@ All notable changes to this project are documented here. The format is based on
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). The version is derived from git tags by
 setuptools-scm.
 
+## [1.2.3] - 2026-08-23
+
+### Fixed
+
+- Awx connector status mapping (#17)
 ## [1.2.2] - 2026-08-23
 
 ### Fixed
