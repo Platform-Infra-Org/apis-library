@@ -35,6 +35,43 @@ async def test_launch_job(awx):
 
 @pytest.mark.asyncio
 @respx.mock
+async def test_launch_job_returns_successful_when_awx_job_is_pending(awx):
+    respx.post(f"{BASE_URL}/api/v2/job_templates/1/launch/").mock(
+        return_value=httpx.Response(
+            200, json={"id": 123, "name": "demo", "status": "pending", "result_stdout": ""}
+        )
+    )
+
+    response = await awx.launch_job(1)
+
+    assert response.status == "successful"
+    assert response.status_code == 200
+
+
+@pytest.mark.asyncio
+@respx.mock
+async def test_launch_workflow_returns_successful_when_awx_workflow_is_pending(awx):
+    respx.post(f"{BASE_URL}/api/v2/workflow_job_templates/1/launch/").mock(
+        return_value=httpx.Response(
+            200,
+            json={
+                "id": 123,
+                "name": "workflow",
+                "status": "pending",
+                "url": "/api/v2/workflow_jobs/123/",
+            },
+        )
+    )
+
+    response = await awx.launch_workflow_job(1)
+
+    assert response.status == "successful"
+    assert response.status_code == 200
+    assert response.job_id == 123
+
+
+@pytest.mark.asyncio
+@respx.mock
 async def test_launch_job_failure_raises(awx):
     respx.post(f"{BASE_URL}/api/v2/job_templates/1/launch/").mock(
         return_value=httpx.Response(404, json={"detail": "not found"})
@@ -58,6 +95,35 @@ async def test_get_job_status(awx):
     assert response.status_code == 200
     assert response.job_id == 1
     assert response.stdout == "log"
+
+
+@pytest.mark.asyncio
+@respx.mock
+async def test_get_job_status_maps_pending_to_accepted(awx):
+    respx.get(f"{BASE_URL}/api/v2/jobs/1/").mock(
+        return_value=httpx.Response(200, json={"id": 1, "name": "demo", "status": "pending"})
+    )
+
+    response = await awx.get_job_status(1)
+
+    assert response.status == "pending"
+    assert response.status_code == 202
+
+
+@pytest.mark.asyncio
+@respx.mock
+async def test_get_workflow_status_maps_pending_to_accepted(awx):
+    respx.get(f"{BASE_URL}/api/v2/workflow_jobs/1/").mock(
+        return_value=httpx.Response(
+            200,
+            json={"id": 1, "name": "workflow", "status": "pending"},
+        )
+    )
+
+    response = await awx.get_workflow_job_status(1)
+
+    assert response.status == "pending"
+    assert response.status_code == 202
 
 
 @pytest.mark.asyncio

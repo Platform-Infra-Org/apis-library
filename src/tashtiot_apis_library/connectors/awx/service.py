@@ -9,41 +9,27 @@ from loguru import logger
 
 from .client import AWXClient
 from .models import AWXJobStatus, AWXOperationResponse
+from .status_code_mappings import status_code_mapping
 
 __all__ = ["AWX", "logger"]
 
 
 def _http_code_from_awx_status(status: AWXJobStatus | str) -> int:
-    """Map AWX job status (enum or string) to an HTTP status code.
+    """Map an AWX job status enum or string to an HTTP status code."""
+    status_value = status.value if isinstance(status, AWXJobStatus) else status.lower()
+    return status_code_mapping.get(status_value, 200)
 
-    Prefer AWXJobStatus enum comparison; gracefully fall back to string matching.
-    """
-    status_enum: Optional[AWXJobStatus] = None
 
-    if isinstance(status, AWXJobStatus):
-        status_enum = status
-    else:
-        try:
-            status_enum = AWXJobStatus(status)
-        except Exception:
-            # unknown value - normalize string and fall back to simple mapping
-            s = str(status).lower()
-            if s in ("pending", "waiting", "running"):
-                return 202
-            if s == "successful":
-                return 200
-            if s in ("failed", "error", "canceled"):
-                return 500
-            return 200
-
-    if status_enum in (AWXJobStatus.PENDING, AWXJobStatus.WAITING, AWXJobStatus.RUNNING):
-        return 202
-    if status_enum == AWXJobStatus.SUCCESSFUL:
-        return 200
-    if status_enum in (AWXJobStatus.FAILED, AWXJobStatus.ERROR, AWXJobStatus.CANCELED):
-        return 500
-
-    return 200
+def _operation_response(
+    *, status: AWXJobStatus, job_id: int, stdout: str = ""
+) -> AWXOperationResponse:
+    """Build a consistently mapped AWX operation response."""
+    return AWXOperationResponse(
+        status=status.value,
+        status_code=_http_code_from_awx_status(status),
+        job_id=job_id,
+        stdout=stdout,
+    )
 
 
 class AWX:
@@ -85,12 +71,8 @@ class AWX:
             limit=limit,
         )
 
-        status_enum = job.status
-        status = status_enum.value
-
-        return AWXOperationResponse(
-            status=status,
-            status_code=_http_code_from_awx_status(status_enum),
+        return _operation_response(
+            status=AWXJobStatus.SUCCESSFUL,
             job_id=job.id,
             stdout=self.base_url + job.url,  # Workflow jobs typically don't have a single stdout
         )
@@ -124,12 +106,8 @@ class AWX:
             credential=credential,
         )
 
-        status_enum = job.status
-        status = status_enum.value
-
-        return AWXOperationResponse(
-            status=status,
-            status_code=_http_code_from_awx_status(status_enum),
+        return _operation_response(
+            status=AWXJobStatus.SUCCESSFUL,
             job_id=job.id,
             stdout=job.result_stdout or "",
         )
@@ -146,12 +124,8 @@ class AWX:
         logger.debug(f"Getting status for job {job_id}")
         job = await self.client.get_job_status(job_id)
 
-        status_enum = job.status
-        status = status_enum.value
-
-        return AWXOperationResponse(
-            status=status,
-            status_code=_http_code_from_awx_status(status_enum),
+        return _operation_response(
+            status=job.status,
             job_id=job.id,
             stdout=job.result_stdout or "",
         )
@@ -168,14 +142,9 @@ class AWX:
         logger.debug(f"Getting status for workflow job {workflow_job_id}")
         job = await self.client.get_workflow_job_status(workflow_job_id)
 
-        status_enum = job.status
-        status = status_enum.value
-
-        return AWXOperationResponse(
-            status=status,
-            status_code=_http_code_from_awx_status(status_enum),
+        return _operation_response(
+            status=job.status,
             job_id=job.id,
-            stdout="",
         )
 
     async def _wait_for_completion(
