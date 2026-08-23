@@ -1944,9 +1944,9 @@
 resolve against the dependency <em>ranges</em> in <code>pyproject.toml</code>; a lockfile would only pin our own dev
 environment and churn against the setuptools-scm version. Plain <code>pip</code> works too.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>uv<span class="w"> </span>venv<span class="w">                              </span><span class="c1"># create .venv</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[dev,docs]&quot;</span><span class="w">      </span><span class="c1"># dev tools + docs toolchain</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">".[dev,docs]"</span><span class="w">      </span><span class="c1"># dev tools + docs toolchain</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="c1"># equivalently, without uv:</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1">#   python -m venv .venv &amp;&amp; source .venv/bin/activate &amp;&amp; pip install -e &quot;.[dev,docs]&quot;</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1">#   python -m venv .venv &amp;&amp; source .venv/bin/activate &amp;&amp; pip install -e ".[dev,docs]"</span>
 </code></pre></div>
 <h2 id="tests">Tests<a class="headerlink" href="#tests" title="Permanent link">&para;</a></h2>
 <p>The suite lives in the top-level <code>tests/</code> tree and runs from the repo root:</p>

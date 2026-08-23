@@ -1855,9 +1855,9 @@ a CLI, or a route that receives the token by other means — use the standalone 
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">tashtiot_apis_library.fastapi_template.errors</span><span class="w"> </span><span class="kn">import</span> <span class="n">TokenError</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="k">try</span><span class="p">:</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">claims</span> <span class="o">=</span> <span class="n">verify_token</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>      <span class="c1"># returns the decoded claims dict</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">claims</span> <span class="o">=</span> <span class="n">verify_token</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>  <span class="c1"># returns the decoded claims dict</span>
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="k">except</span> <span class="n">TokenError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="o">...</span>                               <span class="c1"># invalid signature, expired, wrong audience, etc.</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="o">...</span>  <span class="c1"># invalid signature, expired, wrong audience, etc.</span>
 </code></pre></div>
 <p><code>verify_token</code> uses the same configuration as the middleware (it reads the package <code>settings</code>), so it
 honours whatever verification material and claim checks you've configured via <code>AUTH_*</code> environment

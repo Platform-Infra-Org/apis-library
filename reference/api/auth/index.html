@@ -2421,9 +2421,15 @@
 <h1 id="auth-api-inbound-jwt">Auth API (inbound JWT)<a class="headerlink" href="#auth-api-inbound-jwt" title="Permanent link">&para;</a></h1>
 <p>The public inbound-JWT surface. Import everything here from <code>tashtiot_apis_library.fastapi_template.auth</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">tashtiot_apis_library.fastapi_template.auth</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">get_current_claims</span><span class="p">,</span> <span class="n">verify_token</span><span class="p">,</span> <span class="n">JWTVerifier</span><span class="p">,</span> <span class="n">AuthMode</span><span class="p">,</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">generate_keypair</span><span class="p">,</span> <span class="n">mint_token</span><span class="p">,</span> <span class="n">load_keypair</span><span class="p">,</span> <span class="n">derive_public_pem</span><span class="p">,</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="p">)</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">get_current_claims</span><span class="p">,</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">verify_token</span><span class="p">,</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">JWTVerifier</span><span class="p">,</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">AuthMode</span><span class="p">,</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">generate_keypair</span><span class="p">,</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">mint_token</span><span class="p">,</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">load_keypair</span><span class="p">,</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="n">derive_public_pem</span><span class="p">,</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="p">)</span>
 </code></pre></div>
 <p>See <a href="../../../tutorials/secure-your-api/">Secure your API</a> and
 <a href="../../../how-to/verify-a-token/">Verify a token outside a request</a> for usage.</p>
@@ -2688,7 +2694,7 @@ point <code>AUTH_JWKS_URL</code> at the provider's JWKS endpoint and set
   </span>
 
 <a href="#tashtiot_apis_library.fastapi_template._internal.security.verifier.AuthMode.HS256" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">HS256</span> <span class="o">=</span> <span class="s1">&#39;hs256&#39;</span>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">HS256</span> <span class="o">=</span> <span class="s1">'hs256'</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -2711,7 +2717,7 @@ point <code>AUTH_JWKS_URL</code> at the provider's JWKS endpoint and set
   </span>
 
 <a href="#tashtiot_apis_library.fastapi_template._internal.security.verifier.AuthMode.JWKS" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">JWKS</span> <span class="o">=</span> <span class="s1">&#39;jwks&#39;</span>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">JWKS</span> <span class="o">=</span> <span class="s1">'jwks'</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -2734,7 +2740,7 @@ point <code>AUTH_JWKS_URL</code> at the provider's JWKS endpoint and set
   </span>
 
 <a href="#tashtiot_apis_library.fastapi_template._internal.security.verifier.AuthMode.LOCAL_PUBKEY" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">LOCAL_PUBKEY</span> <span class="o">=</span> <span class="s1">&#39;local_pubkey&#39;</span>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">LOCAL_PUBKEY</span> <span class="o">=</span> <span class="s1">'local_pubkey'</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -2784,7 +2790,7 @@ point <code>AUTH_JWKS_URL</code> at the provider's JWKS endpoint and set
 
 
 <a href="#tashtiot_apis_library.fastapi_template._internal.security.keygen.mint_token" class="headerlink" title="Permanent link">&para;</a></h2>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">mint_token</span><span class="p">(</span><span class="n">private_pem</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">subject</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;RS256&#39;</span><span class="p">,</span> <span class="n">kid</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;local-dev-key&#39;</span><span class="p">,</span> <span class="n">expires_minutes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">audience</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">issuer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">mint_token</span><span class="p">(</span><span class="n">private_pem</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">subject</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">algorithm</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'RS256'</span><span class="p">,</span> <span class="n">kid</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'local-dev-key'</span><span class="p">,</span> <span class="n">expires_minutes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">audience</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">issuer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span>
 </code></pre></div>
 
     <div class="doc doc-contents first">

@@ -1919,7 +1919,7 @@ the <a href="../../tutorials/secure-your-api/">Secure your API</a> tutorial.</p>
 <p>Turn on inbound auth. It's <strong>dual-gated</strong> — both the code flag and the runtime switch must be set:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">tashtiot_apis_library</span><span class="w"> </span><span class="kn">import</span> <span class="n">general_create_app</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">app</span> <span class="o">=</span> <span class="n">general_create_app</span><span class="p">(</span><span class="n">enable_auth</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>   <span class="c1"># gate 1: the code flag</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">app</span> <span class="o">=</span> <span class="n">general_create_app</span><span class="p">(</span><span class="n">enable_auth</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># gate 1: the code flag</span>
 </code></pre></div>
 <p>Point the verifier at the SSO in your environment (<code>.env</code> or process env). Prefer <strong>OIDC discovery</strong>
 — give it the issuer and it fetches <code>/.well-known/openid-configuration</code> at startup to find the
@@ -1959,8 +1959,8 @@ caller has to make the SSO stamp it:</p>
 outbound helpers fetch, cache, and refresh the token automatically:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">tashtiot_apis_library.fastapi_template.security</span><span class="w"> </span><span class="kn">import</span> <span class="n">sso_authenticated_api</span>
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="k">async</span> <span class="k">with</span> <span class="n">sso_authenticated_api</span><span class="p">(</span><span class="s2">&quot;https://my-api.platform.example&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="n">resp</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/protected&quot;</span><span class="p">)</span>     <span class="c1"># Authorization: Bearer &lt;auto-managed&gt;</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="k">async</span> <span class="k">with</span> <span class="n">sso_authenticated_api</span><span class="p">(</span><span class="s2">"https://my-api.platform.example"</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="n">resp</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"/protected"</span><span class="p">)</span>  <span class="c1"># Authorization: Bearer &lt;auto-managed&gt;</span>
 </code></pre></div>
 <p>See <strong><a href="../call-services-with-sso/">Call other services with SSO</a></strong> for the full outbound setup
 (<code>AUTH_SSO_*</code> variables, per-upstream <code>SSOConfig</code>, and how the downstream <code>aud</code> is populated).</p>

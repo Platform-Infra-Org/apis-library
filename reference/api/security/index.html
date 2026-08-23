@@ -2554,9 +2554,15 @@
 <p>The public outbound-SSO surface. Import everything here from
 <code>tashtiot_apis_library.fastapi_template.security</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">tashtiot_apis_library.fastapi_template.security</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">sso_authenticated_api</span><span class="p">,</span> <span class="n">sso_auth</span><span class="p">,</span> <span class="n">get_sso_token_client</span><span class="p">,</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">SSOConfig</span><span class="p">,</span> <span class="n">SSOTokenClient</span><span class="p">,</span> <span class="n">SSOClientCredentialsAuth</span><span class="p">,</span> <span class="n">StaticBearerAuth</span><span class="p">,</span> <span class="n">TokenResponse</span><span class="p">,</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="p">)</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">sso_authenticated_api</span><span class="p">,</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">sso_auth</span><span class="p">,</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">get_sso_token_client</span><span class="p">,</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">SSOConfig</span><span class="p">,</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">SSOTokenClient</span><span class="p">,</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">SSOClientCredentialsAuth</span><span class="p">,</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">StaticBearerAuth</span><span class="p">,</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="n">TokenResponse</span><span class="p">,</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="p">)</span>
 </code></pre></div>
 <p>See <a href="../../../how-to/call-services-with-sso/">Call other services with SSO</a> for usage.</p>
 <h2 id="high-level-helpers">High-level helpers<a class="headerlink" href="#high-level-helpers" title="Permanent link">&para;</a></h2>
@@ -2579,8 +2585,8 @@
 <p>The connector-style outbound client (<code>async with</code> it for a reusable
 <code>httpx.AsyncClient</code>) with automatic per-request token injection/refresh:</p>
 <div class="highlight"><pre><span></span><code>cfg = SSOConfig(token_url=..., client_id=..., client_secret=..., audience=...)
-async with sso_authenticated_api(&quot;https://downstream.example.com&quot;, config=cfg) as client:
-    resp = await client.get(&quot;/protected&quot;)   # Authorization added &amp; refreshed
+async with sso_authenticated_api("https://downstream.example.com", config=cfg) as client:
+    resp = await client.get("/protected")   # Authorization added &amp; refreshed
 </code></pre></div>
 <p>Pass <code>config</code> (client-side, preferred) to target a specific identity/audience;
 omit it to fall back to <code>settings</code> (or the package singleton). Extra keyword
@@ -2816,7 +2822,7 @@ mirroring the settings-driven path.</p>
   </span>
 
 <a href="#tashtiot_apis_library.fastapi_template._internal.security.models.SSOConfig.auth_style" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">auth_style</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;post&#39;</span>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">auth_style</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'post'</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -2909,7 +2915,7 @@ mirroring the settings-driven path.</p>
   </span>
 
 <a href="#tashtiot_apis_library.fastapi_template._internal.security.models.SSOConfig.from_settings" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">from_settings</span><span class="p">(</span><span class="n">settings</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;SSOConfig&#39;</span>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">from_settings</span><span class="p">(</span><span class="n">settings</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">'SSOConfig'</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -3266,7 +3272,7 @@ long-lived service token. Works for both sync and async clients.</p>
   </span>
 
 <a href="#tashtiot_apis_library.fastapi_template._internal.security.models.TokenResponse.model_config" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s1">&#39;allow&#39;</span><span class="p">)</span>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s1">'allow'</span><span class="p">)</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -3311,7 +3317,7 @@ long-lived service token. Works for both sync and async clients.</p>
   </span>
 
 <a href="#tashtiot_apis_library.fastapi_template._internal.security.models.TokenResponse.token_type" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">token_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;Bearer&#39;</span>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">token_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'Bearer'</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
