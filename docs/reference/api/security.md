@@ -5,8 +5,14 @@ The public outbound-SSO surface. Import everything here from
 
 ```python
 from tashtiot_apis_library.fastapi_template.security import (
-    sso_authenticated_api, sso_auth, get_sso_token_client,
-    SSOConfig, SSOTokenClient, SSOClientCredentialsAuth, StaticBearerAuth, TokenResponse,
+    sso_authenticated_api,
+    sso_auth,
+    get_sso_token_client,
+    SSOConfig,
+    SSOTokenClient,
+    SSOClientCredentialsAuth,
+    StaticBearerAuth,
+    TokenResponse,
 )
 ```
 

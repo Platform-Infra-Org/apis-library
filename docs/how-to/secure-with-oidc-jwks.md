@@ -33,7 +33,7 @@ Turn on inbound auth. It's **dual-gated** — both the code flag and the runtime
 ```python
 from tashtiot_apis_library import general_create_app
 
-app = general_create_app(enable_auth=True)   # gate 1: the code flag
+app = general_create_app(enable_auth=True)  # gate 1: the code flag
 ```
 
 Point the verifier at the SSO in your environment (`.env` or process env). Prefer **OIDC discovery**
@@ -84,7 +84,7 @@ outbound helpers fetch, cache, and refresh the token automatically:
 from tashtiot_apis_library.fastapi_template.security import sso_authenticated_api
 
 async with sso_authenticated_api("https://my-api.platform.example") as client:
-    resp = await client.get("/protected")     # Authorization: Bearer <auto-managed>
+    resp = await client.get("/protected")  # Authorization: Bearer <auto-managed>
 ```
 
 See **[Call other services with SSO](call-services-with-sso.md)** for the full outbound setup

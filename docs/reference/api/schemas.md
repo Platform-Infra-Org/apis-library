@@ -5,8 +5,12 @@ regex validation.
 
 ```python
 from tashtiot_apis_library import (
-    OperationRequest, ResourceSpec, DefaultMetaSpec, NameNamespace,
-    InfraOperationRequest, RequiredInfraOperationRequest,
+    OperationRequest,
+    ResourceSpec,
+    DefaultMetaSpec,
+    NameNamespace,
+    InfraOperationRequest,
+    RequiredInfraOperationRequest,
 )
 ```
 

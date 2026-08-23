@@ -9,26 +9,27 @@ SSH used for delete operations). All methods are async.
 from tashtiot_apis_library import Git
 
 git = Git(
-    base_url="https://bitbucket.example.com",      # base Bitbucket URL
-    token="token",                                  # HTTP token with write access
-    username_or_email="user@example.com",           # service account identity
-    project_key="PROJ",                             # Bitbucket project key
-    repo_slug="repo-name",                          # repo name, lowercase
-    default_ref="main",                             # default branch to operate on
-    ssh_key_file_path="/path/to/ssh/private/key",   # SSH key (used for delete)
+    base_url="https://bitbucket.example.com",  # base Bitbucket URL
+    token="token",  # HTTP token with write access
+    username_or_email="user@example.com",  # service account identity
+    project_key="PROJ",  # Bitbucket project key
+    repo_slug="repo-name",  # repo name, lowercase
+    default_ref="main",  # default branch to operate on
+    ssh_key_file_path="/path/to/ssh/private/key",  # SSH key (used for delete)
 )
 ```
 
 ## Read a file
 
 ```python
-content = await git.get_file_content("/path/to/values.yaml")        # returns str
+content = await git.get_file_content("/path/to/values.yaml")  # returns str
 ```
 
 Parse it however you like — for example, as YAML:
 
 ```python
 import yaml
+
 data = yaml.safe_load(await git.get_file_content("/app/values.yaml"))
 ```
 
@@ -45,7 +46,7 @@ Each takes a commit message; pass `branch=` to target a branch other than `defau
 ## List and check existence
 
 ```python
-entries = await git.list_dir("/app")               # List[Tuple[name, type]]
+entries = await git.list_dir("/app")  # List[Tuple[name, type]]
 all_files = await git.list_files_recursive("/app")  # List[str]
 exists = await git.file_exists("/app/values.yaml")  # bool
 ```
@@ -56,6 +57,7 @@ exists = await git.file_exists("/app/values.yaml")  # bool
 import asyncio
 import yaml
 from tashtiot_apis_library import Git
+
 
 async def main():
     git = Git(
@@ -69,6 +71,7 @@ async def main():
     )
     values = yaml.safe_load(await git.get_file_content("/app/values.yaml"))
     print(values)
+
 
 asyncio.run(main())
 ```

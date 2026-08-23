@@ -16,7 +16,7 @@ and use `sso_authenticated_api`. Every request through the returned client carri
 from tashtiot_apis_library.fastapi_template.security import sso_authenticated_api
 
 async with sso_authenticated_api("https://downstream.example.com") as client:
-    resp = await client.get("/protected")     # Authorization: Bearer <auto-managed>
+    resp = await client.get("/protected")  # Authorization: Bearer <auto-managed>
 ```
 
 ## Several upstreams with different identities
@@ -58,7 +58,7 @@ async with BaseAPI("https://downstream.example.com", auth=StaticBearerAuth("toke
 from tashtiot_apis_library.fastapi_template.security import get_sso_token_client
 
 token = await get_sso_token_client().get_token()
-headers = await get_sso_token_client().auth_header()   # {"Authorization": "Bearer …"}
+headers = await get_sso_token_client().auth_header()  # {"Authorization": "Bearer …"}
 ```
 
 ## Setting the downstream audience (`aud`)
