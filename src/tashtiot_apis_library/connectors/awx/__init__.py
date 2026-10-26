@@ -3,6 +3,7 @@
 from .client import AWXClient
 from .models import (
     AWXJob,
+    AWXJobOutputResponse,
     AWXJobStatus,
     AWXLaunchJobRequest,
     AWXLaunchWorkflowRequest,
@@ -14,6 +15,7 @@ __all__ = [
     "AWX",
     "AWXClient",
     "AWXJob",
+    "AWXJobOutputResponse",
     "AWXJobStatus",
     "AWXLaunchJobRequest",
     "AWXLaunchWorkflowRequest",

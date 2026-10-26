@@ -9,6 +9,7 @@ from ...fastapi_template.utils import BaseAPI
 from ..errors import AWXError
 from .models import (
     AWXJob,
+    AWXJobEventPage,
     AWXWorkflowJob,
 )
 
@@ -193,3 +194,31 @@ class AWXClient:
         _handle_response(response_json, response.status_code)
 
         return AWXWorkflowJob.model_validate(response_json)
+
+    async def get_job_events(
+        self, job_id: int, *, start_line: int = 0, page_size: int = 100
+    ) -> AWXJobEventPage:
+        """Fetch one bounded page, ordered by stdout position.
+
+        A line cursor (rather than the largest event ID) allows late events to
+        fill gaps before the caller advances. Never follow server-provided URLs.
+        """
+        if start_line < 0 or not 1 <= page_size <= 1000:
+            raise ValueError("start_line must be >= 0 and page_size must be between 1 and 1000")
+        response = await self.api.get(
+            f"/api/v2/jobs/{job_id}/job_events/",
+            params={
+                "start_line__gte": start_line,
+                "end_line__gt": start_line,
+                "order_by": "start_line,id",
+                "page_size": page_size,
+                "no_truncate": "true",
+            },
+        )
+        if response.status_code >= 400:
+            try:
+                body = response.json()
+            except ValueError:
+                body = {}
+            _handle_response(body, response.status_code)
+        return AWXJobEventPage.model_validate(response.json())

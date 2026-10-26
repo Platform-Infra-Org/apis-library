@@ -33,6 +33,9 @@ jobs:
       - name: Tests
         run: uv run --extra dev pytest
 
+      - name: AWX output simulation
+        run: uv run --extra dev python examples/awx_output_demo.py
+
       - name: Type check (advisory)
         run: uv run --extra dev ty check src || true   # type errors never fail the build
 

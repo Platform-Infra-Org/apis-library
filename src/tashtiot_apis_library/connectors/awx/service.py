@@ -8,7 +8,7 @@ from typing import Any, Awaitable, Callable, Dict, Optional
 from loguru import logger
 
 from .client import AWXClient
-from .models import AWXJobStatus, AWXOperationResponse
+from .models import AWXJobOutputResponse, AWXJobStatus, AWXOperationResponse
 from .status_code_mappings import status_code_mapping
 
 __all__ = ["AWX", "logger"]
@@ -218,4 +218,45 @@ class AWX:
         """
         return await self._wait_for_completion(
             "Workflow job", workflow_job_id, self.get_workflow_job_status, timeout, poll_interval
+        )
+
+    async def get_job_output(
+        self, job_id: int, *, start_line: int = 0, page_size: int = 100
+    ) -> AWXJobOutputResponse:
+        """Read status and the next contiguous chunk of playbook output.
+
+        The caller owns the per-job cursor and advances it only after printing.
+        A terminal job is finished only after AWX finishes processing events and
+        all pages are drained. Missing processing metadata is treated as unfinished.
+        """
+        if start_line < 0 or not 1 <= page_size <= 1000:
+            raise ValueError("start_line must be >= 0 and page_size must be between 1 and 1000")
+        job = await self.client.get_job_status(job_id)
+        page = await self.client.get_job_events(job_id, start_line=start_line, page_size=page_size)
+        cursor = start_line
+        chunks = []
+        gap = False
+        for event in page.results:
+            if event.end_line <= cursor:
+                continue
+            if event.start_line != cursor:
+                gap = True
+                break
+            chunks.append(event.stdout)
+            cursor = event.end_line
+        has_more = bool(page.next) or gap
+        terminal = job.status in {
+            AWXJobStatus.SUCCESSFUL,
+            AWXJobStatus.FAILED,
+            AWXJobStatus.ERROR,
+            AWXJobStatus.CANCELED,
+        }
+        return AWXJobOutputResponse(
+            status=job.status.value,
+            status_code=_http_code_from_awx_status(job.status),
+            job_id=job.id,
+            stdout="\n".join(chunk.rstrip("\r\n") for chunk in chunks if chunk),
+            next_line=cursor,
+            has_more=has_more,
+            finished=terminal and job.event_processing_finished is True and not has_more,
         )
