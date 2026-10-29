@@ -5,6 +5,11 @@ All notable changes to this project are documented here. The format is based on
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). The version is derived from git tags by
 setuptools-scm.
 
+## [1.3.0] - 2026-10-29
+
+### Added
+
+- Add incremental playbook output for polling (#18)
 ## [1.2.3] - 2026-08-23
 
 ### Fixed
@@ -32,11 +37,6 @@ setuptools-scm.
 - Fetch raw file content from the dedicated raw endpoint, not browse?raw=1 (#13)
 ## [1.1.2] - 2026-07-04
 
-### CI
-
-- Split build/ci changelog groups and exclude ci from releasing
-## [1.1.1] - 2026-07-02
-
 ### Added
 
 - Coordinate_paths list, request-body enums, catalog-sourced allowlists
@@ -54,11 +54,16 @@ setuptools-scm.
 ### Documentation
 
 - Document app-side config-dependent field validation
-- Add OIDC/JWKS how-to and SSO client-scope setup
 
 ### CI
 
 - Skip release for docs-only merges, refresh unreleased changelog
+- Split build/ci changelog groups and exclude ci from releasing
+## [1.1.1] - 2026-07-02
+
+### Documentation
+
+- Add OIDC/JWKS how-to and SSO client-scope setup
 ## [1.1.0] - 2026-06-30
 
 ### Added
