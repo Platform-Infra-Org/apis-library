@@ -17,6 +17,9 @@ __all__ = [
     "AWXLaunchJobRequest",
     "AWXLaunchWorkflowRequest",
     "AWXOperationResponse",
+    "AWXJobEvent",
+    "AWXJobEventPage",
+    "AWXJobOutputResponse",
 ]
 
 
@@ -57,6 +60,7 @@ class AWXJob(BaseModel):
     elapsed: Optional[float] = None
     job_explanation: Optional[str] = Field(default=None, alias="job_explanation")
     result_stdout: Optional[str] = Field(default=None, alias="result_stdout")
+    event_processing_finished: Optional[bool] = None
     job_template_id: Optional[int] = Field(default=None, alias="job_template")
     inventory: Optional[int] = None
     project: Optional[int] = None
@@ -107,3 +111,25 @@ class AWXLaunchWorkflowRequest(BaseModel):
     extra_vars: Optional[str] = Field(default=None, alias="extra_vars")
     inventory: Optional[int] = None
     limit: Optional[str] = None
+
+
+class AWXJobEvent(BaseModel):
+    """Only output fields are exposed; event_data may contain sensitive variables."""
+
+    id: int
+    start_line: int = Field(ge=0)
+    end_line: int = Field(ge=0)
+    stdout: str = ""
+
+
+class AWXJobEventPage(BaseModel):
+    results: List[AWXJobEvent]
+    next: Optional[str] = None
+
+
+class AWXJobOutputResponse(AWXOperationResponse):
+    """Incremental output for a single playbook job (not an AWX workflow)."""
+
+    next_line: int
+    has_more: bool
+    finished: bool
