@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
     
     
       
@@ -29,10 +29,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -787,6 +787,34 @@
       
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#incremental-awx-playbook-output-for-an-argo-dispatcher" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Incremental AWX playbook output for an Argo dispatcher
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Incremental AWX playbook output for an Argo dispatcher">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#local-check-without-awx-or-tyk" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Local check without AWX or Tyk
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1874,6 +1902,34 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#incremental-awx-playbook-output-for-an-argo-dispatcher" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Incremental AWX playbook output for an Argo dispatcher
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Incremental AWX playbook output for an Argo dispatcher">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#local-check-without-awx-or-tyk" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Local check without AWX or Tyk
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1950,6 +2006,57 @@ all subclasses of <code>ExternalServiceError(HTTPException)</code>. Import them 
 <li><a href="../../reference/api/connectors/">Connectors API reference</a></li>
 <li><a href="../read-write-bitbucket/">Read &amp; write Bitbucket files</a></li>
 </ul>
+<h2 id="incremental-awx-playbook-output-for-an-argo-dispatcher">Incremental AWX playbook output for an Argo dispatcher<a class="headerlink" href="#incremental-awx-playbook-output-for-an-argo-dispatcher" title="Permanent link">&para;</a></h2>
+<p><code>get_job_output</code> is an opt-in method for <strong>single playbook jobs</strong>, including jobs launched
+by the CloudCore/Linux APIs. An Argo Workflow and an AWX workflow job are different:
+this method does not aggregate child jobs of an AWX workflow job.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">chunk</span> <span class="o">=</span> <span class="k">await</span> <span class="n">awx</span><span class="o">.</span><span class="n">get_job_output</span><span class="p">(</span><span class="n">job_id</span><span class="p">,</span> <span class="n">start_line</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">page_size</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="c1"># Serialize chunk with model_dump(mode="json") in your API.</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="c1"># On the dispatcher: print chunk.stdout, then retain chunk.next_line per job.</span>
+</code></pre></div>
+<p>The response includes existing <code>status</code>, <code>status_code</code>, <code>job_id</code>, <code>stdout</code> fields plus:</p>
+<ul>
+<li><code>next_line</code>: the next AWX stdout position; send it as <code>start_line</code> on the next request.</li>
+<li><code>has_more</code>: another page or a gap in arriving events requires another fetch.</li>
+<li><code>finished</code>: the job is terminal, AWX reports <code>event_processing_finished=true</code>,
+  and this chunk drains the available output. <strong>Print this chunk before stopping.</strong></li>
+</ul>
+<p>An API may expose a separate output endpoint returning HTTP 200 for successful reads,
+with job status in the JSON. The <code>status_code</code> field remains the existing AWX status
+mapping; it is not the transport status of this separate output endpoint. Keep the existing status endpoint unchanged. The dispatcher
+must stop on <code>finished</code>, not merely a successful job status, and determine its final exit
+code from <code>status</code>. Failed/canceled jobs can still have output to drain. Network/auth errors
+are request failures; do not advance the cursor on them. Retain a total wait timeout,
+including while waiting for late output or missing processing metadata.</p>
+<p>The implementation reads one page from <code>/api/v2/jobs/{id}/job_events/</code>, ordered by stdout
+position, and advances only through contiguous lines. Empty reads leave the cursor unchanged.
+Drain pages immediately while <code>has_more</code> is true and <code>next_line</code> advances. If the cursor
+does not advance (a gap), sleep before retrying to avoid a busy loop. Zero-line events are
+filtered before pagination so they cannot block the cursor.
+Page size bounds the number of events, not their byte size. AWX output is returned explicitly;
+the library does not automatically log playbook output or expose <code>event_data</code>/variables.
+Output can itself contain sensitive playbook values, so use the same access restrictions
+as the existing job and AWX's <code>no_log</code> protections. Cursors are job-specific; persist them
+outside the process if the dispatcher must resume after a restart. This is not exactly-once
+delivery across crashes.</p>
+<p>The API must authorize access to each job, just as the status endpoint does. No AWX token
+is passed to the dispatcher. A FastAPI response model must preserve the new fields rather
+than downcast to <code>AWXOperationResponse</code>.</p>
+<h3 id="local-check-without-awx-or-tyk">Local check without AWX or Tyk<a class="headerlink" href="#local-check-without-awx-or-tyk" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nv">DEBUG</span><span class="o">=</span><span class="nb">false</span><span class="w"> </span>.venv/bin/pytest<span class="w"> </span>tests/connectors/test_awx_output.py<span class="w"> </span>tests/connectors/test_awx_client.py<span class="w"> </span>--no-cov
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="nv">DEBUG</span><span class="o">=</span><span class="nb">false</span><span class="w"> </span><span class="nv">PYTHONPATH</span><span class="o">=</span>src<span class="w"> </span>.venv/bin/python<span class="w"> </span>examples/awx_output_demo.py
+</code></pre></div>
+<p>The demo uses mocked AWX HTTP responses and an in-process FastAPI endpoint, then prints
+three incremental chunks from a dispatcher-like HTTP client. The simulated playbook adds
+these chunks while the dispatcher sleeps; the dispatcher then drains multiple pages
+without sleeping again. The GitHub checks workflow also runs this simulation. It needs the dev dependencies.
+This validates the library and proposed HTTP contract, not the closed-network API or Tyk.
+Before promotion, verify the deployed AWX exposes <code>start_line</code>, <code>end_line</code>,
+<code>event_processing_finished</code>, supports the event filters, and permits the API token to read
+job events. Older versions lacking completion metadata will time out rather than silently
+claim all output was delivered.</p>
+<p>The event ordering/completion approach follows the
+<a href="https://github.com/ansible/awx/blob/devel/awxkit/awxkit/cli/stdout.py">AWX CLI monitor</a>.</p>
 
 
 
@@ -2005,10 +2112,10 @@ all subclasses of <code>ExternalServiceError(HTTPException)</code>. Import them 
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.indexes", "content.code.copy", "content.code.annotate", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.indexes", "content.code.copy", "content.code.annotate", "toc.follow"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>
