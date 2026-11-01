@@ -5,8 +5,12 @@ from __future__ import annotations
 import asyncio
 from typing import Any, Awaitable, Callable, Dict, Optional
 
+import httpx
 from loguru import logger
+from pydantic import ValidationError
 
+from ..errors import AWXError
+from ._log_summary import bound_logs, filter_ansible_logs, job_summary, status_heading
 from .client import AWXClient
 from .models import AWXJobOutputResponse, AWXJobStatus, AWXOperationResponse
 from .status_code_mappings import status_code_mapping
@@ -112,11 +116,14 @@ class AWX:
             stdout=job.result_stdout or "",
         )
 
-    async def get_job_status(self, job_id: int) -> AWXOperationResponse:
+    async def get_job_status(
+        self, job_id: int, *, include_logs: bool = False
+    ) -> AWXOperationResponse:
         """Get the status of a single job.
 
         Args:
             job_id: Job ID
+            include_logs: Include a concise stdout summary (default False).
 
         Returns:
             AWXOperationResponse object with current job status
@@ -124,17 +131,21 @@ class AWX:
         logger.debug(f"Getting status for job {job_id}")
         job = await self.client.get_job_status(job_id)
 
-        return _operation_response(
-            status=job.status,
-            job_id=job.id,
-            stdout=job.result_stdout or "",
-        )
+        stdout = job.result_stdout or ""
+        if include_logs:
+            stdout = job_summary(
+                job.name or f"job-{job.id}", job.status.value, await self._filtered_job_logs(job.id)
+            )
+        return _operation_response(status=job.status, job_id=job.id, stdout=stdout)
 
-    async def get_workflow_job_status(self, workflow_job_id: int) -> AWXOperationResponse:
+    async def get_workflow_job_status(
+        self, workflow_job_id: int, *, include_logs: bool = False
+    ) -> AWXOperationResponse:
         """Get the status of a workflow job.
 
         Args:
             workflow_job_id: Workflow job ID
+            include_logs: Summarize child jobs and failed-job output (default False).
 
         Returns:
             AWXOperationResponse object with current workflow status
@@ -145,6 +156,7 @@ class AWX:
         return _operation_response(
             status=job.status,
             job_id=job.id,
+            stdout=await self._workflow_log_summary(job.id, set(), 0) if include_logs else "",
         )
 
     async def _wait_for_completion(
@@ -260,3 +272,35 @@ class AWX:
             has_more=has_more,
             finished=terminal and job.event_processing_finished is True and not has_more,
         )
+
+    async def _filtered_job_logs(self, job_id: int) -> str:
+        try:
+            stdout = await self.client.get_job_stdout(job_id)
+            return filter_ansible_logs(stdout.text)
+        except (AWXError, httpx.HTTPError, ValidationError):
+            logger.warning("AWX stdout unavailable for job {}", job_id)
+            return "[AWX output unavailable]"
+
+    async def _workflow_log_summary(self, workflow_id: int, seen: set[int], depth: int) -> str:
+        if workflow_id in seen or depth >= 10:
+            return "[nested workflow traversal limit reached]"
+        seen = seen | {workflow_id}
+        try:
+            nodes = await self.client.get_workflow_nodes(workflow_id)
+        except (AWXError, httpx.HTTPError, ValidationError):
+            logger.warning("AWX workflow nodes unavailable for workflow {}", workflow_id)
+            return "[AWX workflow nodes unavailable]"
+        parts = []
+        for node in nodes:
+            info = node.summary_fields.job
+            if node.job is None or info is None or info.type == "project_update":
+                continue
+            name = info.name or f"job-{node.job}"
+            parts.append(status_heading(name, info.status))
+            if info.type == "workflow_job":
+                nested = await self._workflow_log_summary(node.job, seen, depth + 1)
+                parts.extend("  " + line for line in nested.splitlines())
+            elif info.type == "job" and info.status in {"failed", "error", "canceled"}:
+                logs = await self._filtered_job_logs(node.job)
+                parts.extend("  " + line for line in logs.splitlines()[-10:])
+        return bound_logs("\n".join(parts))

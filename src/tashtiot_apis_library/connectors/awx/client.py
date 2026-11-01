@@ -10,7 +10,10 @@ from ..errors import AWXError
 from .models import (
     AWXJob,
     AWXJobEventPage,
+    AWXJobStdout,
     AWXWorkflowJob,
+    AWXWorkflowNode,
+    AWXWorkflowNodePage,
 )
 
 __all__ = ["AWXClient"]
@@ -222,3 +225,38 @@ class AWXClient:
                 body = {}
             _handle_response(body, response.status_code)
         return AWXJobEventPage.model_validate(response.json())
+
+    async def get_job_stdout(self, job_id: int) -> AWXJobStdout:
+        """Read plain stdout explicitly, rather than the optional result_stdout field."""
+        response = await self.api.get(
+            f"/api/v2/jobs/{job_id}/stdout/",
+            params={"format": "txt"},
+            headers={"Accept": "text/plain"},
+        )
+        if response.status_code >= 400:
+            try:
+                body = response.json()
+            except ValueError:
+                body = {}
+            _handle_response(body, response.status_code)
+        return AWXJobStdout(text=response.text)
+
+    async def get_workflow_nodes(self, workflow_job_id: int) -> list[AWXWorkflowNode]:
+        """Read all node pages in deterministic order without following external URLs."""
+        nodes = []
+        for page_number in range(1, 101):
+            response = await self.api.get(
+                f"/api/v2/workflow_jobs/{workflow_job_id}/workflow_nodes/",
+                params={"page": page_number, "page_size": 100, "order_by": "id"},
+            )
+            if response.status_code >= 400:
+                try:
+                    body = response.json()
+                except ValueError:
+                    body = {}
+                _handle_response(body, response.status_code)
+            page = AWXWorkflowNodePage.model_validate(response.json())
+            nodes.extend(page.results)
+            if not page.next:
+                return nodes
+        raise AWXError(status_code=502, detail="AWX workflow node pagination limit exceeded")
