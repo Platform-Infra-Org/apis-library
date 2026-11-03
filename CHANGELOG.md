@@ -5,6 +5,11 @@ All notable changes to this project are documented here. The format is based on
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). The version is derived from git tags by
 setuptools-scm.
 
+## [1.3.1] - 2026-11-03
+
+### Fixed
+
+- Adjusted AWX Logs to be more informative (#19)
 ## [1.3.0] - 2026-10-29
 
 ### Added
