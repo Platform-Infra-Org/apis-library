@@ -818,6 +818,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#concise-status-summaries-jobs-and-workflow-jobs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Concise status summaries (jobs and workflow jobs)
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1930,6 +1941,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#concise-status-summaries-jobs-and-workflow-jobs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Concise status summaries (jobs and workflow jobs)
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2057,6 +2079,54 @@ job events. Older versions lacking completion metadata will time out rather than
 claim all output was delivered.</p>
 <p>The event ordering/completion approach follows the
 <a href="https://github.com/ansible/awx/blob/devel/awxkit/awxkit/cli/stdout.py">AWX CLI monitor</a>.</p>
+<h2 id="concise-status-summaries-jobs-and-workflow-jobs">Concise status summaries (jobs and workflow jobs)<a class="headerlink" href="#concise-status-summaries-jobs-and-workflow-jobs" title="Permanent link">&para;</a></h2>
+<p>For the Linux API/Dispatcher integration that already prints response bodies, use
+<code>include_logs=True</code> on the <strong>existing status methods</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Inside your existing JOBSTATUS handler; return the result as before.</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">awx</span><span class="o">.</span><span class="n">get_workflow_job_status</span><span class="p">(</span><span class="n">workflow_job_id</span><span class="p">,</span> <span class="n">include_logs</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="c1"># Or, for a standalone playbook job:</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">awx</span><span class="o">.</span><span class="n">get_job_status</span><span class="p">(</span><span class="n">job_id</span><span class="p">,</span> <span class="n">include_logs</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
+<p>Both still return <code>AWXOperationResponse</code>, with the same status and HTTP-code mapping.
+The optional summary fills <code>stdout</code>; the default (<code>False</code>) preserves existing behavior.
+Keep your API's existing authentication and response-code handling. There is no need
+for a new endpoint or cursor in the dispatcher for this snapshot mode. The dispatcher
+must display the response's <code>stdout</code> (its existing response-body logging may show it as
+JSON with escaped newlines; printing <code>stdout</code> separately gives readable lines).</p>
+<p>Example workflow <code>stdout</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>[✓] Create VM: successful
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>[✓] Configure Linux: successful
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>[✗] Install monitoring: failed
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>  TASK [Install monitoring agent]
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>  fatal: [server-01]: FAILED!
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    → No package monitoring-agent available
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>  PLAY RECAP *********************************************************************
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>  server-01 : ok=4 changed=2 unreachable=0 failed=1 skipped=0 rescued=0 ignored=0
+</code></pre></div>
+<p>Workflow summaries list started child jobs and fetch the last ten filtered lines only
+for failed, errored, or canceled playbook jobs. Project-update nodes are skipped.
+Nested workflow jobs are traversed, with cycle/depth protection. Other node types show
+status only; nodes without a job or job summary are omitted. Node pages are read in ID
+order (not a chronological merge of parallel output), up to 100 pages of 100 nodes.
+Standalone jobs show their heading plus the last two recap lines on success, or ten
+filtered lines on failure/error/cancellation. Pending/running states use a neutral icon.</p>
+<p>The filter retains play/task headers, action results, warnings, errors, short messages,
+and play recap. It strips ANSI colors and omits verbose module result bodies. It keeps
+at most 100 selected lines and 10,000 characters per filtered log and caps the combined
+workflow summary at 10,000 characters with a truncation marker. These are output limits;
+AWX's plain-text stdout response is still fetched in full. This is a presentation filter,
+<strong>not secret redaction</strong>: task names and messages may still include sensitive data.</p>
+<p>This is a <strong>snapshot summary</strong>, not incremental streaming: repeated polls may repeat
+headings/output, successful workflow children do not include their full playbook output,
+and the existing status completion does not wait for late AWX event processing.
+Use <code>get_job_output</code> when incremental, fully drained single-job output is required.
+Optional log/node retrieval errors produce an unavailable marker and a warning while
+preserving the primary status. Errors fetching the primary status still raise normally.</p>
+<p>Preview locally without AWX/Tyk:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nv">DEBUG</span><span class="o">=</span><span class="nb">false</span><span class="w"> </span><span class="nv">PYTHONPATH</span><span class="o">=</span>src<span class="w"> </span>.venv/bin/python<span class="w"> </span>examples/awx_status_summary_demo.py
+</code></pre></div>
+<p>AWX exposes <a href="https://docs.ansible.com/projects/awx/en/latest/rest_api/api_ref.html">workflow nodes and job stdout through its API</a>.
+The API's AWX token must have permission to read those resources.</p>
 
 
 
