@@ -20,6 +20,9 @@ __all__ = [
     "AWXJobEvent",
     "AWXJobEventPage",
     "AWXJobOutputResponse",
+    "AWXJobStdout",
+    "AWXWorkflowNode",
+    "AWXWorkflowNodePage",
 ]
 
 
@@ -133,3 +136,28 @@ class AWXJobOutputResponse(AWXOperationResponse):
     next_line: int
     has_more: bool
     finished: bool
+
+
+class AWXJobStdout(BaseModel):
+    text: str
+
+
+class AWXNodeJobSummary(BaseModel):
+    name: str = ""
+    status: str = "unknown"
+    type: str = "job"
+
+
+class AWXNodeSummaryFields(BaseModel):
+    job: Optional[AWXNodeJobSummary] = None
+
+
+class AWXWorkflowNode(BaseModel):
+    id: int
+    job: Optional[int] = None
+    summary_fields: AWXNodeSummaryFields = Field(default_factory=AWXNodeSummaryFields)
+
+
+class AWXWorkflowNodePage(BaseModel):
+    results: List[AWXWorkflowNode]
+    next: Optional[str] = None

@@ -134,3 +134,66 @@ claim all output was delivered.
 
 The event ordering/completion approach follows the
 [AWX CLI monitor](https://github.com/ansible/awx/blob/devel/awxkit/awxkit/cli/stdout.py).
+
+## Concise status summaries (jobs and workflow jobs)
+
+For the Linux API/Dispatcher integration that already prints response bodies, use
+`include_logs=True` on the **existing status methods**:
+
+```python
+# Inside your existing JOBSTATUS handler; return the result as before.
+result = await awx.get_workflow_job_status(workflow_job_id, include_logs=True)
+# Or, for a standalone playbook job:
+result = await awx.get_job_status(job_id, include_logs=True)
+```
+
+Both still return `AWXOperationResponse`, with the same status and HTTP-code mapping.
+The optional summary fills `stdout`; the default (`False`) preserves existing behavior.
+Keep your API's existing authentication and response-code handling. There is no need
+for a new endpoint or cursor in the dispatcher for this snapshot mode. The dispatcher
+must display the response's `stdout` (its existing response-body logging may show it as
+JSON with escaped newlines; printing `stdout` separately gives readable lines).
+
+Example workflow `stdout`:
+
+```text
+[✓] Create VM: successful
+[✓] Configure Linux: successful
+[✗] Install monitoring: failed
+  TASK [Install monitoring agent]
+  fatal: [server-01]: FAILED!
+    → No package monitoring-agent available
+  PLAY RECAP *********************************************************************
+  server-01 : ok=4 changed=2 unreachable=0 failed=1 skipped=0 rescued=0 ignored=0
+```
+
+Workflow summaries list started child jobs and fetch the last ten filtered lines only
+for failed, errored, or canceled playbook jobs. Project-update nodes are skipped.
+Nested workflow jobs are traversed, with cycle/depth protection. Other node types show
+status only; nodes without a job or job summary are omitted. Node pages are read in ID
+order (not a chronological merge of parallel output), up to 100 pages of 100 nodes.
+Standalone jobs show their heading plus the last two recap lines on success, or ten
+filtered lines on failure/error/cancellation. Pending/running states use a neutral icon.
+
+The filter retains play/task headers, action results, warnings, errors, short messages,
+and play recap. It strips ANSI colors and omits verbose module result bodies. It keeps
+at most 100 selected lines and 10,000 characters per filtered log and caps the combined
+workflow summary at 10,000 characters with a truncation marker. These are output limits;
+AWX's plain-text stdout response is still fetched in full. This is a presentation filter,
+**not secret redaction**: task names and messages may still include sensitive data.
+
+This is a **snapshot summary**, not incremental streaming: repeated polls may repeat
+headings/output, successful workflow children do not include their full playbook output,
+and the existing status completion does not wait for late AWX event processing.
+Use `get_job_output` when incremental, fully drained single-job output is required.
+Optional log/node retrieval errors produce an unavailable marker and a warning while
+preserving the primary status. Errors fetching the primary status still raise normally.
+
+Preview locally without AWX/Tyk:
+
+```bash
+DEBUG=false PYTHONPATH=src .venv/bin/python examples/awx_status_summary_demo.py
+```
+
+AWX exposes [workflow nodes and job stdout through its API](https://docs.ansible.com/projects/awx/en/latest/rest_api/api_ref.html).
+The API's AWX token must have permission to read those resources.
