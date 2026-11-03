@@ -6,7 +6,6 @@ Run: DEBUG=false PYTHONPATH=src .venv/bin/python examples/awx_status_summary_dem
 import asyncio
 
 import respx
-from linux_api.operation_linux import get_machine_status
 
 from tashtiot_apis_library import AWX
 
@@ -52,7 +51,7 @@ PLAY RECAP *********************************************************************
 server-01 : ok=4 changed=2 unreachable=0 failed=1 skipped=0 rescued=0 ignored=0
 """,
             )
-            result = await get_machine_status(awx, 500)
+            result = await awx.get_workflow_job_status(500, include_logs=True)
             print(result.stdout, flush=True)
             assert "No package monitoring-agent available" in result.stdout
             assert "invocation" not in result.stdout
