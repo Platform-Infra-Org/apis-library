@@ -39,7 +39,10 @@ dev = [
     "pytest-asyncio",
     "pytest-cov",
     "respx",
-    "ruff",
+    # Pinned to one minor line: ruff's formatter style (including Python blocks in Markdown) only
+    # changes between minors, so an unpinned ruff can fail CI on PRs that change nothing. Keep the
+    # pre-commit `rev` in .pre-commit-config.yaml on the same version, and bump both together.
+    "ruff>=0.17.6,<0.18",
     "ty",
     "pre-commit",
 ]
