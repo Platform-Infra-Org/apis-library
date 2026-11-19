@@ -15,3 +15,9 @@ decisions, the structure, and the trade-offs. Read these when you want context, 
   library patches the generated schema so Swagger shows live coordinate dropdowns.
 - **[Logging](logging.md)** — how a single global Loguru logger is configured once at import and
   shared everywhere.
+- **[Async and the event loop](async.md)** — what async is, why the library uses it instead of a
+  sync design, and why blocking calls are banned.
+- **[Job queues & long-running work](job-queues.md)** — the job-queue concept, why AWX already is
+  one, and the options when your API needs its own.
+- **[Cloud-native APIs & multiple replicas](cloud-native.md)** — what running several identical
+  pods means for state, idempotency, background tasks, shutdown, rollouts and observability.

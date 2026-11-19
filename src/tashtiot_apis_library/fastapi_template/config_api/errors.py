@@ -18,10 +18,10 @@ response-model failures, which *should* stay 500) is not a subclass of
 """
 
 from fastapi import FastAPI, Request
-from fastapi.exception_handlers import request_validation_exception_handler
-from fastapi.exceptions import RequestValidationError
 from fastapi.responses import Response
 from pydantic import ValidationError
+
+from .._internal.middlewares.exception import validation_error_response
 
 
 def install_coordinate_validation_error_handler(app: FastAPI) -> None:
@@ -37,4 +37,5 @@ def install_coordinate_validation_error_handler(app: FastAPI) -> None:
             err = dict(err)
             err["loc"] = ("query", *err.get("loc", ()))
             errors.append(err)
-        return await request_validation_exception_handler(request, RequestValidationError(errors))
+        # Same body as every other 422, without the submitted values (see validation_error_response).
+        return validation_error_response(errors)

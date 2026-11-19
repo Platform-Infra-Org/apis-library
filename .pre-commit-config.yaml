@@ -3,7 +3,7 @@
 # ruff + ruff-format run on every commit; ty is advisory (manual stage only).
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.18
+    rev: v0.17.6   # keep in step with the ruff pin in pyproject.toml [dev]
     hooks:
       - id: ruff-check    # lint, auto-fixing what it safely can
         args: [--fix]

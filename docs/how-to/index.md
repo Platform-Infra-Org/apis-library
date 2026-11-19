@@ -24,6 +24,11 @@ assuming you already know roughly what you want. If you're new, start with the
 - **[Generate dev auth material](generate-auth-material.md)** — mint keys and tokens with the
   `gen-auth-material` CLI.
 
+## APIs
+
+- **[Migrate an API to the current version](migrate-an-api.md)** — an agent prompt that upgrades an
+  API from an older library version, or rewrites it onto the library and the API standards.
+
 ## Capabilities
 
 - **[Enable the Remote Config API](enable-remote-config-api.md)** — wire an authenticated proxy to an

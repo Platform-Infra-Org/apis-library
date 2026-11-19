@@ -4,6 +4,9 @@ Reference material is **information-oriented**: the dry, authoritative facts. It
 machinery without teaching or persuading — look here when you need to confirm a name, a default, or a
 signature.
 
+- **[API standards](api-standards.md)** — the company rules every API built on the library
+  follows: the `{metadata, spec}` contract, status codes, async rules, auth, testing, and a
+  pre-merge checklist.
 - **[Configuration](configuration.md)** — every environment variable the FastAPI template reads, with
   defaults: core settings, inbound auth (`AUTH_*`), outbound SSO (`AUTH_SSO_*`), and Remote Config
   (`CONFIG_REMOTE_*`).

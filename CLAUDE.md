@@ -94,6 +94,27 @@ Use **relative imports** within the package (`from .client import ...`, `from ..
 ### Public API
 Top-level `tashtiot_apis_library/__init__.py` re-exports the connector services, error types, `general_create_app`, and the shared request schemas from `schemas.py` (`OperationRequest`, `ResourceSpec`, `DefaultMetaSpec`, `NameNamespace` — Kubernetes/PaaS-oriented Pydantic models with CPU/memory regex validation). Keep `__all__` here in sync when adding exports.
 
+## Migration prompt and API skill (keep in sync)
+
+Two consumer-facing agent files live in this repo and must be updated **in the same PR** as the
+change that affects them:
+
+- **`prompts/migrate-api.md`**: the prompt API teams use to upgrade to the current library version
+  (Mode A) or rewrite onto it (Mode B). It is rendered in the docs at
+  `docs/how-to/migrate-an-api.md` through a snippet include.
+- **`skills/building-tashtiot-apis/SKILL.md`**: the agent skill for day-to-day API work. It is a
+  condensed copy of `docs/reference/api-standards.md`, plus an import table and an example.
+
+| When a change… | Update |
+|---|---|
+| Changes anything a consumer must change or verify (public imports, signatures, defaults, behaviour, removals) | The prompt: its target version (including the `/tree/vX.Y.Z/` tag in its source links), its "Upgrade notes by version" table, and its library quick reference. The skill: its import table, rules and example. |
+| Adds a public capability that API teams should use | The prompt's quick reference and the relevant mode steps. The skill's rules, import table and common mistakes. |
+| Edits `docs/reference/api-standards.md` (a rule, status code, contract or convention) | The skill, so that it states the same rule, and the prompt if the rule affects migrations. |
+| Cuts a release | The prompt's target version and tag links, even if nothing else changed. |
+
+If you can't tell whether a change affects them, check both files. Stale guidance in either one is
+treated as a bug.
+
 ## Packaging notes
 - `pyproject.toml` (setuptools backend) is the single source of truth for build config and dependencies — there is no `setup.py` or `requirements.txt`.
 - The version is **dynamic**, derived from git tags by `setuptools-scm` (`dynamic = ["version"]` + `[tool.setuptools_scm]`); no version is hardcoded in source. `.woodpecker/build.yaml` rewrites only the `name` and exports `SETUPTOOLS_SCM_PRETEND_VERSION="${CI_COMMIT_TAG}"` so the built version matches the tag regardless of clone depth. Publishing is triggered by a `tag` or `manual` Woodpecker event and `curl`s the wheel/sdist to Artifactory.

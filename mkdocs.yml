@@ -92,8 +92,10 @@ nav:
       - Generate dev auth material: how-to/generate-auth-material.md
       - Add a new connector: how-to/add-a-connector.md
       - Extend the FastAPI template: how-to/extend-the-template.md
+      - Migrate an API to the current version: how-to/migrate-an-api.md
   - Reference:
       - reference/index.md
+      - API standards: reference/api-standards.md
       - Configuration: reference/configuration.md
       - CLI (gen-auth-material): reference/cli.md
       - API:
@@ -111,6 +113,9 @@ nav:
       - Dynamic config validation: explanation/dynamic-config-validation.md
       - OpenAPI & Swagger injection: explanation/openapi-swagger-injection.md
       - Logging: explanation/logging.md
+      - Async and the event loop: explanation/async.md
+      - Job queues & long-running work: explanation/job-queues.md
+      - Cloud-native APIs & multiple replicas: explanation/cloud-native.md
   - Contributing:
       - contributing/index.md
       - Development: contributing/development.md

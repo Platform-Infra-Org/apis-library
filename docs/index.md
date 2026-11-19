@@ -55,6 +55,7 @@ dev setup, tooling, and conventions.
 
 | You want to… | Go to |
 |---|---|
+| Build a company API the standard way | [Reference: API standards](reference/api-standards.md) |
 | Stand up a FastAPI service in minutes | [Tutorial: Your first app](tutorials/first-app.md) |
 | Protect endpoints with JWT bearer auth | [Tutorial: Secure your API](tutorials/secure-your-api.md) |
 | Talk to ArgoCD / AWX / Vault / Bitbucket | [How-to: connectors](how-to/use-awx-argocd-vault.md) |
