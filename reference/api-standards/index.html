@@ -1,0 +1,3814 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Infrastructure connectors (ArgoCD, AWX, Bitbucket Server, Vault) and a reusable FastAPI application template, in one Python package.">
+      
+      
+      
+      
+        <link rel="prev" href="../">
+      
+      
+        <link rel="next" href="../configuration/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>API standards - Tashtiot APIs Library</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#api-standards" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Tashtiot APIs Library" class="md-header__button md-logo" aria-label="Tashtiot APIs Library" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Tashtiot APIs Library
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              API standards
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../tutorials/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Tutorials
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../how-to/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  How-to guides
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../explanation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Explanation
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../changelog/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Changelog
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Tashtiot APIs Library" class="md-nav__button md-logo" aria-label="Tashtiot APIs Library" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Tashtiot APIs Library
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../tutorials/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tutorials
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Tutorials
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/first-app/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Your first app
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/secure-your-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Secure your API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../how-to/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How-to guides
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    How-to guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/read-write-bitbucket/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Read & write Bitbucket files
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/use-awx-argocd-vault/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Drive AWX, ArgoCD & Vault
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/secure-with-oidc-jwks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Secure an API with OIDC &amp; JWKS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/verify-a-token/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Verify a token outside a request
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/call-services-with-sso/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Call other services with SSO
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/enable-remote-config-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enable the Remote Config API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/constrain-field-by-config/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Constrain a field by resolved config
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/generate-auth-material/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Generate dev auth material
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/add-a-connector/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Add a new connector
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/extend-the-template/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Extend the FastAPI template
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/migrate-an-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Migrate an API to the current version
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API standards
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API standards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#stack" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stack
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#project-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Project layout
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#application-factory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Application factory
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#request-contract" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Request contract
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Request contract">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#shape" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Shape
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metadata-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Metadata rules
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#base-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Base models
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#field-conventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Field conventions
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#responses-and-status-codes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Responses and status codes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Errors
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#paths-and-versioning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Paths and versioning
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Paths and versioning">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#router-factories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Router factories
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#async-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Async rules
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#connectors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Connectors
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Authentication
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Authentication">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#inbound" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inbound
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#outbound-service-to-service" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Outbound (service to service)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#remote-config-upstream" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Remote Config upstream
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dev-tokens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dev tokens
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#remote-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Remote Config
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#long-running-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Long-running work
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multiple-replicas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multiple replicas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multi-step-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multi-step operations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#logging-and-observability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Logging and observability
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#packaging-and-docker" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Packaging and Docker
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ci" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CI
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="CI">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pipeline
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#versioning-and-changelog-git-cliff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Versioning and changelog (git-cliff)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#known-gaps-in-example-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Known gaps in example-api
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pre-merge-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pre-merge checklist
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI (gen-auth-material)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_5" id="__nav_4_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/connectors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Connectors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/fastapi-app/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FastAPI app
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Auth (inbound JWT)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Security (outbound SSO)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/config-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Remote Config API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Errors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/schemas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Schemas
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../explanation/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Explanation
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Explanation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/dynamic-config-validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dynamic config validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/openapi-swagger-injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenAPI & Swagger injection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/async/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Async and the event loop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/job-queues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Job queues & long-running work
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/cloud-native/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cloud-native APIs & multiple replicas
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../contributing/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/development/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#stack" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stack
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#project-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Project layout
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#application-factory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Application factory
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#request-contract" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Request contract
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Request contract">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#shape" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Shape
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metadata-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Metadata rules
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#base-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Base models
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#field-conventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Field conventions
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#responses-and-status-codes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Responses and status codes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Errors
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#paths-and-versioning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Paths and versioning
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Paths and versioning">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#router-factories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Router factories
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#async-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Async rules
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#connectors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Connectors
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Authentication
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Authentication">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#inbound" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inbound
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#outbound-service-to-service" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Outbound (service to service)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#remote-config-upstream" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Remote Config upstream
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dev-tokens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dev tokens
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#remote-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Remote Config
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#long-running-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Long-running work
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multiple-replicas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multiple replicas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multi-step-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multi-step operations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#logging-and-observability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Logging and observability
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#packaging-and-docker" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Packaging and Docker
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ci" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CI
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="CI">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pipeline
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#versioning-and-changelog-git-cliff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Versioning and changelog (git-cliff)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#known-gaps-in-example-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Known gaps in example-api
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pre-merge-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pre-merge checklist
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="api-standards">API standards<a class="headerlink" href="#api-standards" title="Permanent link">&para;</a></h1>
+<p>The company rules for every HTTP API built on <strong><code>tashtiot-apis-library</code></strong>. New APIs must follow
+them, and existing APIs should move towards them. This page lists the rules. The reasoning is in the
+<a href="../../explanation/">Explanation</a> pages, and the step-by-step recipes are in the
+<a href="../../how-to/">How-to guides</a>.</p>
+<div class="admonition info">
+<p class="admonition-title">Reference implementation</p>
+<p>The <strong><a href="https://github.com/Platform-Infra-Org/example-api"><code>example-api</code></a></strong> repository is a complete, runnable API built on this library. Copy its
+<strong>structure</strong> and <strong>library usage</strong>. Where it disagrees with this page, this page wins (see
+<a href="#known-gaps-in-example-api">Known gaps in <code>example-api</code></a>).</p>
+</div>
+<p>New to the library? Start with the <a href="../../tutorials/first-app/">Your first app</a> and
+<a href="../../tutorials/secure-your-api/">Secure your API</a> tutorials.</p>
+<div class="admonition tip">
+<p class="admonition-title">Working with an AI coding agent</p>
+<ul>
+<li><strong>Day-to-day API work:</strong> the library repository ships an agent skill with these rules,
+  <a href="https://github.com/Platform-Infra-Org/apis-library/tree/master/skills/building-tashtiot-apis"><code>skills/building-tashtiot-apis/</code></a>. Copy that folder into your API repository's
+  <code>.claude/skills/</code> (or into <code>~/.claude/skills/</code> for every repo).</li>
+<li><strong>Upgrading to a new library version, or rewriting an API onto the library:</strong> use the
+  <a href="../../how-to/migrate-an-api/">migration prompt</a>.</li>
+</ul>
+</div>
+<hr />
+<h2 id="stack">Stack<a class="headerlink" href="#stack" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Concern</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Language</td>
+<td>Python <strong>3.12</strong> (the library itself supports &gt;= 3.10)</td>
+</tr>
+<tr>
+<td>Web framework</td>
+<td><strong>FastAPI</strong> + <strong>uvicorn</strong> (ASGI)</td>
+</tr>
+<tr>
+<td>Shared SDK</td>
+<td><strong><code>tashtiot-apis-library</code></strong> (<a href="../../explanation/architecture/">Architecture</a>)</td>
+</tr>
+<tr>
+<td>Models / validation</td>
+<td><strong>Pydantic v2</strong>, <strong>pydantic-settings</strong> for config</td>
+</tr>
+<tr>
+<td>HTTP client</td>
+<td><strong>httpx</strong> (async), always via the library's <code>BaseAPI</code></td>
+</tr>
+<tr>
+<td>Logging</td>
+<td><strong>Loguru</strong>, configured by the library (<a href="../../explanation/logging/">Logging</a>)</td>
+</tr>
+<tr>
+<td>Package manager</td>
+<td><strong>uv</strong> (<code>uv.lock</code> committed, <code>uv.toml</code> never committed)</td>
+</tr>
+<tr>
+<td>Tests</td>
+<td><strong>pytest</strong> + <code>pytest-asyncio</code> (<code>asyncio_mode = "auto"</code>) + <code>respx</code></td>
+</tr>
+<tr>
+<td>CI</td>
+<td>Woodpecker (<code>.woodpecker/*.yaml</code>). See <a href="#ci">CI</a></td>
+</tr>
+<tr>
+<td>Image registry</td>
+<td><strong>JFrog Artifactory</strong> (base images are pulled from it, built images are pushed to it)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="project-layout">Project layout<a class="headerlink" href="#project-layout" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>&lt;your-api&gt;/
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>├── app/
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>│   ├── main.py            # create_app(): the ONLY wiring point (connectors + routers)
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>│   ├── global_conf.py     # app-wide BaseSettings -&gt; `global_config`
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>│   ├── schemas.py         # shared models (e.g. ProjectMetadata)
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>│   ├── helpers.py         # shared pure helpers (naming conventions, payload parsing)
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>│   └── v1/
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>│       └── &lt;resource&gt;/
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>│           ├── conf.py        # module BaseSettings -&gt; `config` (API_PREFIX, API_TAGS, ids…)
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>│           ├── schemas.py     # Pydantic request/response models ({metadata, spec})
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>│           ├── operations.py  # business logic; receives connectors as arguments
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>│           └── routes.py      # get_&lt;resource&gt;_router(deps) -&gt; APIRouter
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>├── tests/
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>│   ├── conftest.py        # hermetic env (shadows a developer .env)
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>│   └── v1/&lt;resource&gt;/     # conftest.py + test_*.py per module
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>├── .env.example           # every variable, documented. Committed.
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>├── .env                   # local values. NEVER committed.
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>├── pyproject.toml
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>├── uv.lock                # committed
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>├── uv.toml                # Artifactory index + creds. NEVER committed.
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>├── Dockerfile
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>├── .woodpecker/build.yaml
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>└── README.md
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>May</th>
+<th>May not</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>routes.py</code></td>
+<td>Declare paths, models and status codes; translate exceptions into HTTP responses</td>
+<td>Contain business logic; construct connectors</td>
+</tr>
+<tr>
+<td><code>operations.py</code></td>
+<td>Orchestrate connectors; apply business rules; roll back</td>
+<td>Import <code>Request</code>/<code>Response</code>; read env vars directly</td>
+</tr>
+<tr>
+<td><code>schemas.py</code></td>
+<td>Define shape and validation</td>
+<td>Perform I/O</td>
+</tr>
+<tr>
+<td><code>conf.py</code></td>
+<td>Declare settings with defaults and descriptions</td>
+<td>Hold real secrets as defaults</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="application-factory">Application factory<a class="headerlink" href="#application-factory" title="Permanent link">&para;</a></h2>
+<p><code>general_create_app()</code> (<a href="../api/fastapi-app/">API reference</a>) provides these built-ins:</p>
+<table>
+<thead>
+<tr>
+<th>Built-in</th>
+<th>Path / behaviour</th>
+<th>Flag (default)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Request logging middleware</td>
+<td>Logs every request and response (health/docs/metrics at DEBUG)</td>
+<td><code>enable_logging_middleware=True</code></td>
+</tr>
+<tr>
+<td>Timing middleware</td>
+<td>Adds the <code>X-Process-Time</code> header (ns)</td>
+<td><code>enable_time_recording_middleware=True</code></td>
+</tr>
+<tr>
+<td>Exception handlers</td>
+<td><code>HTTPException</code> → <code>{"detail": ...}</code>; validation → 422; anything else → 500 <code>"Internal Server Error"</code></td>
+<td><code>enable_exception_handlers=True</code></td>
+</tr>
+<tr>
+<td>Prometheus metrics</td>
+<td><code>GET /metrics</code> (+ <code>app_uptime_seconds</code> gauge)</td>
+<td><code>enable_metrics_route=True</code></td>
+</tr>
+<tr>
+<td>Swagger / ReDoc</td>
+<td><code>GET /docs</code>, <code>GET /redoc</code> (self-hosted assets)</td>
+<td><code>enable_swagger_routes=True</code></td>
+</tr>
+<tr>
+<td>Probes</td>
+<td><code>GET /liveness</code>, <code>GET /readiness</code></td>
+<td><code>enable_probe_routes=True</code></td>
+</tr>
+<tr>
+<td>Root route</td>
+<td><code>GET /</code> → welcome message</td>
+<td><code>enable_root_route=True</code></td>
+</tr>
+<tr>
+<td>Inbound JWT auth</td>
+<td>Global middleware (<a href="#authentication">Authentication</a>)</td>
+<td><code>enable_auth=False</code></td>
+</tr>
+<tr>
+<td>Background tasks</td>
+<td>Coroutines launched at startup and cancelled on shutdown</td>
+<td><code>async_background_tasks=[...]</code></td>
+</tr>
+</tbody>
+</table>
+<p>Any other keyword (<code>title</code>, <code>version</code>, <code>description</code>…) is passed through to <code>FastAPI()</code>.</p>
+<p><strong>Rules:</strong></p>
+<ul>
+<li><code>create_app()</code> in <code>app/main.py</code> is the <strong>single wiring point</strong>. It builds every connector
+  <strong>once</strong>, builds Remote Config if needed, and mounts every router.</li>
+<li><strong>Always pass <code>enable_auth=True</code>.</strong> The runtime switch <code>AUTH_ENABLED</code> decides whether auth is
+  enforced.</li>
+<li>Set <code>title</code> and <code>version</code> (<code>APP_VERSION</code>, injected from the git tag at build time).</li>
+<li>Something every API needs (a middleware, a route, a utility) goes into the library, not into one
+  API (<a href="../../how-to/extend-the-template/">Extend the FastAPI template</a>).</li>
+</ul>
+<hr />
+<h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
+<ul>
+<li>All configuration is <strong>pydantic-settings <code>BaseSettings</code></strong>, read from environment variables with
+  <code>.env</code> as a fallback. Environment variables take precedence.</li>
+<li><strong><code>app/global_conf.py</code></strong> holds settings shared across modules (connector URLs and tokens,
+  <code>TEAM_NAME</code>, <code>CONFIG_API_*</code>, <code>API_TITLE</code>, <code>APP_VERSION</code>) in the singleton <code>global_config</code>.</li>
+<li><strong><code>app/v1/&lt;resource&gt;/conf.py</code></strong> holds one module's settings, including <strong><code>API_PREFIX</code></strong> and
+  <strong><code>API_TAGS</code></strong>, in the singleton <code>config</code>.</li>
+<li>Every field has a <code>description=</code>. Use <code>SettingsConfigDict(env_file=".env", extra="ignore")</code>.</li>
+<li>Required settings have no default, so a missing value fails the app at startup.</li>
+<li><strong>Don't redeclare settings the library owns</strong> (<code>PORT</code>, <code>LOG_LEVEL</code>, <code>PROXIED</code>,
+  <code>PROXY_LISTEN_PATH</code>, <code>AUTH_*</code>, <code>AUTH_SSO_*</code>, <code>CONFIG_REMOTE_*</code>, probe and Swagger paths). The full
+  list is in <a href="../configuration/">Configuration</a>.</li>
+<li>When served under an ingress path prefix, set <code>PROXIED=true</code> and <code>PROXY_LISTEN_PATH=/&lt;prefix&gt;</code>.</li>
+</ul>
+<p><strong>Secrets:</strong></p>
+<ul>
+<li>Secrets come from the deployment's secret store (Vault or Kubernetes Secrets, injected as env vars
+  or mounted files). <strong>Never</strong> put them in git, a <code>conf.py</code> default, <code>.env.example</code>, logs or the
+  image.</li>
+<li><code>.env.example</code> lists <strong>every</strong> variable with a placeholder value and a comment.</li>
+<li><code>.env</code>, <code>uv.toml</code> and private keys are git-ignored.</li>
+</ul>
+<hr />
+<h2 id="request-contract">Request contract<a class="headerlink" href="#request-contract" title="Permanent link">&para;</a></h2>
+<h3 id="shape">Shape<a class="headerlink" href="#shape" title="Permanent link">&para;</a></h3>
+<p>Every write route's request body has exactly two top-level objects:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="nt">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="nt">"project"</span><span class="p">:</span><span class="w"> </span><span class="s2">"payments"</span><span class="p">,</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="nt">"space"</span><span class="p">:</span><span class="w"> </span><span class="s2">"net"</span><span class="p">,</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="nt">"network"</span><span class="p">:</span><span class="w"> </span><span class="s2">"core"</span><span class="p">,</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="nt">"region"</span><span class="p">:</span><span class="w"> </span><span class="s2">"kirya"</span><span class="p">,</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="nt">"island"</span><span class="p">:</span><span class="w"> </span><span class="s2">"a1"</span><span class="p">,</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="nt">"environment"</span><span class="p">:</span><span class="w"> </span><span class="s2">"prod"</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">  </span><span class="p">},</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">  </span><span class="nt">"spec"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">    </span><span class="nt">"record_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"api-01"</span><span class="p">,</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">    </span><span class="nt">"ip"</span><span class="p">:</span><span class="w"> </span><span class="s2">"10.0.0.15"</span><span class="p">,</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">    </span><span class="nt">"record_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"A"</span><span class="p">,</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">    </span><span class="nt">"dns_zone"</span><span class="p">:</span><span class="w"> </span><span class="s2">"net.com"</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="p">}</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Object</th>
+<th>Contents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>metadata</code></strong></td>
+<td><strong>Who</strong> is asking and <strong>where</strong> the operation targets: <code>project</code>, <code>space</code>, <code>network</code>, <code>region</code>, <code>island</code> and <code>environment</code>.</td>
+</tr>
+<tr>
+<td><strong><code>spec</code></strong></td>
+<td><strong>What</strong> to do: the resource-specific desired state. It is owned and defined by your API.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="metadata-rules">Metadata rules<a class="headerlink" href="#metadata-rules" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong><code>project</code> is always populated</strong> by callers and is <strong>required</strong>.</li>
+<li><strong><code>space</code>, <code>network</code>, <code>region</code>, <code>island</code> and <code>environment</code> are optional.</strong> Use the ones your
+   operation needs. Some APIs need none.</li>
+<li><strong>Every API accepts the <code>metadata</code> object</strong>, even if it uses none of it. Unused fields are
+   ignored, never rejected.</li>
+<li>An API that <strong>needs</strong> an optional coordinate enforces it in its own schema or operation and
+   returns a 422. It is not made required platform-wide.</li>
+<li>Unknown extra keys inside <code>metadata</code> are dropped (Pydantic's default <code>extra="ignore"</code>). Don't set
+   <code>extra="forbid"</code> on metadata models.</li>
+</ol>
+<h3 id="base-models">Base models<a class="headerlink" href="#base-models" title="Permanent link">&para;</a></h3>
+<p>From the top-level <code>tashtiot_apis_library</code> package (<a href="../api/schemas/">Schemas</a>):</p>
+<table>
+<thead>
+<tr>
+<th>Base</th>
+<th><code>metadata</code> type</th>
+<th>Validation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>InfraOperationRequest</code></td>
+<td><code>InfraMetadata</code>: <strong>all</strong> coordinates optional</td>
+<td>Live allowlists and coordinate hierarchy from the Config API (<a href="../../explanation/dynamic-config-validation/">Dynamic config validation</a>). <strong>Start from this one.</strong></td>
+</tr>
+<tr>
+<td><code>RequiredInfraOperationRequest</code></td>
+<td><code>RequiredInfraMetadata</code>: <strong>all</strong> coordinates required</td>
+<td>Same validation. Use only if your API needs every coordinate.</td>
+</tr>
+<tr>
+<td><code>OperationRequest</code></td>
+<td><code>MetadataRequest</code>: static, no live validation</td>
+<td>Legacy. Not for new code.</td>
+</tr>
+</tbody>
+</table>
+<p>None of these marks <strong>only</strong> <code>project</code> as required. Every API defines this once, in
+<code>app/schemas.py</code>, and reuses it:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Field</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">tashtiot_apis_library.fastapi_template.config_api</span><span class="w"> </span><span class="kn">import</span> <span class="n">InfraMetadata</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProjectMetadata</span><span class="p">(</span><span class="n">InfraMetadata</span><span class="p">):</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="sd">"""Platform metadata: project required, every other coordinate optional."""</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    <span class="n">project</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">"The platform application submitting the request"</span><span class="p">)</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="k">class</span><span class="w"> </span><span class="nc">MetadataRequest</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>    <span class="n">metadata</span><span class="p">:</span> <span class="n">ProjectMetadata</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">"Platform metadata (project required)."</span><span class="p">)</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="c1"># app/v1/dns/schemas.py</span>
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="k">class</span><span class="w"> </span><span class="nc">DNSRecordCreate</span><span class="p">(</span><span class="n">MetadataRequest</span><span class="p">):</span>
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>    <span class="n">spec</span><span class="p">:</span> <span class="n">DNSRecordCreateSpec</span>
+</code></pre></div>
+<h3 id="field-conventions">Field conventions<a class="headerlink" href="#field-conventions" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Validate at the boundary.</strong> Use typed fields (<code>IPv4Address</code>, <code>Enum</code>, <code>constr</code>, <code>max_length</code>)
+  and <code>field_validator</code>s. Bad input fails with <strong>422</strong> before any connector is called.</li>
+<li>Reuse library building blocks inside <code>spec</code> where they fit: <code>ResourceSpec</code>, <code>NameNamespace</code>,
+  <code>DefaultMetaSpec</code>.</li>
+<li>For a <code>spec</code> field whose allowed values depend on the request's coordinates, see
+  <a href="../../how-to/constrain-field-by-config/">Constrain a field by resolved config</a>.</li>
+<li>Every field has a <code>description=</code>.</li>
+<li><strong>Read and delete routes</strong> identify a resource with path or query parameters. Prefer query
+  parameters over a DELETE body, because some proxies drop DELETE bodies.</li>
+</ul>
+<hr />
+<h2 id="responses-and-status-codes">Responses and status codes<a class="headerlink" href="#responses-and-status-codes" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Every route declares <code>response_model=</code> (or a return type annotation). Raw dicts from external
+  services are never passed through.</li>
+<li>Operation results extend <strong><code>OperationResponse</code></strong> (<code>status</code>, <code>status_code</code>, <code>return_code</code>,
+  <code>stdout</code>), or one of its connector subclasses: <code>AWXOperationResponse</code> (+ <code>job_id</code>) or
+  <code>ArgoOperationResponse</code> (+ <code>app_name</code>). See
+  <a href="../../explanation/architecture/#standardized-responses-and-errors">Architecture</a>.</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Situation</th>
+<th>Code</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Synchronous read succeeded</td>
+<td><code>200</code></td>
+</tr>
+<tr>
+<td>Synchronous create finished</td>
+<td><code>201</code></td>
+</tr>
+<tr>
+<td><strong>Work accepted, finishing asynchronously</strong> (AWX job launched, ArgoCD sync started, job queued)</td>
+<td><strong><code>202</code></strong> + an id to poll (<a href="#long-running-work">Long-running work</a>)</td>
+</tr>
+<tr>
+<td>Delete finished, no body</td>
+<td><code>204</code></td>
+</tr>
+<tr>
+<td>Validation failed</td>
+<td><code>422</code> (automatic)</td>
+</tr>
+<tr>
+<td>Missing, invalid or wrong-audience token</td>
+<td><code>401</code> (automatic, from the middleware)</td>
+</tr>
+<tr>
+<td>Resource not found</td>
+<td><code>404</code></td>
+</tr>
+<tr>
+<td>Conflict (already exists, concurrent change)</td>
+<td><code>409</code></td>
+</tr>
+<tr>
+<td>An upstream (AWX, ArgoCD, Vault, Git, …) failed</td>
+<td><strong><code>502</code></strong></td>
+</tr>
+<tr>
+<td>An upstream timed out</td>
+<td><code>504</code></td>
+</tr>
+<tr>
+<td>Bug</td>
+<td><code>500</code> (automatic; never raised deliberately)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="errors">Errors<a class="headerlink" href="#errors" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Connectors raise subclasses of <strong><code>ExternalServiceError</code></strong>: <code>AWXError</code>, <code>ArgoCDError</code>,
+  <code>GitError</code> and <code>VaultError</code>. Each carries <code>service_name</code>, <code>status_code</code> and <code>detail</code>
+  (<a href="../api/errors/">Errors</a>).</li>
+<li><code>ExternalServiceError</code> is a FastAPI <code>HTTPException</code>. Uncaught, it returns the <strong>upstream's</strong>
+  status code to the client. Routes catch it and return <strong>502</strong>:
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">app_name</span> <span class="o">=</span> <span class="n">build_app_name</span><span class="p">(</span><span class="n">cluster</span><span class="p">,</span> <span class="n">namespace</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="s2">"haproxy"</span><span class="p">)</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="k">await</span> <span class="n">create_haproxy_operation</span><span class="p">(</span><span class="n">git</span><span class="o">=</span><span class="n">git</span><span class="p">,</span> <span class="n">vault</span><span class="o">=</span><span class="n">vault</span><span class="p">,</span> <span class="n">argocd</span><span class="o">=</span><span class="n">argocd</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="n">payload</span><span class="o">.</span><span class="n">spec</span><span class="p">)</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="k">except</span> <span class="n">ExternalServiceError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="k">return</span> <span class="n">JSONResponse</span><span class="p">(</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>        <span class="n">ArgoOperationResponse</span><span class="p">(</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>            <span class="n">app_name</span><span class="o">=</span><span class="n">app_name</span><span class="p">,</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>            <span class="n">status</span><span class="o">=</span><span class="s2">"Failed"</span><span class="p">,</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>            <span class="n">status_code</span><span class="o">=</span><span class="n">err</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>            <span class="n">stdout</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">err</span><span class="o">.</span><span class="n">service_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">err</span><span class="o">.</span><span class="n">detail</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>        <span class="p">)</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(),</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>        <span class="n">status_code</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_502_BAD_GATEWAY</span><span class="p">,</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>    <span class="p">)</span>
+</code></pre></div></li>
+<li>An expected upstream <code>404</code> (for example "secret doesn't exist yet") is handled in the operation by
+  checking <code>exc.status_code == 404</code>. It is not treated as a failure.</li>
+<li>Auth error types (<code>AuthConfigError</code>, <code>TokenError</code>, <code>SSOError</code>) are imported from
+  <code>tashtiot_apis_library.fastapi_template.errors</code> or the top-level package, never from <code>_internal</code>.</li>
+<li>Error <code>detail</code> never contains stack traces, tokens, or upstream bodies that may hold secrets.</li>
+<li>Error bodies use the shape <code>{"detail": "..."}</code>.</li>
+<li>422 responses and validation log lines contain only each error's <code>loc</code>, <code>msg</code> and <code>type</code>. The
+  library strips the submitted value (<code>input</code>) and <code>ctx</code>, so a rejected password is never echoed or
+  logged. Custom validator messages must not include the value either: write
+  <code>"not a valid IPv4 address"</code>, not <code>f"'{v}' is not a valid IPv4 address"</code>.</li>
+</ul>
+<hr />
+<h2 id="paths-and-versioning">Paths and versioning<a class="headerlink" href="#paths-and-versioning" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Path scheme: <strong><code>/api/&lt;api-name&gt;/v&lt;N&gt;/&lt;resource&gt;</code></strong>, for example <code>/api/example/v1/dns</code>, set as
+  <code>API_PREFIX</code> in the module's <code>conf.py</code>.</li>
+<li>Resource names are plural nouns, and HTTP verbs carry the action. Job status:
+  <code>GET .../status/{job_id}</code> or <code>GET .../status?...</code>.</li>
+<li><strong>A breaking change means a new version.</strong> It goes in <code>app/v2/&lt;resource&gt;/</code> alongside <code>v1</code>.
+  Removing or renaming a field, changing a type, or making an optional field required is breaking.
+  Adding an optional field is not.</li>
+<li>Endpoints are grouped in Swagger with <code>API_TAGS</code>, for example <code>["v1 - DNS Operations"]</code>.</li>
+<li>Every route has a <code>summary</code>, a <code>description</code>, a <code>response_model</code> and an explicit status code.</li>
+</ul>
+<h3 id="router-factories">Router factories<a class="headerlink" href="#router-factories" title="Permanent link">&para;</a></h3>
+<p>Each module exposes <code>get_&lt;resource&gt;_router(&lt;connectors...&gt;) -&gt; APIRouter</code>. Connectors are captured in
+the closure and passed explicitly to operations. They are not injected with FastAPI <code>Depends</code>, and
+they are never constructed per request.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_v1_dns_router</span><span class="p">(</span><span class="n">awx_client</span><span class="p">:</span> <span class="n">AWX</span><span class="p">,</span> <span class="n">provider</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">APIRouter</span><span class="p">:</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="n">router</span> <span class="o">=</span> <span class="n">APIRouter</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">API_PREFIX</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">API_TAGS</span><span class="p">)</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>        <span class="s2">"/"</span><span class="p">,</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>        <span class="n">response_model</span><span class="o">=</span><span class="n">DNSRecordResponse</span><span class="p">,</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>        <span class="n">status_code</span><span class="o">=</span><span class="mi">202</span><span class="p">,</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>        <span class="n">summary</span><span class="o">=</span><span class="s2">"Create DNS Record"</span><span class="p">,</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>        <span class="n">description</span><span class="o">=</span><span class="s2">"Launches the AWX create-DNS job."</span><span class="p">,</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>    <span class="p">)</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="n">record</span><span class="p">:</span> <span class="n">DNSRecordCreate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DNSRecordResponse</span><span class="p">:</span>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>        <span class="k">return</span> <span class="k">await</span> <span class="n">create_dns</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">awx_client</span><span class="p">,</span> <span class="n">provider</span><span class="p">)</span>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>    <span class="k">return</span> <span class="n">router</span>
+</code></pre></div>
+<hr />
+<h2 id="async-rules">Async rules<a class="headerlink" href="#async-rules" title="Permanent link">&para;</a></h2>
+<p>Why these rules exist: <a href="../../explanation/async/">Async and the event loop</a>.</p>
+<ol>
+<li>Route handlers that do I/O are <code>async def</code> and <code>await</code> async libraries.</li>
+<li>
+<p>Nothing blocks the event loop inside <code>async def</code> code:</p>
+<table>
+<thead>
+<tr>
+<th>Forbidden</th>
+<th>Use instead</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>requests.get(...)</code></td>
+<td><code>BaseAPI</code> / <code>httpx.AsyncClient</code></td>
+</tr>
+<tr>
+<td><code>time.sleep(n)</code></td>
+<td><code>await asyncio.sleep(n)</code></td>
+</tr>
+<tr>
+<td><code>subprocess.run(...)</code></td>
+<td><code>await asyncio.create_subprocess_exec(...)</code></td>
+</tr>
+<tr>
+<td>A sync DB or SDK client</td>
+<td>Its async driver, or <code>await asyncio.to_thread(fn, ...)</code></td>
+</tr>
+<tr>
+<td>Heavy CPU work</td>
+<td><code>await asyncio.to_thread(...)</code>, or move it off the request path (<a href="#long-running-work">Long-running work</a>)</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p>Plain <code>def</code> handlers are only for trivial CPU-only work (such as <code>/whoami</code>), never as a way to
+   call sync I/O.</p>
+</li>
+<li>Independent calls run concurrently with <code>asyncio.gather</code>.</li>
+<li>No <code>asyncio.run()</code> or <code>loop.run_until_complete()</code> inside the app.</li>
+<li>Every network <code>await</code> has a timeout. <code>BaseAPI</code> defaults to 10 s, and the connector <code>wait_for_*</code>
+   helpers take explicit timeouts.</li>
+<li>Every task created with <code>asyncio.create_task</code> is kept referenced until it finishes
+   (<a href="../../explanation/job-queues/#in-process-background-tasks-are-not-a-queue">why</a>).</li>
+</ol>
+<hr />
+<h2 id="connectors">Connectors<a class="headerlink" href="#connectors" title="Permanent link">&para;</a></h2>
+<p>From the top-level <code>tashtiot_apis_library</code> package (<a href="../api/connectors/">Connectors</a>):</p>
+<table>
+<thead>
+<tr>
+<th>Connector</th>
+<th>Construct</th>
+<th>Main async methods</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>AWX</code></strong></td>
+<td><code>AWX(base_url, token)</code></td>
+<td><code>launch_job</code>, <code>launch_workflow_job</code>, <code>get_job_status(job_id, include_logs=False)</code>, <code>get_workflow_job_status</code>, <code>wait_for_job_completion(job_id, timeout=300, poll_interval=5)</code>, <code>wait_for_workflow_completion</code>, <code>get_job_output(job_id, start_line, page_size)</code></td>
+</tr>
+<tr>
+<td><strong><code>ArgoCD</code></strong></td>
+<td><code>ArgoCD(base_url, api_key, application_set_timeout)</code></td>
+<td><code>sync</code>, <code>create_app</code>, <code>delete_app</code>, <code>get_app_status</code>, <code>wait_for_app_creation</code>, <code>wait_for_app_deletion</code>, <code>wait_for_update</code>, <code>get_app_values</code>/<code>modify_values</code>, <code>get_app_parameters</code>/<code>modify_parameters</code>, <code>add_namespace_to_cluster_secret</code></td>
+</tr>
+<tr>
+<td><strong><code>Git</code></strong> (Bitbucket Server)</td>
+<td><code>Git(base_url, token, username_or_email, project_key, repo_slug, default_ref="main", ssh_key_file_path=..., ssh_port=7995)</code></td>
+<td><code>add_file</code>, <code>modify_file</code>, <code>delete_file</code>, <code>get_file_content</code>, <code>file_exists</code>, <code>list_dir</code>, <code>list_files_recursive</code></td>
+</tr>
+<tr>
+<td><strong><code>Vault</code></strong></td>
+<td><code>Vault(base_url, token)</code></td>
+<td><code>read_secret</code>, <code>write_secret</code>, <code>delete_secret</code></td>
+</tr>
+<tr>
+<td><strong><code>BaseAPI</code></strong> (generic)</td>
+<td><code>BaseAPI(base_url, headers=None, auth=None, timeout=10.0, verify=False)</code></td>
+<td>Any <code>httpx.AsyncClient</code> call</td>
+</tr>
+</tbody>
+</table>
+<p>Recipes: <a href="../../how-to/use-awx-argocd-vault/">Drive AWX, ArgoCD &amp; Vault</a>,
+<a href="../../how-to/read-write-bitbucket/">Read &amp; write Bitbucket files</a>.</p>
+<p><strong>Rules:</strong></p>
+<ol>
+<li>Connectors are constructed once in <code>create_app()</code> and injected.</li>
+<li>A connector is used instead of raw HTTP whenever one exists. Other services are called through
+   <code>BaseAPI</code>, or through <code>sso_authenticated_api</code> when they need an SSO token.</li>
+<li><code>BaseAPI</code> defaults to <code>verify=False</code>. Services with a valid certificate get <code>verify=True</code>, or
+   <code>REQUESTS_CA_BUNDLE</code>/<code>SSL_CERT_FILE</code> pointing at the corporate CA bundle. Turning verification off
+   is a deliberate, commented decision.</li>
+<li>Connector results are used as returned (Pydantic models / <code>OperationResponse</code>s). Raw JSON isn't
+   parsed by hand.</li>
+<li>An AWX launch result (<code>status="successful"</code>, <code>status_code=200</code>, <code>job_id</code>) means the job was
+   <strong>queued</strong>, not finished (<a href="../../explanation/job-queues/#awx-is-already-a-job-queue">AWX is already a job queue</a>).</li>
+<li>A new integration that more than one team will use is added to the library as a connector
+   (<a href="../../how-to/add-a-connector/">Add a new connector</a>, <a href="../../contributing/">Contributing</a>),
+   not copied between APIs.</li>
+</ol>
+<hr />
+<h2 id="authentication">Authentication<a class="headerlink" href="#authentication" title="Permanent link">&para;</a></h2>
+<p>Design background: <a href="../../explanation/authentication/">Authentication design</a>.</p>
+<h3 id="inbound">Inbound<a class="headerlink" href="#inbound" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Wired by <code>general_create_app(enable_auth=True)</code> and enforced only when <code>AUTH_ENABLED=true</code>. With it
+  off, the app boots <strong>open</strong> (development only).</li>
+<li>
+<p>Exactly <strong>one</strong> verification mode is configured. Otherwise app creation fails with
+  <code>AuthConfigError</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Setting</th>
+<th>Use for</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>JWKS / OIDC (RS256)</strong></td>
+<td><code>AUTH_OIDC_ISSUER</code> (discovery) or <code>AUTH_JWKS_URL</code></td>
+<td><strong>Production</strong> (<a href="../../how-to/secure-with-oidc-jwks/">Secure an API with OIDC &amp; JWKS</a>)</td>
+</tr>
+<tr>
+<td>Local public key (RS256)</td>
+<td><code>AUTH_PUBLIC_KEY_PEM</code> / <code>AUTH_PUBLIC_KEY_PATH</code></td>
+<td>Offline or air-gapped verification</td>
+</tr>
+<tr>
+<td>Shared secret (HS256)</td>
+<td><code>AUTH_HS256_SECRET</code></td>
+<td>Tests and local development only</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p><strong>What is checked:</strong> the token's signature, its expiry (<code>AUTH_REQUIRE_EXP=true</code> by default) and its
+  audience. <strong>Production sets <code>AUTH_AUDIENCE</code></strong> to the API's audience. <code>AUTH_ISSUER</code> is an optional
+  extra check.</p>
+</li>
+<li>The token is read from <code>Authorization: Bearer &lt;jwt&gt;</code> (<code>AUTH_HEADER_NAME</code>). A failure returns 401
+  with <code>WWW-Authenticate: Bearer</code>.</li>
+<li>Paths excluded by default: <code>/health</code>, <code>/metrics</code>, <code>/static</code>, <code>/docs</code>, <code>/redoc</code>,
+  <code>/openapi.json</code>, <code>/.well-known</code>, <code>/liveness</code> and <code>/readiness</code>. More can be added with
+  <code>AUTH_EXCLUDE_PATHS</code>. The probes stay excluded.</li>
+<li>Verified claims are read with <code>Depends(get_current_claims)</code> from
+  <code>tashtiot_apis_library.fastapi_template.auth</code>, for logging and auditing.</li>
+<li>Tokens are verified outside a request with <code>verify_token</code>
+  (<a href="../../how-to/verify-a-token/">Verify a token outside a request</a>).</li>
+<li>Swagger's <strong>Authorize</strong> button appears automatically when auth is enforced
+  (<a href="../../explanation/openapi-swagger-injection/">OpenAPI &amp; Swagger injection</a>).</li>
+</ul>
+<div class="admonition important">
+<p class="admonition-title">Authorization is handled outside the APIs</p>
+<p>For now, inbound auth is <strong>authentication only</strong>: the API checks that the JWT is valid and was
+issued for its audience. <strong>Authorization</strong> (which caller may do what, on which project) is
+enforced <strong>outside the APIs</strong>. APIs do <strong>not</strong> add permission checks on token claims such as
+<code>project</code>, roles or scopes.</p>
+</div>
+<h3 id="outbound-service-to-service">Outbound (service to service)<a class="headerlink" href="#outbound-service-to-service" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Protected downstream services are called with <code>sso_authenticated_api(base_url)</code> from
+  <code>tashtiot_apis_library.fastapi_template.security</code>, which uses the OAuth2 <code>client_credentials</code>
+  grant.</li>
+<li>It is configured by <code>AUTH_SSO_TOKEN_URL</code>, <code>AUTH_SSO_CLIENT_ID</code> and <code>AUTH_SSO_CLIENT_SECRET</code> (plus
+  the optional <code>SCOPE</code>, <code>AUDIENCE</code> and <code>AUTH_STYLE</code>).</li>
+<li>Tokens are cached and refreshed by the library. APIs don't cache tokens themselves.</li>
+<li>On Keycloak, the downstream <code>aud</code> comes from a scope with an Audience mapper (<code>AUTH_SSO_SCOPE</code>).</li>
+<li>Missing configuration raises <code>AuthConfigError</code>, which the operation catches and turns into a clean
+  error result.</li>
+<li>Recipes: <a href="../../how-to/call-services-with-sso/">Call other services with SSO</a>.</li>
+</ul>
+<h3 id="remote-config-upstream">Remote Config upstream<a class="headerlink" href="#remote-config-upstream" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>CONFIG_REMOTE_AUTH_METHOD</code>: <code>sso</code> (default, <code>CONFIG_REMOTE_SSO_*</code>), <code>bearer</code>
+  (<code>CONFIG_REMOTE_BEARER_TOKEN</code>) or <code>none</code> (local dev). See
+  <a href="../../how-to/enable-remote-config-api/#choose-the-outbound-auth">Enable the Remote Config API</a>.</li>
+</ul>
+<h3 id="dev-tokens">Dev tokens<a class="headerlink" href="#dev-tokens" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Generated with <code>gen-auth-material</code> (<a href="../../how-to/generate-auth-material/">Generate dev auth material</a>,
+  <a href="../cli/">CLI</a>).</li>
+</ul>
+<hr />
+<h2 id="remote-config">Remote Config<a class="headerlink" href="#remote-config" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Values that <strong>vary by environment or coordinate</strong> (template ids, endpoints, quotas) are resolved
+  through <code>enable_remote_config_api</code> and <code>provider.resolve_infra_config(payload.metadata)</code>, not
+  hard-coded per environment (<a href="../../how-to/enable-remote-config-api/">Enable the Remote Config API</a>).</li>
+<li>Wiring is <strong>opt-in</strong>: it is enabled only when <code>CONFIG_API_URL</code> is set, and an <code>AuthConfigError</code>
+  is caught and logged.</li>
+<li>Every resolved value has a static <code>conf.py</code> default used when the provider is disabled or the key
+  is missing:
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">resolved</span> <span class="o">=</span> <span class="k">await</span> <span class="n">provider</span><span class="o">.</span><span class="n">resolve_infra_config</span><span class="p">(</span><span class="n">payload</span><span class="o">.</span><span class="n">metadata</span><span class="p">)</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="n">template_id</span> <span class="o">=</span> <span class="n">resolved</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"awx_create_dns_template_id"</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">AWX_CREATE_DNS_TEMPLATE_ID</span><span class="p">)</span>
+</code></pre></div></li>
+</ul>
+<hr />
+<h2 id="long-running-work">Long-running work<a class="headerlink" href="#long-running-work" title="Permanent link">&para;</a></h2>
+<p>Concepts and the decision table: <a href="../../explanation/job-queues/">Job queues and long-running work</a>.</p>
+<ul>
+<li>Work that doesn't finish well within a request (about 5 s) is <strong>not awaited in the request</strong>.</li>
+<li>
+<p>The API contract for such work:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>POST   /api/&lt;api&gt;/v1/&lt;resource&gt;                -&gt; 202 {id, status, ...}
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>GET    /api/&lt;api&gt;/v1/&lt;resource&gt;/status/{id}    -&gt; 200 {id, status, stdout, ...}
+</code></pre></div>
+<p>Statuses use the <code>OperationResponse</code> vocabulary: <code>pending</code>/<code>running</code> while in progress, and
+<code>successful</code>, <code>failed</code> or <code>canceled</code> when terminal.
+- The status route returns <strong>HTTP 200</strong> whenever it read the job, including a failed one. The
+job's state goes in the body (<code>status</code>, and for AWX the mapped <code>status_code</code>). It is never copied
+into the HTTP status. An unknown id returns 404, and an upstream failure returns 502.
+- <strong>AWX jobs are the job queue.</strong> An API that launches AWX jobs returns the AWX <code>job_id</code> and reads
+  status with <code>awx.get_job_status</code>.
+- <strong>The library has no job queue implementation.</strong> A team that needs a durable queue for work
+  running inside its API implements one or uses an external solution.
+- In-process background tasks are only for short, best-effort work. Their status comes from the
+  external systems, never from memory, and each task is kept referenced.
+- Periodic work uses <code>general_create_app(async_background_tasks=[...])</code> and is idempotent (one copy
+  runs per replica).</p>
+</li>
+</ul>
+<hr />
+<h2 id="multiple-replicas">Multiple replicas<a class="headerlink" href="#multiple-replicas" title="Permanent link">&para;</a></h2>
+<p>Every API runs as several identical replicas behind a load balancer, and rolling updates run two
+versions side by side. Why each rule exists: <a href="../../explanation/cloud-native/">Cloud-native APIs and multiple replicas</a>.</p>
+<ul>
+<li><strong>Stateless:</strong> no source of truth in process memory or on the local filesystem. Any replica must
+  be able to answer any request, so status comes from the owning system (AWX, ArgoCD, Git, Vault) or
+  a shared store.</li>
+<li>Per-pod caches are allowed only as caches, where a miss refetches.</li>
+<li><strong>Idempotent and race-tolerant:</strong> operations are safe to repeat and safe to run concurrently on two
+  replicas. Cross-replica conflicts are left to the upstream (for example Git <code>add_file</code> on an
+  existing path) and returned as <code>409</code>. <code>asyncio.Lock</code> is not used as a cross-request guard.</li>
+<li><strong>Background tasks run on every replica.</strong> Only idempotent loops go in <code>async_background_tasks</code>.
+  Work that must run once goes to a Kubernetes CronJob, an AWX schedule or a single-consumer queue.</li>
+<li><strong>Disposable:</strong> the app starts fast and fails fast on bad config. Requests are short enough to
+  finish within the shutdown grace period (30 s by default).</li>
+<li><strong>Probes:</strong> liveness and readiness don't depend on upstream systems.</li>
+<li><strong>Backward compatible across one release</strong>, because old and new pods serve together during a
+  rollout. Breaking changes go to a new API version.</li>
+<li><strong>One uvicorn process per pod.</strong> Scale with replicas.</li>
+<li>Logs go to stdout with correlation ids. Dashboards aggregate metrics across pods.</li>
+</ul>
+<hr />
+<h2 id="multi-step-operations">Multi-step operations<a class="headerlink" href="#multi-step-operations" title="Permanent link">&para;</a></h2>
+<p>Operations that touch several systems (Git → Vault → ArgoCD) have no distributed transaction. They
+follow these rules:</p>
+<ol>
+<li>Steps are ordered so the cheapest-to-undo step runs first, and nothing user-visible goes live
+   until the last step.</li>
+<li>State is snapshotted (the current Git file, the current Vault secret) before it is changed.</li>
+<li>On failure, completed steps are compensated in reverse order. Each compensation has its own
+   <code>try/except</code>, and a failed compensation is logged with <code>logger.exception</code>. The original error is
+   then re-raised.</li>
+<li>Rollback is symmetric wherever the work continues (inline and in background tasks or jobs).</li>
+<li>Operations are idempotent:<ul>
+<li><strong>Create:</strong> an existing resource with the same spec returns success or <code>409</code> (documented).</li>
+<li><strong>Update:</strong> no-op writes are skipped (<code>example-api</code> compares YAML with <code>yaml_data_equals</code>).</li>
+<li><strong>Delete:</strong> "already gone" (<code>404</code>) counts as success.</li>
+</ul>
+</li>
+<li>Empty secret values are stripped before writing to Vault (<code>filter_secret_payload</code> in
+   <code>example-api</code>).</li>
+<li>Resource names are deterministic, derived from the request (for example
+   <code>{cluster}-{namespace}-{resource}-{name}</code>).</li>
+</ol>
+<hr />
+<h2 id="logging-and-observability">Logging and observability<a class="headerlink" href="#logging-and-observability" title="Permanent link">&para;</a></h2>
+<p>Logger setup and level convention: <a href="../../explanation/logging/">Logging</a>.</p>
+<ul>
+<li>Logging uses <code>from loguru import logger</code>. Requests and responses are already logged by the
+  library.</li>
+<li>Use lazy placeholders: <code>logger.info("Syncing app {} in {}", app_name, cluster)</code>.</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Used for</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>debug</code></td>
+<td>Payload details (no secrets)</td>
+</tr>
+<tr>
+<td><code>info</code></td>
+<td>Business events ("launched AWX job 123 for record X")</td>
+</tr>
+<tr>
+<td><code>warning</code></td>
+<td>Degraded but working</td>
+</tr>
+<tr>
+<td><code>error</code> / <code>exception</code></td>
+<td>Failures, including stack traces</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Log lines include correlation identifiers: <code>job_id</code>, <code>app_name</code>, <code>metadata.project</code> and the
+  caller's <code>sub</code>.</li>
+<li><strong>Never logged:</strong> tokens, secrets, <code>Authorization</code> headers, Vault payloads, or request bodies that
+  contain <code>secrets</code>.</li>
+<li>No <code>print()</code> in application code.</li>
+<li><code>/metrics</code> is exposed for Prometheus. Business metrics are added with <code>prometheus_client</code>.</li>
+<li><code>/liveness</code> and <code>/readiness</code> stay unauthenticated.</li>
+<li>The OpenAPI schema (<code>/docs</code>) is the public contract, so summaries, descriptions and examples are
+  kept accurate.</li>
+</ul>
+<hr />
+<h2 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h2>
+<p>Configuration: <code>asyncio_mode = "auto"</code>, <code>pythonpath = ["."]</code>, <code>testpaths = ["tests"]</code>. Run with
+<code>uv run pytest</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Required test</th>
+<th>Example in <code>example-api</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Schema validation: valid and invalid payloads (→ 422), including a request with <strong>only</strong> <code>metadata.project</code> and one with extra metadata keys</td>
+<td><code>tests/v1/dns/test_dns_schema.py</code></td>
+</tr>
+<tr>
+<td>Routes through <code>TestClient(create_app())</code> with a valid bearer</td>
+<td><code>tests/v1/dns/test_dns_routes.py</code></td>
+</tr>
+<tr>
+<td>Auth: no token → 401, bad token → 401, good token → 200</td>
+<td><code>tests/v1/auth_demo/test_auth_demo_routes.py</code></td>
+</tr>
+<tr>
+<td>Operations: every failure path, and a check that rollback is invoked</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Remote Config fallback (provider disabled or key missing → static default)</td>
+<td><code>tests/v1/dns_config/</code></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Hermetic environment:</strong> the root <code>tests/conftest.py</code> blanks optional <code>AUTH_*</code>/<code>CONFIG_*</code>
+  variables. Module conftests set the required variables <strong>before</strong> importing <code>app.main</code>.</li>
+<li><strong>Auth in tests:</strong> HS256 (<code>AUTH_ENABLED=true</code>, <code>AUTH_HS256_SECRET=&lt;32+ bytes&gt;</code>), with tokens
+  minted by <code>jwt.encode(...)</code> or <a href="../../how-to/generate-auth-material/"><code>gen-auth-material</code></a>.</li>
+<li><strong>No real network calls.</strong> Mock connector methods with <code>monkeypatch.setattr(...)</code> (mocked async
+  methods are <code>async def</code>), or mock HTTP with <code>respx</code>.</li>
+<li>Operations take connectors as arguments, so they are unit-tested directly with fakes.</li>
+</ul>
+<hr />
+<h2 id="packaging-and-docker">Packaging and Docker<a class="headerlink" href="#packaging-and-docker" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>uv sync --group dev</code> installs everything. <code>uv.lock</code> is committed. It is regenerated with
+  <code>uv lock</code> in an environment with full Artifactory access.</li>
+<li><code>uv.toml</code> (Artifactory index + credentials) lives in the repo root or <code>~/.config/uv/uv.toml</code> and is
+  never committed.</li>
+<li><code>tashtiot-apis-library</code> is pinned with a minimum version (<code>&gt;=1.1.0</code>). A <code>[tool.uv.sources]</code> path
+  override is for local library development only. Check the <a href="../../changelog/">Changelog</a> when you
+  bump the version.</li>
+<li>No new dependency for something the library, the standard library or FastAPI already does. No
+  sync HTTP clients (<code>requests</code>).</li>
+<li>Dockerfile (follow <code>example-api</code>'s):<ul>
+<li>the approved Python 3.12 base image from JFrog Artifactory</li>
+<li>copy <code>pyproject.toml</code>, <code>uv.lock</code> and <code>.python-version</code>, then run <code>uv sync --frozen --no-dev</code>,
+  then copy <code>app/</code></li>
+<li><code>ARG APP_VERSION</code> / <code>ENV APP_VERSION</code> set from the git tag</li>
+<li><code>CMD ["uv","run","--no-sync","-m","app.main","--host","0.0.0.0","--port","5000"]</code></li>
+<li>no secrets in the image</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h2 id="ci">CI<a class="headerlink" href="#ci" title="Permanent link">&para;</a></h2>
+<p>CI runs on <strong>Woodpecker</strong> (<code>.woodpecker/*.yaml</code> in each repo) <strong>inside the air-gapped network</strong>,
+because it needs the internal JFrog Artifactory and SonarQube.</p>
+<div class="admonition tip">
+<p class="admonition-title">CI how-to: internal Confluence</p>
+<p>The CI how-to and full specification are in the <strong>internal Confluence</strong>, which is reachable only
+from the air-gapped network. It defines the pipeline steps, required secrets, images and
+quality-gate thresholds. Follow it when setting up or changing a pipeline.</p>
+</div>
+<h3 id="pipeline">Pipeline<a class="headerlink" href="#pipeline" title="Permanent link">&para;</a></h3>
+<p>Every API's pipeline does the following:</p>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>What it checks or produces</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Tests</strong></td>
+<td>The pytest suite passes (<a href="#testing">Testing</a>)</td>
+</tr>
+<tr>
+<td><strong>Formatting</strong></td>
+<td>The code matches the formatter (the library itself uses <code>ruff format --check</code>)</td>
+</tr>
+<tr>
+<td><strong>Linting</strong></td>
+<td>The linter passes (the library itself uses <code>ruff check</code>)</td>
+</tr>
+<tr>
+<td><strong>SonarQube</strong></td>
+<td>The SonarQube scan passes the project's quality gate</td>
+</tr>
+<tr>
+<td><strong>Build &amp; push</strong></td>
+<td>The Docker image is built (kaniko) and pushed to <strong>JFrog Artifactory</strong>, tagged with the release version, which is also passed as <code>APP_VERSION</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="versioning-and-changelog-git-cliff">Versioning and changelog (git-cliff)<a class="headerlink" href="#versioning-and-changelog-git-cliff" title="Permanent link">&para;</a></h3>
+<p>Releases are versioned with <strong>semver</strong> (<code>vMAJOR.MINOR.PATCH</code> git tags), and both the version and
+<code>CHANGELOG.md</code> are generated by <strong>git-cliff</strong> from <code>cliff.toml</code> (see <code>example-api</code>'s, or this
+library's own <a href="../../changelog/">Changelog</a> for the result).</p>
+<ul>
+<li><strong>The PR message is the changelog text, not the individual commits.</strong> Each merged PR lands on
+  <code>master</code> as one commit carrying the PR's title and description, and that is what git-cliff reads.
+  Commit messages inside a branch are not used.</li>
+<li>
+<p><strong>PR titles must be conventional commits</strong>, because the prefix decides both the changelog section
+  and the version bump:</p>
+<table>
+<thead>
+<tr>
+<th>PR title prefix</th>
+<th>Changelog section</th>
+<th>Version bump</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>feat: ...</code></td>
+<td>Added</td>
+<td><strong>minor</strong></td>
+</tr>
+<tr>
+<td><code>fix: ...</code></td>
+<td>Fixed</td>
+<td>patch</td>
+</tr>
+<tr>
+<td><code>refactor: ...</code>, <code>perf: ...</code></td>
+<td>Changed</td>
+<td>patch</td>
+</tr>
+<tr>
+<td><code>docs: ...</code></td>
+<td>Documentation</td>
+<td>patch</td>
+</tr>
+<tr>
+<td><code>revert: ...</code></td>
+<td>Reverted</td>
+<td>patch</td>
+</tr>
+<tr>
+<td><code>build: ...</code>, <code>ci: ...</code></td>
+<td>Build, CI</td>
+<td>patch</td>
+</tr>
+<tr>
+<td><code>chore: ...</code>, <code>style: ...</code>, <code>test: ...</code></td>
+<td><em>(not listed)</em></td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>feat!: ...</code> / <code>fix!: ...</code> or a <code>BREAKING CHANGE:</code> footer</td>
+<td>(its section)</td>
+<td><strong>major</strong></td>
+</tr>
+</tbody>
+</table>
+<p>A PR description that mentions <code>security</code> puts the entry under <strong>Security</strong>.</p>
+</li>
+<li>
+<p><strong>A PR title that isn't a conventional commit is dropped</strong> from the changelog and doesn't bump the
+  version (<code>filter_unconventional = true</code>).</p>
+</li>
+<li>Write the PR title as the changelog line readers will see, for example
+  <code>feat: add DNS record status endpoint</code>.</li>
+<li><code>CHANGELOG.md</code> is committed and generated by git-cliff, so it isn't edited by hand.</li>
+<li>A breaking API change (a new <code>v&lt;N&gt;</code>, see <a href="#paths-and-versioning">Paths and versioning</a>) is
+  released as a <strong>major</strong> version.</li>
+</ul>
+<hr />
+<h2 id="known-gaps-in-example-api">Known gaps in <code>example-api</code><a class="headerlink" href="#known-gaps-in-example-api" title="Permanent link">&para;</a></h2>
+<p><code>example-api</code> is the reference for <strong>structure and library usage</strong>. Don't copy the following:</p>
+<table>
+<thead>
+<tr>
+<th>In <code>example-api</code></th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>dns</code> <code>PUT</code>/<code>GET /{record_name}</code> are stubs (<code>print</code>, hard-coded IP and <code>job_id=1234</code>)</td>
+<td>Real operations, or no route</td>
+</tr>
+<tr>
+<td><code>chat</code> request body has no <code>metadata</code></td>
+<td>Every write route takes <code>{metadata, spec}</code> (<a href="#request-contract">Request contract</a>)</td>
+</tr>
+<tr>
+<td><code>InfraOperationRequest</code> used directly (<code>project</code> optional)</td>
+<td><code>ProjectMetadata</code> with <code>project</code> required (<a href="#base-models">Base models</a>)</td>
+</tr>
+<tr>
+<td>Operations still running return <code>200</code>/<code>201</code></td>
+<td><code>202</code> + an id to poll (<a href="#responses-and-status-codes">Responses and status codes</a>)</td>
+</tr>
+<tr>
+<td><code>asyncio.create_task(...)</code> without keeping a reference</td>
+<td>Tasks are kept referenced (<a href="#async-rules">Async rules</a>)</td>
+</tr>
+<tr>
+<td><code>requests</code> listed as a dependency</td>
+<td>Async <code>httpx</code> via <code>BaseAPI</code> only</td>
+</tr>
+<tr>
+<td><code>chat_client = BaseAPI(...).client</code> used without <code>async with</code> (never closed)</td>
+<td><code>async with BaseAPI(...) as client:</code>, or close the client in the app lifespan</td>
+</tr>
+<tr>
+<td>Test and Sonar steps commented out in <code>.woodpecker/build.yaml</code></td>
+<td>The <a href="#ci">CI</a> how-to</td>
+</tr>
+<tr>
+<td><code>Dockerfile</code> pulls its base image from <code>harbor.app.com</code></td>
+<td>Base images come from JFrog Artifactory</td>
+</tr>
+<tr>
+<td>Secret-looking defaults in <code>global_conf.py</code> (<code>AWX_TOKEN="sheker123"</code>)</td>
+<td>Secrets are required fields with no default</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="pre-merge-checklist">Pre-merge checklist<a class="headerlink" href="#pre-merge-checklist" title="Permanent link">&para;</a></h2>
+<p><strong>Structure and contract</strong></p>
+<ul>
+<li>[ ] Module follows <code>conf.py / schemas.py / operations.py / routes.py</code>, wired only in <code>create_app()</code>.</li>
+<li>[ ] Every write route accepts <code>{metadata, spec}</code>. <code>metadata.project</code> is required, the other
+      coordinates are optional, and unused metadata is accepted and ignored.</li>
+<li>[ ] Path is <code>/api/&lt;api&gt;/v&lt;N&gt;/&lt;resource&gt;</code>, and breaking changes went to a new version.</li>
+<li>[ ] Every route has <code>response_model</code>, <code>summary</code>, <code>description</code> and the correct status code.</li>
+</ul>
+<p><strong>Async</strong></p>
+<ul>
+<li>[ ] No blocking calls in <code>async def</code> (<code>requests</code>, <code>time.sleep</code>, sync clients, heavy CPU work).</li>
+<li>[ ] Every network <code>await</code> has a timeout. Independent calls use <code>asyncio.gather</code>.</li>
+<li>[ ] Long work returns <code>202</code> + an id (<a href="#long-running-work">Long-running work</a>). Every created task
+      is referenced.</li>
+</ul>
+<p><strong>Connectors and errors</strong></p>
+<ul>
+<li>[ ] Connectors are built once and injected. No raw HTTP where a connector exists.</li>
+<li>[ ] <code>ExternalServiceError</code> is mapped to <code>502</code>. No secrets or stack traces in <code>detail</code>.</li>
+<li>[ ] Multi-step flows snapshot state, compensate in reverse order, log rollback failures, and are
+      idempotent.</li>
+<li>[ ] Replica-safe: no state in memory or on local disk, safe under concurrent duplicate requests,
+      no once-only work in <code>async_background_tasks</code>, backward compatible with the previous release.</li>
+</ul>
+<p><strong>Security</strong></p>
+<ul>
+<li>[ ] <code>general_create_app(enable_auth=True)</code>. Production configuration uses JWKS/OIDC and sets
+      <code>AUTH_AUDIENCE</code>.</li>
+<li>[ ] No permission checks on token claims in the API (authorization is handled outside the APIs).</li>
+<li>[ ] No secrets in git, <code>.env.example</code>, <code>conf.py</code> defaults, logs or the image. TLS verification
+      is on, or turned off with a documented reason.</li>
+</ul>
+<p><strong>Quality</strong></p>
+<ul>
+<li>[ ] <code>.env.example</code> and <code>README.md</code> are updated for every new variable and route.</li>
+<li>[ ] Tests cover schema (valid, invalid, project-only metadata), routes with auth, failure and
+      rollback paths. No real network calls.</li>
+<li>[ ] CI is green (tests, formatting, linting, SonarQube) according to the CI how-to in the internal Confluence (<a href="#ci">CI</a>).</li>
+<li>[ ] The PR title is a conventional commit that reads well as a changelog line
+      (<a href="#versioning-and-changelog-git-cliff">Versioning and changelog</a>).</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.indexes", "content.code.copy", "content.code.annotate", "toc.follow"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>
