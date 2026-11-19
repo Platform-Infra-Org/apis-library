@@ -27,6 +27,14 @@ git tag 0.4.0        # PEP 440 version, no leading "v"
 git push --tags
 ```
 
+**Before tagging, update `prompts/migrate-api.md`:** bump its target version, add an
+"Upgrade notes by version" row for anything a consumer must change or verify, and refresh its
+library quick reference if a public import, signature or default changed. The prompt is published at
+*How-to → Migrate an API to the current version*. Also check that
+`skills/building-tashtiot-apis/SKILL.md` (its rules, import table and example) still matches the
+release and `docs/reference/api-standards.md`. Normally both are already updated in the PRs that
+made the changes (see "Migration prompt and API skill" in `CLAUDE.md`).
+
 That tag triggers the publish pipeline. Between tags, the version is a dev string
 (`0.4.1.devN+g<hash>`); see [Explanation → … setuptools-scm](docs/explanation/architecture.md) and
 `pyproject.toml` `[tool.setuptools_scm]`.
