@@ -1,0 +1,20 @@
+# Copy to uv.toml (repo root) or ~/.config/uv/uv.toml and fill in your Artifactory user and token.
+# NEVER commit uv.toml: the index URLs carry credentials.
+system-certs = true
+
+# Some dev tools live only on the secondary index. Both indexes are the same trusted
+# Artifactory, so let uv pick the best match across them.
+index-strategy = "unsafe-best-match"
+
+[[index]]
+name = "pypi-local"
+url = "https://<user>:<token>@artifactory.app.iaf/artifactory/api/pypi/pypi-local/simple"
+default = true
+
+[[index]]
+name = "pypi"
+url = "https://<user>:<token>@artifactory.app.iaf/artifactory/api/pypi/pypi/simple"
+
+[pip]
+index-url = "https://<user>:<token>@artifactory.app.iaf/artifactory/api/pypi/pypi-local/simple"
+extra-index-url = ["https://<user>:<token>@artifactory.app.iaf/artifactory/api/pypi/pypi/simple"]

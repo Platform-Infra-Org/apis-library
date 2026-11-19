@@ -102,15 +102,21 @@ change that affects them:
 - **`prompts/migrate-api.md`**: the prompt API teams use to upgrade to the current library version
   (Mode A) or rewrite onto it (Mode B). It is rendered in the docs at
   `docs/how-to/migrate-an-api.md` through a snippet include.
-- **`skills/building-tashtiot-apis/SKILL.md`**: the agent skill for day-to-day API work. It is a
-  condensed copy of `docs/reference/api-standards.md`, plus an import table and an example.
+- **`skills/building-tashtiot-apis/`**: the agent skill for day-to-day API work. API teams commit it
+  into their repos' `.claude/skills/`, and it must work **without GitHub or the docs site** (inside
+  the air-gapped network). It has three parts:
+    - `SKILL.md`: a condensed copy of `docs/reference/api-standards.md`.
+    - `reference.md`: the library's public API (signatures, models, errors, env vars), stamped with
+      the library version.
+    - `template/`: a runnable API whose tests run in CI against this library (the "Skill template
+      tests" step).
 
 | When a change… | Update |
 |---|---|
-| Changes anything a consumer must change or verify (public imports, signatures, defaults, behaviour, removals) | The prompt: its target version (including the `/tree/vX.Y.Z/` tag in its source links), its "Upgrade notes by version" table, and its library quick reference. The skill: its import table, rules and example. |
+| Changes anything a consumer must change or verify (public imports, signatures, defaults, behaviour, removals) | The prompt: its target version (including the `/tree/vX.Y.Z/` tag in its source links), its "Upgrade notes by version" table, and its library quick reference. The skill: `reference.md` (bump its version stamp), `SKILL.md`'s rules and imports, and `template/` if its code is affected. |
 | Adds a public capability that API teams should use | The prompt's quick reference and the relevant mode steps. The skill's rules, import table and common mistakes. |
 | Edits `docs/reference/api-standards.md` (a rule, status code, contract or convention) | The skill, so that it states the same rule, and the prompt if the rule affects migrations. |
-| Cuts a release | The prompt's target version and tag links, even if nothing else changed. |
+| Cuts a release | The prompt's target version and tag links, and `reference.md`'s version stamp, even if nothing else changed. |
 
 If you can't tell whether a change affects them, check both files. Stale guidance in either one is
 treated as a bug.
