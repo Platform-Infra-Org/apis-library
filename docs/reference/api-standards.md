@@ -193,6 +193,7 @@ from tashtiot_apis_library.fastapi_template.config_api import InfraMetadata
 
 class ProjectMetadata(InfraMetadata):
     """Platform metadata: project required, every other coordinate optional."""
+
     project: str = Field(..., description="The platform application submitting the request")
 
 
@@ -257,8 +258,12 @@ class DNSRecordCreate(MetadataRequest):
         await create_haproxy_operation(git=git, vault=vault, argocd=argocd, payload=payload.spec)
     except ExternalServiceError as err:
         return JSONResponse(
-            ArgoOperationResponse(app_name=app_name, status="Failed", status_code=err.status_code,
-                                  stdout=f"{err.service_name}: {err.detail}").model_dump(),
+            ArgoOperationResponse(
+                app_name=app_name,
+                status="Failed",
+                status_code=err.status_code,
+                stdout=f"{err.service_name}: {err.detail}",
+            ).model_dump(),
             status_code=status.HTTP_502_BAD_GATEWAY,
         )
     ```
@@ -297,8 +302,13 @@ they are never constructed per request.
 def get_v1_dns_router(awx_client: AWX, provider=None) -> APIRouter:
     router = APIRouter(prefix=config.API_PREFIX, tags=config.API_TAGS)
 
-    @router.post("/", response_model=DNSRecordResponse, status_code=202,
-                 summary="Create DNS Record", description="Launches the AWX create-DNS job.")
+    @router.post(
+        "/",
+        response_model=DNSRecordResponse,
+        status_code=202,
+        summary="Create DNS Record",
+        description="Launches the AWX create-DNS job.",
+    )
     async def create(record: DNSRecordCreate) -> DNSRecordResponse:
         return await create_dns(record, awx_client, provider)
 

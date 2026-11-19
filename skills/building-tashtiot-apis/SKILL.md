@@ -51,64 +51,88 @@ commented placeholders.
 from pydantic import BaseModel, Field
 from tashtiot_apis_library.fastapi_template.config_api import InfraMetadata
 
-class ProjectMetadata(InfraMetadata):           # space/network/region/island/environment stay optional
+
+class ProjectMetadata(InfraMetadata):  # space/network/region/island/environment stay optional
     project: str = Field(..., description="The platform application submitting the request")
 
+
 class MetadataRequest(BaseModel):
-    metadata: ProjectMetadata                    # always accepted; unused fields are just ignored
+    metadata: ProjectMetadata  # always accepted; unused fields are just ignored
+
 
 # app/v1/dns/schemas.py
 from ipaddress import IPv4Address
 from tashtiot_apis_library.connectors import AWXOperationResponse
 
+
 class DNSRecordCreateSpec(BaseModel):
     record_name: str = Field(..., max_length=15, description="Record name")
     ip: IPv4Address = Field(..., description="Target IPv4 address")
 
+
 class DNSRecordCreate(MetadataRequest):
     spec: DNSRecordCreateSpec
+
 
 class DNSRecordResponse(AWXOperationResponse):
     pass
 
+
 # app/v1/dns/operations.py
 async def create_dns(record: DNSRecordCreate, awx, provider=None) -> DNSRecordResponse:
-    template_id = config.AWX_CREATE_DNS_TEMPLATE_ID                      # static fallback
-    if provider is not None:                                             # Remote Config only if wired
+    template_id = config.AWX_CREATE_DNS_TEMPLATE_ID  # static fallback
+    if provider is not None:  # Remote Config only if wired
         resolved = await provider.resolve_infra_config(record.metadata)
         template_id = resolved.get("awx_create_dns_template_id", template_id)
-    job = await awx.launch_job(job_template_id=template_id,
-                               extra_vars={"RECORD_NAME": record.spec.record_name,
-                                           "RECORD_ADDRESS": str(record.spec.ip)})
+    job = await awx.launch_job(
+        job_template_id=template_id,
+        extra_vars={"RECORD_NAME": record.spec.record_name, "RECORD_ADDRESS": str(record.spec.ip)},
+    )
     return DNSRecordResponse(**job.model_dump())
+
 
 # app/v1/dns/routes.py
 def get_v1_dns_router(awx: AWX, provider=None) -> APIRouter:
     router = APIRouter(prefix=config.API_PREFIX, tags=config.API_TAGS)
 
-    @router.post("/", response_model=DNSRecordResponse, status_code=202,
-                 summary="Create DNS record", description="Launches the AWX create-DNS job.")
+    @router.post(
+        "/",
+        response_model=DNSRecordResponse,
+        status_code=202,
+        summary="Create DNS record",
+        description="Launches the AWX create-DNS job.",
+    )
     async def create(record: DNSRecordCreate):
         try:
             return await create_dns(record, awx, provider)
-        except ExternalServiceError as err:                              # upstream failed -> 502
-            return JSONResponse(status_code=502, content={"detail": f"{err.service_name}: {err.detail}"})
+        except ExternalServiceError as err:  # upstream failed -> 502
+            return JSONResponse(
+                status_code=502, content={"detail": f"{err.service_name}: {err.detail}"}
+            )
 
-    @router.get("/status/{job_id}", response_model=DNSRecordResponse, summary="DNS job status",
-                description="Reads the AWX job state (HTTP 200; the state is in the body).")
+    @router.get(
+        "/status/{job_id}",
+        response_model=DNSRecordResponse,
+        summary="DNS job status",
+        description="Reads the AWX job state (HTTP 200; the state is in the body).",
+    )
     async def status(job_id: int):
         try:
-            return await awx.get_job_status(job_id)                      # AWX is the job queue
+            return await awx.get_job_status(job_id)  # AWX is the job queue
         except ExternalServiceError as err:
-            return JSONResponse(status_code=502, content={"detail": f"{err.service_name}: {err.detail}"})
+            return JSONResponse(
+                status_code=502, content={"detail": f"{err.service_name}: {err.detail}"}
+            )
 
     return router
 
+
 # app/main.py
 def create_app() -> FastAPI:
-    app = general_create_app(enable_auth=True, title=global_config.API_TITLE,
-                             version=global_config.APP_VERSION)
-    awx = AWX(global_config.AWX_URL, global_config.AWX_TOKEN)           # once, never per request
+    app = general_create_app(
+        enable_auth=True, title=global_config.API_TITLE, version=global_config.APP_VERSION
+    )
+    awx = AWX(global_config.AWX_URL, global_config.AWX_TOKEN)  # once, never per request
     app.include_router(get_v1_dns_router(awx, provider=None))
     return app
 ```

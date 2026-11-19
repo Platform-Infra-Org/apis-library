@@ -102,6 +102,7 @@ sync. It is fine for short, best-effort work, but it gives you none of the queue
     ```python
     _background_tasks: set[asyncio.Task] = set()
 
+
     def spawn(coro) -> None:
         task = asyncio.create_task(coro)
         _background_tasks.add(task)

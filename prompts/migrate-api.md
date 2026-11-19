@@ -252,11 +252,13 @@ from tashtiot_apis_library.fastapi_template.config_api import InfraMetadata
 
 class ProjectMetadata(InfraMetadata):
     """Platform metadata: project required, every other coordinate optional."""
+
     project: str = Field(..., description="The platform application submitting the request")
 
 
 class MetadataRequest(BaseModel):
     metadata: ProjectMetadata = Field(..., description="Platform metadata (project required).")
+
 
 # app/v1/<resource>/schemas.py
 class CreateThing(MetadataRequest):
