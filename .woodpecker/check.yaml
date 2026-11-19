@@ -13,4 +13,6 @@ steps:
       - ruff format --check .          # formatting must match
       - ruff check .                   # lint must pass
       - pytest                         # test suite must pass
+      # the API skill's runnable template must keep working against this library version
+      - pytest -p no:cacheprovider -c skills/building-tashtiot-apis/template/pyproject.toml --rootdir skills/building-tashtiot-apis/template skills/building-tashtiot-apis/template/tests
       - ty check src || true           # advisory: type errors never fail the build
