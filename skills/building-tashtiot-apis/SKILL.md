@@ -253,7 +253,7 @@ Never import from `..._internal`.
 - Docker: follow [`example-api`](https://github.com/Platform-Infra-Org/example-api)'s Dockerfile, with the base image from **JFrog Artifactory** and
   `APP_VERSION` set from the git tag.
 - CI: Woodpecker runs in the air-gapped network (tests, formatting, linting, SonarQube, then build
-  and push to JFrog Artifactory). The CI how-to there is the source of truth.
+  and push to JFrog Artifactory). The CI how-to in the internal Confluence is the source of truth.
 - Release: semver via git-cliff. **The PR title is the changelog line** and must be a conventional
   commit (`feat:` bumps the minor version, `fix:` the patch, `!` / `BREAKING CHANGE` the major).
   Never edit `CHANGELOG.md` by hand.

@@ -595,14 +595,12 @@ Configuration: `asyncio_mode = "auto"`, `pythonpath = ["."]`, `testpaths = ["tes
 ## CI
 
 CI runs on **Woodpecker** (`.woodpecker/*.yaml` in each repo) **inside the air-gapped network**,
-because it needs the internal JFrog Artifactory and SonarQube. Its how-to and full specification
-are therefore kept on the internal network, not on this site:
+because it needs the internal JFrog Artifactory and SonarQube.
 
-!!! tip "CI how-to and specification (air-gapped network)"
-    **`<CI_HOWTO_URL_PLACEHOLDER>`**
-
-    The pipeline steps, required secrets, images and quality-gate thresholds are defined there.
-    Follow it when setting up or changing a pipeline.
+!!! tip "CI how-to: internal Confluence"
+    The CI how-to and full specification are in the **internal Confluence**, which is reachable only
+    from the air-gapped network. It defines the pipeline steps, required secrets, images and
+    quality-gate thresholds. Follow it when setting up or changing a pipeline.
 
 ### Pipeline
 
@@ -709,6 +707,6 @@ library's own [Changelog](../changelog.md) for the result).
 - [ ] `.env.example` and `README.md` are updated for every new variable and route.
 - [ ] Tests cover schema (valid, invalid, project-only metadata), routes with auth, failure and
       rollback paths. No real network calls.
-- [ ] CI is green (tests, formatting, linting, SonarQube) according to the [CI how-to](#ci).
+- [ ] CI is green (tests, formatting, linting, SonarQube) according to the CI how-to in the internal Confluence ([CI](#ci)).
 - [ ] The PR title is a conventional commit that reads well as a changelog line
       ([Versioning and changelog](#versioning-and-changelog-git-cliff)).

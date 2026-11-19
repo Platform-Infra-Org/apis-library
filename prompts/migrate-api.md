@@ -8,20 +8,20 @@
   The release checklist in MAINTAINERS.md points here.
 -->
 
-# Migrate an API to tashtiot-apis-library 1.3.1
+# Migrate an API to tashtiot-apis-library 1.3.2
 
-TARGET_VERSION: **1.3.1**
+TARGET_VERSION: **1.3.2**
 
-You are migrating the API in the current repository to **`tashtiot-apis-library` 1.3.1** and to the
+You are migrating the API in the current repository to **`tashtiot-apis-library` 1.3.2** and to the
 company **API standards**. You are working as a careful senior engineer: you read the code before
 changing it, you verify every library name against the library's source, and you never guess.
 
 ## Sources of truth (read these, don't rely on memory)
 
 1. **The library source at the target tag:**
-   <https://github.com/Platform-Infra-Org/apis-library/tree/v1.3.1/src/tashtiot_apis_library>.
+   <https://github.com/Platform-Infra-Org/apis-library/tree/v1.3.2/src/tashtiot_apis_library>.
    Every import, class, method and argument you use must exist there. If the docs and the source
-   disagree, the source wins. Read it from GitHub, or from a local clone checked out at `v1.3.1`.
+   disagree, the source wins. Read it from GitHub, or from a local clone checked out at `v1.3.2`.
 
    **Don't rely on an installed copy.** The package is private. It can only be `pip`/`uv` installed
    from Artifactory **inside the air-gapped network**, so outside it there is no installed copy to
@@ -34,7 +34,7 @@ changing it, you verify every library name against the library's source, and you
       [Cloud-native APIs & multiple replicas](https://platform-infra-org.github.io/apis-library/explanation/cloud-native/).
     - [How-to guides](https://platform-infra-org.github.io/apis-library/how-to/) for connectors, OIDC/JWKS, outbound SSO and the Remote Config
       API.
-    - [Changelog](https://platform-infra-org.github.io/apis-library/changelog/): every change between the API's current version and 1.3.1.
+    - [Changelog](https://platform-infra-org.github.io/apis-library/changelog/): every change between the API's current version and 1.3.2.
 3. **The `example-api` repository**, <https://github.com/Platform-Infra-Org/example-api>: the reference implementation of the structure.
    Follow its layout, but not the items listed under
    [Known gaps in `example-api`](https://platform-infra-org.github.io/apis-library/reference/api-standards/#known-gaps-in-example-api).
@@ -47,7 +47,7 @@ anything:
 | | **Mode A: Upgrade** | **Mode B: Rewrite** |
 |---|---|---|
 | **When** | The API already depends on `tashtiot-apis-library` (any version: check `pyproject.toml`, `uv.lock`, `requirements*.txt`, `setup.py`) | The API does **not** use the library (plain FastAPI, Flask, another framework, its own HTTP clients, sync code), **or** the user explicitly asks for a full rewrite |
-| **Goal** | Move to 1.3.1 with the **smallest safe change** | Rebuild the API on the library so it fully meets the API standards |
+| **Goal** | Move to 1.3.2 with the **smallest safe change** | Rebuild the API on the library so it fully meets the API standards |
 | **Public contract** (paths, request/response shapes, status codes) | **Preserved.** Anything in the standards that would break callers is *reported*, not changed | **Redesigned to the standards** (`{metadata, spec}`, 202 for async work, …). It's a breaking change, so it ships as a **new major version** of the API |
 | **Scope** | Dependency bump, the version-specific changes below, non-breaking conformance fixes | Everything: layout, config, connectors, async, auth, Remote Config, errors, tests, Docker, CI, changelog |
 
@@ -80,7 +80,7 @@ they want.
 
 ### A1. Bump the dependency
 
-- Set `tashtiot-apis-library>=1.3.1` in `pyproject.toml`. If the API still uses `setup.py` or
+- Set `tashtiot-apis-library>=1.3.2` in `pyproject.toml`. If the API still uses `setup.py` or
   `requirements.txt`, move it to `pyproject.toml` + **uv** (`uv.lock` committed, `uv.toml` never
   committed).
 - Python must be **>= 3.10** (the company standard is 3.12: `.python-version`,
@@ -89,7 +89,7 @@ they want.
   intentional for local development.
 - **Inside the air-gapped network:** run `uv lock && uv sync --group dev`.
 - **Outside it:** Artifactory isn't reachable, so `uv lock` / `uv sync` can't resolve the library.
-  Leave the dependency line as `tashtiot-apis-library>=1.3.1`. Don't commit a stale or hand-edited
+  Leave the dependency line as `tashtiot-apis-library>=1.3.2`. Don't commit a stale or hand-edited
   `uv.lock`, and say in the report that the lock must be regenerated inside the network.
 
 ### A2. Apply the upgrade notes for every version you cross
@@ -111,6 +111,7 @@ Find the API's current library version, then apply **every row newer than it**, 
 | **< 1.2.3** | **AWX status codes changed.** `AWX.get_job_status` / `get_workflow_job_status` used to return `status_code=200` for every state. They now map the AWX state: `pending`/`waiting`/`running` → **202**, `successful` → 200, `failed`/`error`/`canceled` → **500**. Launch calls still return `status="successful"`, `status_code=200`. Find every place that reads `status_code` from an AWX status response (route return values, `JSONResponse(status_code=...)`, tests, clients) and confirm the new values are intended. |
 | **< 1.3.0** | `AWX.get_job_output(job_id, start_line=..., page_size=...)` (incremental playbook output) is new. Adopt it only if the API streams or polls job output. |
 | **< 1.3.1** | `AWX.get_job_status` / `get_workflow_job_status` take a new keyword-only `include_logs=False`. With `True`, `stdout` carries a concise, filtered log summary (child jobs and failed-job output for workflows). The default is unchanged. Adopt it if the API's status route should return readable logs. |
+| **< 1.3.2** | **Validation errors no longer expose submitted values.** 422 response bodies now contain only `loc`, `msg` and `type` for each error, with no `input` or `ctx`. The validation log line is now `Validation error on <METHOD> <path>: [...]`, without the values or a traceback. Update any test or client that reads `input`/`ctx` from a 422 or asserts on the old log text. Make sure the API's own validator messages don't include the submitted value, because the library can't strip those. |
 
 ### A3. Non-breaking conformance fixes
 
@@ -205,7 +206,7 @@ Configure them per the sections below.
   rollback paths, and Remote Config fallback. No real network calls.
 - `pyproject.toml` + uv, `.env.example`, `README.md`.
 - A Dockerfile following `example-api`'s, with the base image from JFrog Artifactory.
-- `.woodpecker/` pipeline per the CI how-to: tests, formatting, linting, SonarQube, then build and
+- `.woodpecker/` pipeline per the CI how-to in the internal Confluence: tests, formatting, linting, SonarQube, then build and
   push to JFrog Artifactory.
 - `cliff.toml` (copy `example-api`'s) and a `CHANGELOG.md` generated by git-cliff. PR titles are
   conventional commits.
@@ -262,9 +263,9 @@ class CreateThing(MetadataRequest):
     spec: CreateThingSpec
 ```
 
-## Library quick reference (1.3.1)
+## Library quick reference (1.3.2)
 
-Verify each name in the [library source at v1.3.1](https://github.com/Platform-Infra-Org/apis-library/tree/v1.3.1/src/tashtiot_apis_library)
+Verify each name in the [library source at v1.3.2](https://github.com/Platform-Infra-Org/apis-library/tree/v1.3.2/src/tashtiot_apis_library)
 before using it.
 
 | Need | Import |
@@ -309,7 +310,7 @@ Before you finish, run and report the result of each:
 
 End with a short report:
 
-- **Mode** (A or B) and why. **Library version:** from → 1.3.1.
+- **Mode** (A or B) and why. **Library version:** from → 1.3.2.
 - **What changed**, grouped by area: dependencies, connectors/async, auth, Remote Config, contract,
   errors, tests, packaging/CI.
 - **Breaking changes for callers**, or "none" in Mode A. In Mode B, the new path and version.
