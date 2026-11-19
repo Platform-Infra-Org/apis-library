@@ -14,9 +14,15 @@ New to the library? Start with the [Your first app](../tutorials/first-app.md) a
 [Secure your API](../tutorials/secure-your-api.md) tutorials.
 
 !!! tip "Working with an AI coding agent"
-    - **Day-to-day API work:** the library repository ships an agent skill with these rules,
-      [`skills/building-tashtiot-apis/`](https://github.com/Platform-Infra-Org/apis-library/tree/master/skills/building-tashtiot-apis). Copy that folder into your API repository's
-      `.claude/skills/` (or into `~/.claude/skills/` for every repo).
+    - **Day-to-day API work:** the library repository ships a self-contained agent skill,
+      [`skills/building-tashtiot-apis/`](https://github.com/Platform-Infra-Org/apis-library/tree/master/skills/building-tashtiot-apis).
+      It contains these rules, a reference of the library's API, and a tested template API, so it
+      also works inside the air-gapped network without GitHub or this site. **Commit it into your
+      API repository as `.claude/skills/building-tashtiot-apis/`**: it then travels with the mirror,
+      and it stays matched to the library version the repo uses. Refresh it whenever you bump the
+      library.
+    - **CI, image and deployment work:** use the internal CI how-to (and the internal CI skill, if
+      one is available). These live inside the air-gapped network.
     - **Upgrading to a new library version, or rewriting an API onto the library:** use the
       [migration prompt](../how-to/migrate-an-api.md).
 
