@@ -5,6 +5,11 @@ All notable changes to this project are documented here. The format is based on
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). The version is derived from git tags by
 setuptools-scm.
 
+## [Unreleased]
+
+### Documentation
+
+- Self-contained API skill and a Hebrew version of the docs site (#21)
 ## [1.3.2] - 2026-11-19
 
 ### Fixed
