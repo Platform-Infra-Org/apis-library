@@ -1,0 +1,4387 @@
+
+<!doctype html>
+<html lang="he" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="מחברים לתשתיות (ArgoCD, AWX, Bitbucket Server, Vault) ותבנית אפליקציית FastAPI לשימוש חוזר, בחבילת Python אחת.">
+      
+      
+      
+      
+        <link rel="prev" href="../connectors/">
+      
+      
+        <link rel="next" href="../auth/">
+      
+      
+        
+          <link rel="alternate" href="../../../../reference/api/fastapi-app/" hreflang="en">
+        
+          <link rel="alternate" href="./" hreflang="he">
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.2">
+    
+    
+      
+        <title>אפליקציית FastAPI - ספריית ה-APIs של תשתיות</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="rtl" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#fastapi-app-api" class="md-skip">
+          לדלג לתוכן
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="כותרת עליונה">
+    <a href="../../../" title="ספריית ה-APIs של תשתיות" class="md-header__button md-logo" aria-label="ספריית ה-APIs של תשתיות" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ספריית ה-APIs של תשתיות
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              אפליקציית FastAPI
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+      <div class="md-header__option">
+  <div class="md-select">
+    
+    <button class="md-header__button md-icon" aria-label="בחירת שפה">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
+    </button>
+    <div class="md-select__inner">
+      <ul class="md-select__list">
+        
+          <li class="md-select__item">
+            <a href="../../../../reference/api/fastapi-app/" hreflang="en" class="md-select__link">
+              English
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="./" hreflang="he" class="md-select__link">
+              עברית
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</div>
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="חיפוש" placeholder="חיפוש" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="חיפוש">
+        
+        <button type="reset" class="md-search__icon md-icon" title="ניקוי" aria-label="ניקוי" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            אתחול חיפוש
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="לשוניות" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../" class="md-tabs__link">
+        
+  
+  
+    
+  
+  בית
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../tutorials/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  מדריכים למתחילים
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../how-to/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  מדריכי ביצוע
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../" class="md-tabs__link">
+          
+  
+  
+    
+  
+  מידע עזר
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../explanation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  הסברים
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../contributing/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  תרומה לפרויקט
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../changelog/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  יומן שינויים
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="ניווט" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../" title="ספריית ה-APIs של תשתיות" class="md-nav__button md-logo" aria-label="ספריית ה-APIs של תשתיות" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ספריית ה-APIs של תשתיות
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    בית
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../tutorials/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    מדריכים למתחילים
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    מדריכים למתחילים
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../tutorials/first-app/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    האפליקציה הראשונה שלך
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../tutorials/secure-your-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    אבטחת ה-API שלך
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../how-to/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    מדריכי ביצוע
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    מדריכי ביצוע
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../how-to/read-write-bitbucket/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    קריאה וכתיבה של קבצים ב-Bitbucket
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../how-to/use-awx-argocd-vault/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    עבודה עם AWX, ArgoCD ו-Vault
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../how-to/secure-with-oidc-jwks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    אבטחת API עם OIDC ו-JWKS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../how-to/verify-a-token/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    אימות טוקן מחוץ לבקשה
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../how-to/call-services-with-sso/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    קריאה לשירותים אחרים עם SSO
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../how-to/enable-remote-config-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    הפעלת Remote Config API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../how-to/constrain-field-by-config/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    הגבלת שדה לפי קונפיגורציה
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../how-to/generate-auth-material/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    יצירת חומרי אימות לפיתוח
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../how-to/add-a-connector/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    הוספת מחבר חדש
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../how-to/extend-the-template/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    הרחבת תבנית FastAPI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../how-to/migrate-an-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    הסבת API לגרסה הנוכחית
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    מידע עזר
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    מידע עזר
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api-standards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    תקני API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    קונפיגורציה
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI ‏(gen-auth-material)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4_5" id="__nav_4_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../connectors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    מחברים
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    אפליקציית FastAPI
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    אפליקציית FastAPI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="תוכן העניינים">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      תוכן העניינים
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#general_create_app" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        general_create_app
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.general_create_app" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        general_create_app
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#baseapi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BaseAPI
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.database.basic_api.BaseAPI" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BaseAPI
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="BaseAPI">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.database.basic_api.BaseAPI.base_url" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        base_url
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.database.basic_api.BaseAPI.headers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        headers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.database.basic_api.BaseAPI.auth" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        auth
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.database.basic_api.BaseAPI.timeout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        timeout
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.database.basic_api.BaseAPI.verify" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        verify
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.database.basic_api.BaseAPI.client" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        client
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        הגדרות
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ApplicationSettings
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ApplicationSettings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.model_config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        model_config
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.PORT" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PORT
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.LOG_LEVEL" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LOG_LEVEL
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.DEBUG" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DEBUG
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.RELOAD_INCLUDES" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RELOAD_INCLUDES
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.APP_NAME" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        APP_NAME
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.PROCESS_TIME_HEADER" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PROCESS_TIME_HEADER
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.OPENAPI_VERSION" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OPENAPI_VERSION
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.OPENAPI_JSON_URL" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OPENAPI_JSON_URL
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.PROXIED" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PROXIED
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.PROXY_LISTEN_PATH" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PROXY_LISTEN_PATH
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.SWAGGER_STATIC_FILES" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SWAGGER_STATIC_FILES
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.SWAGGER_OPENAPI_JSON_URL" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SWAGGER_OPENAPI_JSON_URL
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.LOG_REQUEST_EXCLUDE_PATHS" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LOG_REQUEST_EXCLUDE_PATHS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.PROBE_READINESS_PATH" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PROBE_READINESS_PATH
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.PROBE_LIVENESS_PATH" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PROBE_LIVENESS_PATH
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_ENABLED" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AUTH_ENABLED
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_HEADER_NAME" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AUTH_HEADER_NAME
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_HS256_SECRET" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AUTH_HS256_SECRET
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_JWKS_URL" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AUTH_JWKS_URL
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_OIDC_ISSUER" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AUTH_OIDC_ISSUER
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_OIDC_VERIFY_SSL" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AUTH_OIDC_VERIFY_SSL
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_OIDC_TIMEOUT" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AUTH_OIDC_TIMEOUT
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_PUBLIC_KEY_PEM" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AUTH_PUBLIC_KEY_PEM
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_PUBLIC_KEY_PATH" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AUTH_PUBLIC_KEY_PATH
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_ALGORITHMS" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AUTH_ALGORITHMS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_REQUIRE_EXP" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AUTH_REQUIRE_EXP
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_AUDIENCE" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AUTH_AUDIENCE
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_ISSUER" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AUTH_ISSUER
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_JWKS_CACHE_TTL" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AUTH_JWKS_CACHE_TTL
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_EXCLUDE_PATHS" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AUTH_EXCLUDE_PATHS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_SSO_TOKEN_URL" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AUTH_SSO_TOKEN_URL
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_SSO_CLIENT_ID" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AUTH_SSO_CLIENT_ID
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_SSO_CLIENT_SECRET" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AUTH_SSO_CLIENT_SECRET
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_SSO_SCOPE" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AUTH_SSO_SCOPE
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_SSO_AUDIENCE" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AUTH_SSO_AUDIENCE
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_SSO_AUTH_STYLE" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AUTH_SSO_AUTH_STYLE
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_SSO_VERIFY_SSL" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AUTH_SSO_VERIFY_SSL
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_SSO_TIMEOUT" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AUTH_SSO_TIMEOUT
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_SSO_EXPIRY_SKEW" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AUTH_SSO_EXPIRY_SKEW
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    אימות (JWT נכנס)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    אבטחה (SSO יוצא)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Remote Config API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    שגיאות
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../schemas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    סכמות
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../explanation/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    הסברים
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    הסברים
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../explanation/architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ארכיטקטורה
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../explanation/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    תכנון האימות
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../explanation/dynamic-config-validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ולידציה דינמית של קונפיגורציה
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../explanation/openapi-swagger-injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    הזרקה ל-OpenAPI ול-Swagger
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../explanation/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    לוגים
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../explanation/async/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    אסינכרוניות ולולאת האירועים
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../explanation/job-queues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    תורי משימות ועבודה ארוכה
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../explanation/cloud-native/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    APIs ענן-נייטיב וריבוי רפליקות
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../contributing/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    תרומה לפרויקט
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    תרומה לפרויקט
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../contributing/development/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    פיתוח
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    יומן שינויים
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="תוכן העניינים">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      תוכן העניינים
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#general_create_app" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        general_create_app
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.general_create_app" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        general_create_app
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#baseapi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BaseAPI
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.database.basic_api.BaseAPI" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BaseAPI
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="BaseAPI">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.database.basic_api.BaseAPI.base_url" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        base_url
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.database.basic_api.BaseAPI.headers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        headers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.database.basic_api.BaseAPI.auth" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        auth
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.database.basic_api.BaseAPI.timeout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        timeout
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.database.basic_api.BaseAPI.verify" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        verify
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.database.basic_api.BaseAPI.client" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        client
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        הגדרות
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ApplicationSettings
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ApplicationSettings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.model_config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        model_config
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.PORT" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PORT
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.LOG_LEVEL" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LOG_LEVEL
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.DEBUG" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DEBUG
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.RELOAD_INCLUDES" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RELOAD_INCLUDES
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.APP_NAME" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        APP_NAME
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.PROCESS_TIME_HEADER" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PROCESS_TIME_HEADER
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.OPENAPI_VERSION" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OPENAPI_VERSION
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.OPENAPI_JSON_URL" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OPENAPI_JSON_URL
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.PROXIED" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PROXIED
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.PROXY_LISTEN_PATH" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PROXY_LISTEN_PATH
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.SWAGGER_STATIC_FILES" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SWAGGER_STATIC_FILES
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.SWAGGER_OPENAPI_JSON_URL" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SWAGGER_OPENAPI_JSON_URL
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.LOG_REQUEST_EXCLUDE_PATHS" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LOG_REQUEST_EXCLUDE_PATHS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.PROBE_READINESS_PATH" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PROBE_READINESS_PATH
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.PROBE_LIVENESS_PATH" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PROBE_LIVENESS_PATH
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_ENABLED" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AUTH_ENABLED
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_HEADER_NAME" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AUTH_HEADER_NAME
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_HS256_SECRET" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AUTH_HS256_SECRET
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_JWKS_URL" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AUTH_JWKS_URL
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_OIDC_ISSUER" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AUTH_OIDC_ISSUER
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_OIDC_VERIFY_SSL" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AUTH_OIDC_VERIFY_SSL
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_OIDC_TIMEOUT" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AUTH_OIDC_TIMEOUT
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_PUBLIC_KEY_PEM" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AUTH_PUBLIC_KEY_PEM
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_PUBLIC_KEY_PATH" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AUTH_PUBLIC_KEY_PATH
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_ALGORITHMS" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AUTH_ALGORITHMS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_REQUIRE_EXP" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AUTH_REQUIRE_EXP
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_AUDIENCE" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AUTH_AUDIENCE
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_ISSUER" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AUTH_ISSUER
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_JWKS_CACHE_TTL" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AUTH_JWKS_CACHE_TTL
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_EXCLUDE_PATHS" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AUTH_EXCLUDE_PATHS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_SSO_TOKEN_URL" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AUTH_SSO_TOKEN_URL
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_SSO_CLIENT_ID" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AUTH_SSO_CLIENT_ID
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_SSO_CLIENT_SECRET" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AUTH_SSO_CLIENT_SECRET
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_SSO_SCOPE" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AUTH_SSO_SCOPE
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_SSO_AUDIENCE" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AUTH_SSO_AUDIENCE
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_SSO_AUTH_STYLE" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AUTH_SSO_AUTH_STYLE
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_SSO_VERIFY_SSL" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AUTH_SSO_VERIFY_SSL
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_SSO_TIMEOUT" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AUTH_SSO_TIMEOUT
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_SSO_EXPIRY_SKEW" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AUTH_SSO_EXPIRY_SKEW
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+  
+    
+                  
+
+
+
+<h1 id="fastapi-app-api">‏API של אפליקציית FastAPI<a class="headerlink" href="#fastapi-app-api" title="Permanent link">&para;</a></h1>
+<p>פונקציית יצירת האפליקציה וכלי התשתית המשותפים.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">tashtiot_apis_library</span><span class="w"> </span><span class="kn">import</span> <span class="n">general_create_app</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">tashtiot_apis_library.fastapi_template.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseAPI</span><span class="p">,</span> <span class="n">settings</span>
+</code></pre></div>
+<h2 id="general_create_app">general_create_app<a class="headerlink" href="#general_create_app" title="Permanent link">&para;</a></h2>
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="tashtiot_apis_library.fastapi_template._internal.general_create_app" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">general_create_app</span>
+
+
+<a href="#tashtiot_apis_library.fastapi_template._internal.general_create_app" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">general_create_app</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">async_background_tasks</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[],</span> <span class="n">Coroutine</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">enable_logging_middleware</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">enable_time_recording_middleware</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">enable_root_route</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">enable_exception_handlers</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">enable_uptime_background_task</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">enable_metrics_route</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">enable_swagger_routes</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">enable_probe_routes</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">enable_auth</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">fastapi_kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FastAPI</span>
+</code></pre></div>
+
+    <div class="doc doc-contents first">
+
+        <p>Create and configure the FastAPI application.</p>
+
+
+    </div>
+
+</div><h2 id="baseapi">BaseAPI<a class="headerlink" href="#baseapi" title="Permanent link">&para;</a></h2>
+<p>עטיפת לקוח ה-HTTP היוצא שהמחברים בנויים עליה. מקבלת <code>httpx.Auth</code> דרך <code>auth=</code>, כך שאפשר לשלב אותה
+עם <a href="../security/">פונקציות העזר של SSO</a>.</p>
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="tashtiot_apis_library.fastapi_template._internal.database.basic_api.BaseAPI" class="doc doc-heading">
+            <span class="doc doc-object-name doc-class-name">BaseAPI</span>
+
+
+<a href="#tashtiot_apis_library.fastapi_template._internal.database.basic_api.BaseAPI" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">BaseAPI</span><span class="p">(</span><span class="n">base_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">headers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">auth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">Auth</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">,</span> <span class="n">verify</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents first">
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="tashtiot_apis_library.fastapi_template._internal.database.basic_api.BaseAPI.base_url" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">base_url</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.fastapi_template._internal.database.basic_api.BaseAPI.base_url" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">base_url</span> <span class="o">=</span> <span class="n">rstrip</span><span class="p">(</span><span class="s1">'/'</span><span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="tashtiot_apis_library.fastapi_template._internal.database.basic_api.BaseAPI.headers" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">headers</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.fastapi_template._internal.database.basic_api.BaseAPI.headers" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">headers</span> <span class="o">=</span> <span class="n">headers</span> <span class="ow">or</span> <span class="p">{}</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="tashtiot_apis_library.fastapi_template._internal.database.basic_api.BaseAPI.auth" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">auth</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.fastapi_template._internal.database.basic_api.BaseAPI.auth" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">auth</span> <span class="o">=</span> <span class="n">auth</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="tashtiot_apis_library.fastapi_template._internal.database.basic_api.BaseAPI.timeout" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">timeout</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.fastapi_template._internal.database.basic_api.BaseAPI.timeout" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">timeout</span> <span class="o">=</span> <span class="n">timeout</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="tashtiot_apis_library.fastapi_template._internal.database.basic_api.BaseAPI.verify" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">verify</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.fastapi_template._internal.database.basic_api.BaseAPI.verify" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">verify</span> <span class="o">=</span> <span class="n">verify</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="tashtiot_apis_library.fastapi_template._internal.database.basic_api.BaseAPI.client" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">client</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.fastapi_template._internal.database.basic_api.BaseAPI.client" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">client</span><span class="p">:</span> <span class="n">AsyncClient</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Return an AsyncClient.</p>
+<ul>
+<li>Inside <code>async with</code>: returns the reusable client.</li>
+<li>Outside: returns a temporary client you can <code>async with</code>.</li>
+</ul>
+
+    </div>
+
+</div>
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div><h2 id="settings">הגדרות<a class="headerlink" href="#settings" title="Permanent link">&para;</a></h2>
+<p>‏<code>settings</code> הוא מופע של <code>ApplicationSettings</code>. השדות שלו הם משתני הסביבה שמתועדים
+ב<a href="../../configuration/">מידע העזר על הקונפיגורציה</a>.</p>
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings" class="doc doc-heading">
+            <span class="doc doc-object-name doc-class-name">ApplicationSettings</span>
+
+
+<a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents first">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="pydantic_settings.BaseSettings">BaseSettings</span></code></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.model_config" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">model_config</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.model_config" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">model_config</span> <span class="o">=</span> <span class="n">SettingsConfigDict</span><span class="p">(</span><span class="n">env_file</span><span class="o">=</span><span class="s1">'.env'</span><span class="p">,</span> <span class="n">env_file_encoding</span><span class="o">=</span><span class="s1">'utf-8'</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="s1">'ignore'</span><span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.PORT" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">PORT</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.PORT" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">PORT</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">8000</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">'The port the application will run on.'</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="mi">8000</span><span class="p">,</span> <span class="mi">8080</span><span class="p">])</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.LOG_LEVEL" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">LOG_LEVEL</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.LOG_LEVEL" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">LOG_LEVEL</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s1">'INFO'</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">'Logging level for the application.'</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s1">'DEBUG'</span><span class="p">,</span> <span class="s1">'INFO'</span><span class="p">,</span> <span class="s1">'WARNING'</span><span class="p">,</span> <span class="s1">'ERROR'</span><span class="p">,</span> <span class="s1">'CRITICAL'</span><span class="p">])</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.DEBUG" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">DEBUG</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.DEBUG" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">DEBUG</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">'Whether the application should run in debug mode.'</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">])</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.RELOAD_INCLUDES" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">RELOAD_INCLUDES</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.RELOAD_INCLUDES" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">RELOAD_INCLUDES</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="p">[</span><span class="s1">'.env'</span><span class="p">],</span> <span class="n">description</span><span class="o">=</span><span class="s1">'List of paths to files that triggers reloading.'</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[[</span><span class="s1">'*.py'</span><span class="p">]])</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.APP_NAME" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">APP_NAME</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.APP_NAME" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">APP_NAME</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s1">'MyApp'</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">'The name of the application.'</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s1">'UserService'</span><span class="p">,</span> <span class="s1">'PaymentAPI'</span><span class="p">])</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.PROCESS_TIME_HEADER" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">PROCESS_TIME_HEADER</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.PROCESS_TIME_HEADER" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">PROCESS_TIME_HEADER</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s1">'X-Process-Time'</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">'Header name to include process time in responses.'</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s1">'X-Process-Time'</span><span class="p">,</span> <span class="s1">'X-Response-Time'</span><span class="p">])</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.OPENAPI_VERSION" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">OPENAPI_VERSION</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.OPENAPI_VERSION" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">OPENAPI_VERSION</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s1">'3.0.2'</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">'OpenAPI version used for the Swagger UI.'</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s1">'3.0.2'</span><span class="p">,</span> <span class="s1">'3.1.0'</span><span class="p">])</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.OPENAPI_JSON_URL" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">OPENAPI_JSON_URL</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.OPENAPI_JSON_URL" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">OPENAPI_JSON_URL</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s1">'/openapi.json'</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">'Path to the OpenAPI JSON schema.'</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s1">'/openapi.json'</span><span class="p">,</span> <span class="s1">'/api/openapi.json'</span><span class="p">])</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.PROXIED" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">PROXIED</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.PROXIED" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">PROXIED</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">'Whether the Api is behind a proxy.'</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">])</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.PROXY_LISTEN_PATH" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">PROXY_LISTEN_PATH</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.PROXY_LISTEN_PATH" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">PROXY_LISTEN_PATH</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s1">'/'</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">'Path where the proxy listens for requests.'</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s1">'/proxy'</span><span class="p">,</span> <span class="s1">'/api/proxy'</span><span class="p">])</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.SWAGGER_STATIC_FILES" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">SWAGGER_STATIC_FILES</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.SWAGGER_STATIC_FILES" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">SWAGGER_STATIC_FILES</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s1">'/static/swagger'</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">'URL path to serve Swagger UI static files.'</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s1">'/static/swagger'</span><span class="p">])</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.SWAGGER_OPENAPI_JSON_URL" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">SWAGGER_OPENAPI_JSON_URL</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.SWAGGER_OPENAPI_JSON_URL" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">SWAGGER_OPENAPI_JSON_URL</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">OPENAPI_JSON_URL</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.LOG_REQUEST_EXCLUDE_PATHS" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">LOG_REQUEST_EXCLUDE_PATHS</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.LOG_REQUEST_EXCLUDE_PATHS" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">LOG_REQUEST_EXCLUDE_PATHS</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="p">[</span><span class="s1">'/health'</span><span class="p">,</span> <span class="s1">'/metrics'</span><span class="p">,</span> <span class="s1">'/static'</span><span class="p">,</span> <span class="s1">'/docs'</span><span class="p">,</span> <span class="s1">'/redoc'</span><span class="p">,</span> <span class="s1">'/openapi.json'</span><span class="p">,</span> <span class="s1">'/.well-known'</span><span class="p">],</span> <span class="n">description</span><span class="o">=</span><span class="s1">'List of paths to ignore for logging.'</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[[</span><span class="s1">'/health'</span><span class="p">,</span> <span class="s1">'/metrics'</span><span class="p">]])</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.PROBE_READINESS_PATH" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">PROBE_READINESS_PATH</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.PROBE_READINESS_PATH" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">PROBE_READINESS_PATH</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s1">'/readiness'</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">'Path for readiness probe.'</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s1">'/readiness'</span><span class="p">,</span> <span class="s1">'/api/readiness'</span><span class="p">])</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.PROBE_LIVENESS_PATH" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">PROBE_LIVENESS_PATH</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.PROBE_LIVENESS_PATH" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">PROBE_LIVENESS_PATH</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s1">'/liveness'</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">'Path for liveness probe.'</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s1">'/liveness'</span><span class="p">,</span> <span class="s1">'/api/liveness'</span><span class="p">])</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_ENABLED" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">AUTH_ENABLED</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_ENABLED" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">AUTH_ENABLED</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">'Runtime master switch for inbound JWT bearer authentication.'</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">])</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_HEADER_NAME" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">AUTH_HEADER_NAME</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_HEADER_NAME" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">AUTH_HEADER_NAME</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s1">'Authorization'</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">'Request header carrying the bearer token.'</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s1">'Authorization'</span><span class="p">,</span> <span class="s1">'X-Auth-Token'</span><span class="p">])</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_HS256_SECRET" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">AUTH_HS256_SECRET</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_HS256_SECRET" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">AUTH_HS256_SECRET</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">'Shared secret for HS256 verification. If set, selects HS256 mode.'</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s1">'super-secret-value'</span><span class="p">])</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_JWKS_URL" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">AUTH_JWKS_URL</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_JWKS_URL" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">AUTH_JWKS_URL</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">'JWKS/OIDC endpoint URL for RS256 verification with key caching. Selects JWKS mode.'</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s1">'https://idp.example.com/.well-known/jwks.json'</span><span class="p">])</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_OIDC_ISSUER" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">AUTH_OIDC_ISSUER</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_OIDC_ISSUER" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">AUTH_OIDC_ISSUER</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">"OIDC issuer base URL. Selects JWKS mode by discovering the provider's 'jwks_uri' from &lt;issuer&gt;/.well-known/openid-configuration at startup (an explicit AUTH_JWKS_URL takes precedence). Also used as the default expected 'iss' when AUTH_ISSUER is unset."</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s1">'https://idp.example.com/'</span><span class="p">,</span> <span class="s1">'https://sso.example.com/realms/platform'</span><span class="p">])</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_OIDC_VERIFY_SSL" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">AUTH_OIDC_VERIFY_SSL</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_OIDC_VERIFY_SSL" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">AUTH_OIDC_VERIFY_SSL</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">'Verify the TLS certificate when fetching the OIDC discovery document.'</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">])</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_OIDC_TIMEOUT" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">AUTH_OIDC_TIMEOUT</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_OIDC_TIMEOUT" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">AUTH_OIDC_TIMEOUT</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">'Timeout in seconds for the one-shot OIDC discovery request at startup.'</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">])</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_PUBLIC_KEY_PEM" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">AUTH_PUBLIC_KEY_PEM</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_PUBLIC_KEY_PEM" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">AUTH_PUBLIC_KEY_PEM</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">'Inline PEM public key for offline RS256 verification. Selects local-pubkey mode.'</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s1">'-----BEGIN PUBLIC KEY-----</span><span class="se">\n</span><span class="s1">...</span><span class="se">\n</span><span class="s1">-----END PUBLIC KEY-----'</span><span class="p">])</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_PUBLIC_KEY_PATH" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">AUTH_PUBLIC_KEY_PATH</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_PUBLIC_KEY_PATH" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">AUTH_PUBLIC_KEY_PATH</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">'Filesystem path to a PEM public key (alternative to AUTH_PUBLIC_KEY_PEM). Selects local-pubkey mode.'</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s1">'/etc/secrets/jwt_pub.pem'</span><span class="p">])</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_ALGORITHMS" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">AUTH_ALGORITHMS</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_ALGORITHMS" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">AUTH_ALGORITHMS</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="p">[</span><span class="s1">'RS256'</span><span class="p">],</span> <span class="n">description</span><span class="o">=</span><span class="s2">"Allowed JWT signing algorithms. HS256 mode forces ['HS256']."</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[[</span><span class="s1">'RS256'</span><span class="p">],</span> <span class="p">[</span><span class="s1">'HS256'</span><span class="p">],</span> <span class="p">[</span><span class="s1">'RS256'</span><span class="p">,</span> <span class="s1">'RS384'</span><span class="p">]])</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_REQUIRE_EXP" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">AUTH_REQUIRE_EXP</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_REQUIRE_EXP" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">AUTH_REQUIRE_EXP</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">"Require the 'exp' claim on inbound tokens. True (default) rejects tokens without an expiry; set False to accept non-expiring tokens (e.g. a forever gen-auth-material token)."</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">])</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_AUDIENCE" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">AUTH_AUDIENCE</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_AUDIENCE" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">AUTH_AUDIENCE</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">"Expected 'aud' claim. When None, audience is not validated."</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s1">'my-api'</span><span class="p">])</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_ISSUER" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">AUTH_ISSUER</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_ISSUER" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">AUTH_ISSUER</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">"Expected 'iss' claim. When None, issuer is not validated."</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s1">'https://idp.example.com/'</span><span class="p">])</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_JWKS_CACHE_TTL" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">AUTH_JWKS_CACHE_TTL</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_JWKS_CACHE_TTL" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">AUTH_JWKS_CACHE_TTL</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">3600</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">'Seconds to cache fetched JWKS keys before refetching.'</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="mi">3600</span><span class="p">,</span> <span class="mi">300</span><span class="p">])</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_EXCLUDE_PATHS" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">AUTH_EXCLUDE_PATHS</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_EXCLUDE_PATHS" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">AUTH_EXCLUDE_PATHS</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="p">[</span><span class="s1">'/health'</span><span class="p">,</span> <span class="s1">'/metrics'</span><span class="p">,</span> <span class="s1">'/static'</span><span class="p">,</span> <span class="s1">'/docs'</span><span class="p">,</span> <span class="s1">'/redoc'</span><span class="p">,</span> <span class="s1">'/openapi.json'</span><span class="p">,</span> <span class="s1">'/.well-known'</span><span class="p">,</span> <span class="s1">'/liveness'</span><span class="p">,</span> <span class="s1">'/readiness'</span><span class="p">],</span> <span class="n">description</span><span class="o">=</span><span class="s1">'Path prefixes/regexes that bypass authentication. Matched like LOG_REQUEST_EXCLUDE_PATHS.'</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[[</span><span class="s1">'/health'</span><span class="p">,</span> <span class="s1">'/metrics'</span><span class="p">]])</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_SSO_TOKEN_URL" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">AUTH_SSO_TOKEN_URL</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_SSO_TOKEN_URL" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">AUTH_SSO_TOKEN_URL</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">'OAuth2 token endpoint for the client_credentials grant. Required to use the SSO token client.'</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s1">'https://idp.example.com/oauth/token'</span><span class="p">,</span> <span class="s1">'https://login.microsoftonline.com/&lt;tenant&gt;/oauth2/v2.0/token'</span><span class="p">])</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_SSO_CLIENT_ID" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">AUTH_SSO_CLIENT_ID</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_SSO_CLIENT_ID" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">AUTH_SSO_CLIENT_ID</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">'OAuth2 client id for the client_credentials grant.'</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s1">'my-service'</span><span class="p">])</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_SSO_CLIENT_SECRET" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">AUTH_SSO_CLIENT_SECRET</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_SSO_CLIENT_SECRET" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">AUTH_SSO_CLIENT_SECRET</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">'OAuth2 client secret for the client_credentials grant.'</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s1">'super-secret-value'</span><span class="p">])</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_SSO_SCOPE" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">AUTH_SSO_SCOPE</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_SSO_SCOPE" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">AUTH_SSO_SCOPE</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">"Space-separated OAuth2 scopes to request, sent as the 'scope' field. When None, no scope is sent. On Keycloak this is also how a downstream 'aud' is obtained: request a client scope that carries an Audience mapper (AUTH_SSO_AUDIENCE is ignored by Keycloak)."</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s1">'api.read api.write'</span><span class="p">])</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_SSO_AUDIENCE" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">AUTH_SSO_AUDIENCE</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_SSO_AUDIENCE" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">AUTH_SSO_AUDIENCE</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">"'audience' parameter sent in the token request, honored by Auth0-style providers. When None, it is omitted. NOTE: Keycloak ignores this parameter -- set the downstream 'aud' via an Audience mapper requested through AUTH_SSO_SCOPE instead."</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s1">'https://api.example.com'</span><span class="p">])</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_SSO_AUTH_STYLE" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">AUTH_SSO_AUTH_STYLE</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_SSO_AUTH_STYLE" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">AUTH_SSO_AUTH_STYLE</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s1">'post'</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">"How client credentials are sent to the token endpoint: 'post' (form body) or 'basic' (HTTP Basic)."</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="s1">'post'</span><span class="p">,</span> <span class="s1">'basic'</span><span class="p">])</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_SSO_VERIFY_SSL" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">AUTH_SSO_VERIFY_SSL</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_SSO_VERIFY_SSL" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">AUTH_SSO_VERIFY_SSL</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">'Verify the TLS certificate of the SSO token endpoint.'</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">])</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_SSO_TIMEOUT" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">AUTH_SSO_TIMEOUT</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_SSO_TIMEOUT" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">AUTH_SSO_TIMEOUT</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">'Timeout in seconds for token endpoint requests.'</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">])</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_SSO_EXPIRY_SKEW" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">AUTH_SSO_EXPIRY_SKEW</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#tashtiot_apis_library.fastapi_template._internal.utils.config.ApplicationSettings.AUTH_SSO_EXPIRY_SKEW" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">AUTH_SSO_EXPIRY_SKEW</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">'Refresh the cached access token this many seconds before its expiry.'</span><span class="p">,</span> <span class="n">examples</span><span class="o">=</span><span class="p">[</span><span class="mi">30</span><span class="p">,</span> <span class="mi">60</span><span class="p">])</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+  
+
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  חזרה למעלה
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.indexes", "content.code.copy", "content.code.annotate", "toc.follow"], "search": "../../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "\u05d4\u05d5\u05e2\u05ea\u05e7 \u05dc\u05dc\u05d5\u05d7", "clipboard.copy": "\u05d4\u05e2\u05ea\u05e7\u05d4 \u05dc\u05dc\u05d5\u05d7", "search.result.more.one": "\u05e2\u05d5\u05d3 \u05d0\u05d7\u05d3 \u05d1\u05d3\u05e3 \u05d4\u05d6\u05d4", "search.result.more.other": "\u05e2\u05d5\u05d3 # \u05d1\u05d3\u05e3 \u05d4\u05d6\u05d4", "search.result.none": "\u05d0\u05d9\u05df \u05de\u05e1\u05de\u05db\u05d9\u05dd \u05ea\u05d5\u05d0\u05de\u05d9\u05dd", "search.result.one": "\u05de\u05e1\u05de\u05da1 \u05ea\u05d5\u05d0\u05dd", "search.result.other": "# \u05de\u05e1\u05de\u05da \u05ea\u05d5\u05d0\u05dd", "search.result.placeholder": "\u05d9\u05e9 \u05dc\u05d4\u05e7\u05dc\u05d9\u05d3 \u05db\u05d3\u05d9 \u05dc\u05d4\u05ea\u05d7\u05d9\u05dc \u05dc\u05d7\u05e4\u05e9", "search.result.term.missing": "\u05d7\u05e1\u05e8", "select.version": "\u05d1\u05d7\u05d9\u05e8\u05ea \u05d2\u05e8\u05e1\u05d4"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

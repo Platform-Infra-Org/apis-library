@@ -1,3 +1,549 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+    <url>
+        <loc>None./</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="None"/>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/"/>
+    </url>
+    <url>
+        <loc>Nonechangelog/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonechangelog/"/>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/changelog/"/>
+    </url>
+    <url>
+        <loc>Nonecontributing/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonecontributing/"/>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/contributing/"/>
+    </url>
+    <url>
+        <loc>Nonecontributing/development/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonecontributing/development/"/>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/contributing/development/"/>
+    </url>
+    <url>
+        <loc>Noneexplanation/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Noneexplanation/"/>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/explanation/"/>
+    </url>
+    <url>
+        <loc>Noneexplanation/architecture/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Noneexplanation/architecture/"/>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/explanation/architecture/"/>
+    </url>
+    <url>
+        <loc>Noneexplanation/async/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Noneexplanation/async/"/>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/explanation/async/"/>
+    </url>
+    <url>
+        <loc>Noneexplanation/authentication/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Noneexplanation/authentication/"/>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/explanation/authentication/"/>
+    </url>
+    <url>
+        <loc>Noneexplanation/cloud-native/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Noneexplanation/cloud-native/"/>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/explanation/cloud-native/"/>
+    </url>
+    <url>
+        <loc>Noneexplanation/dynamic-config-validation/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Noneexplanation/dynamic-config-validation/"/>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/explanation/dynamic-config-validation/"/>
+    </url>
+    <url>
+        <loc>Noneexplanation/job-queues/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Noneexplanation/job-queues/"/>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/explanation/job-queues/"/>
+    </url>
+    <url>
+        <loc>Noneexplanation/logging/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Noneexplanation/logging/"/>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/explanation/logging/"/>
+    </url>
+    <url>
+        <loc>Noneexplanation/openapi-swagger-injection/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Noneexplanation/openapi-swagger-injection/"/>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/explanation/openapi-swagger-injection/"/>
+    </url>
+    <url>
+        <loc>Nonehow-to/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonehow-to/"/>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/how-to/"/>
+    </url>
+    <url>
+        <loc>Nonehow-to/add-a-connector/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonehow-to/add-a-connector/"/>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/how-to/add-a-connector/"/>
+    </url>
+    <url>
+        <loc>Nonehow-to/call-services-with-sso/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonehow-to/call-services-with-sso/"/>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/how-to/call-services-with-sso/"/>
+    </url>
+    <url>
+        <loc>Nonehow-to/constrain-field-by-config/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonehow-to/constrain-field-by-config/"/>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/how-to/constrain-field-by-config/"/>
+    </url>
+    <url>
+        <loc>Nonehow-to/enable-remote-config-api/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonehow-to/enable-remote-config-api/"/>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/how-to/enable-remote-config-api/"/>
+    </url>
+    <url>
+        <loc>Nonehow-to/extend-the-template/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonehow-to/extend-the-template/"/>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/how-to/extend-the-template/"/>
+    </url>
+    <url>
+        <loc>Nonehow-to/generate-auth-material/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonehow-to/generate-auth-material/"/>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/how-to/generate-auth-material/"/>
+    </url>
+    <url>
+        <loc>Nonehow-to/migrate-an-api/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonehow-to/migrate-an-api/"/>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/how-to/migrate-an-api/"/>
+    </url>
+    <url>
+        <loc>Nonehow-to/read-write-bitbucket/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonehow-to/read-write-bitbucket/"/>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/how-to/read-write-bitbucket/"/>
+    </url>
+    <url>
+        <loc>Nonehow-to/secure-with-oidc-jwks/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonehow-to/secure-with-oidc-jwks/"/>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/how-to/secure-with-oidc-jwks/"/>
+    </url>
+    <url>
+        <loc>Nonehow-to/use-awx-argocd-vault/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonehow-to/use-awx-argocd-vault/"/>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/how-to/use-awx-argocd-vault/"/>
+    </url>
+    <url>
+        <loc>Nonehow-to/verify-a-token/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonehow-to/verify-a-token/"/>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/how-to/verify-a-token/"/>
+    </url>
+    <url>
+        <loc>Nonereference/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonereference/"/>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/reference/"/>
+    </url>
+    <url>
+        <loc>Nonereference/api-standards/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonereference/api-standards/"/>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/reference/api-standards/"/>
+    </url>
+    <url>
+        <loc>Nonereference/cli/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonereference/cli/"/>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/reference/cli/"/>
+    </url>
+    <url>
+        <loc>Nonereference/configuration/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonereference/configuration/"/>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/reference/configuration/"/>
+    </url>
+    <url>
+        <loc>Nonereference/api/auth/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonereference/api/auth/"/>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/reference/api/auth/"/>
+    </url>
+    <url>
+        <loc>Nonereference/api/config-api/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonereference/api/config-api/"/>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/reference/api/config-api/"/>
+    </url>
+    <url>
+        <loc>Nonereference/api/connectors/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonereference/api/connectors/"/>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/reference/api/connectors/"/>
+    </url>
+    <url>
+        <loc>Nonereference/api/errors/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonereference/api/errors/"/>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/reference/api/errors/"/>
+    </url>
+    <url>
+        <loc>Nonereference/api/fastapi-app/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonereference/api/fastapi-app/"/>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/reference/api/fastapi-app/"/>
+    </url>
+    <url>
+        <loc>Nonereference/api/schemas/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonereference/api/schemas/"/>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/reference/api/schemas/"/>
+    </url>
+    <url>
+        <loc>Nonereference/api/security/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonereference/api/security/"/>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/reference/api/security/"/>
+    </url>
+    <url>
+        <loc>Nonetutorials/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonetutorials/"/>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/tutorials/"/>
+    </url>
+    <url>
+        <loc>Nonetutorials/first-app/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonetutorials/first-app/"/>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/tutorials/first-app/"/>
+    </url>
+    <url>
+        <loc>Nonetutorials/secure-your-api/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonetutorials/secure-your-api/"/>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/tutorials/secure-your-api/"/>
+    </url>
+    <url>
+        <loc>Nonehe/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="None"/>
+    </url>
+    <url>
+        <loc>Nonehe/changelog/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/changelog/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonechangelog/"/>
+    </url>
+    <url>
+        <loc>Nonehe/contributing/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/contributing/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonecontributing/"/>
+    </url>
+    <url>
+        <loc>Nonehe/contributing/development/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/contributing/development/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonecontributing/development/"/>
+    </url>
+    <url>
+        <loc>Nonehe/explanation/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/explanation/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Noneexplanation/"/>
+    </url>
+    <url>
+        <loc>Nonehe/explanation/architecture/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/explanation/architecture/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Noneexplanation/architecture/"/>
+    </url>
+    <url>
+        <loc>Nonehe/explanation/async/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/explanation/async/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Noneexplanation/async/"/>
+    </url>
+    <url>
+        <loc>Nonehe/explanation/authentication/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/explanation/authentication/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Noneexplanation/authentication/"/>
+    </url>
+    <url>
+        <loc>Nonehe/explanation/cloud-native/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/explanation/cloud-native/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Noneexplanation/cloud-native/"/>
+    </url>
+    <url>
+        <loc>Nonehe/explanation/dynamic-config-validation/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/explanation/dynamic-config-validation/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Noneexplanation/dynamic-config-validation/"/>
+    </url>
+    <url>
+        <loc>Nonehe/explanation/job-queues/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/explanation/job-queues/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Noneexplanation/job-queues/"/>
+    </url>
+    <url>
+        <loc>Nonehe/explanation/logging/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/explanation/logging/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Noneexplanation/logging/"/>
+    </url>
+    <url>
+        <loc>Nonehe/explanation/openapi-swagger-injection/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/explanation/openapi-swagger-injection/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Noneexplanation/openapi-swagger-injection/"/>
+    </url>
+    <url>
+        <loc>Nonehe/how-to/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/how-to/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonehow-to/"/>
+    </url>
+    <url>
+        <loc>Nonehe/how-to/add-a-connector/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/how-to/add-a-connector/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonehow-to/add-a-connector/"/>
+    </url>
+    <url>
+        <loc>Nonehe/how-to/call-services-with-sso/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/how-to/call-services-with-sso/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonehow-to/call-services-with-sso/"/>
+    </url>
+    <url>
+        <loc>Nonehe/how-to/constrain-field-by-config/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/how-to/constrain-field-by-config/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonehow-to/constrain-field-by-config/"/>
+    </url>
+    <url>
+        <loc>Nonehe/how-to/enable-remote-config-api/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/how-to/enable-remote-config-api/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonehow-to/enable-remote-config-api/"/>
+    </url>
+    <url>
+        <loc>Nonehe/how-to/extend-the-template/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/how-to/extend-the-template/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonehow-to/extend-the-template/"/>
+    </url>
+    <url>
+        <loc>Nonehe/how-to/generate-auth-material/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/how-to/generate-auth-material/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonehow-to/generate-auth-material/"/>
+    </url>
+    <url>
+        <loc>Nonehe/how-to/migrate-an-api/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/how-to/migrate-an-api/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonehow-to/migrate-an-api/"/>
+    </url>
+    <url>
+        <loc>Nonehe/how-to/read-write-bitbucket/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/how-to/read-write-bitbucket/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonehow-to/read-write-bitbucket/"/>
+    </url>
+    <url>
+        <loc>Nonehe/how-to/secure-with-oidc-jwks/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/how-to/secure-with-oidc-jwks/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonehow-to/secure-with-oidc-jwks/"/>
+    </url>
+    <url>
+        <loc>Nonehe/how-to/use-awx-argocd-vault/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/how-to/use-awx-argocd-vault/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonehow-to/use-awx-argocd-vault/"/>
+    </url>
+    <url>
+        <loc>Nonehe/how-to/verify-a-token/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/how-to/verify-a-token/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonehow-to/verify-a-token/"/>
+    </url>
+    <url>
+        <loc>Nonehe/reference/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/reference/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonereference/"/>
+    </url>
+    <url>
+        <loc>Nonehe/reference/api-standards/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/reference/api-standards/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonereference/api-standards/"/>
+    </url>
+    <url>
+        <loc>Nonehe/reference/cli/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/reference/cli/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonereference/cli/"/>
+    </url>
+    <url>
+        <loc>Nonehe/reference/configuration/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/reference/configuration/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonereference/configuration/"/>
+    </url>
+    <url>
+        <loc>Nonehe/reference/api/auth/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/reference/api/auth/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonereference/api/auth/"/>
+    </url>
+    <url>
+        <loc>Nonehe/reference/api/config-api/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/reference/api/config-api/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonereference/api/config-api/"/>
+    </url>
+    <url>
+        <loc>Nonehe/reference/api/connectors/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/reference/api/connectors/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonereference/api/connectors/"/>
+    </url>
+    <url>
+        <loc>Nonehe/reference/api/errors/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/reference/api/errors/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonereference/api/errors/"/>
+    </url>
+    <url>
+        <loc>Nonehe/reference/api/fastapi-app/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/reference/api/fastapi-app/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonereference/api/fastapi-app/"/>
+    </url>
+    <url>
+        <loc>Nonehe/reference/api/schemas/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/reference/api/schemas/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonereference/api/schemas/"/>
+    </url>
+    <url>
+        <loc>Nonehe/reference/api/security/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/reference/api/security/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonereference/api/security/"/>
+    </url>
+    <url>
+        <loc>Nonehe/tutorials/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/tutorials/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonetutorials/"/>
+    </url>
+    <url>
+        <loc>Nonehe/tutorials/first-app/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/tutorials/first-app/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonetutorials/first-app/"/>
+    </url>
+    <url>
+        <loc>Nonehe/tutorials/secure-your-api/</loc>
+        <lastmod>2026-11-24</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="he" href="Nonehe/tutorials/secure-your-api/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="Nonetutorials/secure-your-api/"/>
+    </url>
 </urlset>

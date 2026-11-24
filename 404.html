@@ -1,12 +1,12 @@
 
 <!doctype html>
-<html lang="en" class="no-js">
+<html lang="he" class="no-js">
   <head>
     
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Infrastructure connectors (ArgoCD, AWX, Bitbucket Server, Vault) and a reusable FastAPI application template, in one Python package.">
+        <meta name="description" content="מחברים לתשתיות (ArgoCD, AWX, Bitbucket Server, Vault) ותבנית אפליקציית FastAPI לשימוש חוזר, בחבילת Python אחת.">
       
       
       
@@ -14,14 +14,18 @@
       
       
         
+          <link rel="alternate" href="/tutorials/secure-your-api/" hreflang="en">
+        
+          <link rel="alternate" href="/he/tutorials/secure-your-api/" hreflang="he">
+        
       
       
       <link rel="icon" href="/assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.2">
     
     
       
-        <title>Tashtiot APIs Library</title>
+        <title>ספריית ה-APIs של תשתיות</title>
       
     
     
@@ -49,6 +53,8 @@
     
       <link rel="stylesheet" href="/assets/_mkdocstrings.css">
     
+      <link rel="stylesheet" href="/assets/_mkdocstrings.css">
+    
     <script>__md_scope=new URL("/",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -65,7 +71,7 @@
     
     
     
-    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+    <body dir="rtl" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
   
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
@@ -82,8 +88,8 @@
       
 
 <header class="md-header" data-md-component="header">
-  <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="/." title="Tashtiot APIs Library" class="md-header__button md-logo" aria-label="Tashtiot APIs Library" data-md-component="logo">
+  <nav class="md-header__inner md-grid" aria-label="כותרת עליונה">
+    <a href="/he/" title="ספריית ה-APIs של תשתיות" class="md-header__button md-logo" aria-label="ספריית ה-APIs של תשתיות" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -97,7 +103,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Tashtiot APIs Library
+            ספריית ה-APIs של תשתיות
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -140,6 +146,32 @@
       <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
     
     
+      <div class="md-header__option">
+  <div class="md-select">
+    
+    <button class="md-header__button md-icon" aria-label="בחירת שפה">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
+    </button>
+    <div class="md-select__inner">
+      <ul class="md-select__list">
+        
+          <li class="md-select__item">
+            <a href="/tutorials/secure-your-api/" hreflang="en" class="md-select__link">
+              English
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="/he/tutorials/secure-your-api/" hreflang="he" class="md-select__link">
+              עברית
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</div>
+    
     
       
       
@@ -151,16 +183,16 @@
   <label class="md-search__overlay" for="__search"></label>
   <div class="md-search__inner" role="search">
     <form class="md-search__form" name="search">
-      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <input type="text" class="md-search__input" name="query" aria-label="חיפוש" placeholder="חיפוש" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
       <label class="md-search__icon md-icon" for="__search">
         
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
         
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
       </label>
-      <nav class="md-search__options" aria-label="Search">
+      <nav class="md-search__options" aria-label="חיפוש">
         
-        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+        <button type="reset" class="md-search__icon md-icon" title="ניקוי" aria-label="ניקוי" tabindex="-1">
           
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
         </button>
@@ -171,7 +203,7 @@
       <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
         <div class="md-search-result" data-md-component="search-result">
           <div class="md-search-result__meta">
-            Initializing search
+            אתחול חיפוש
           </div>
           <ol class="md-search-result__list" role="presentation"></ol>
         </div>
@@ -192,7 +224,7 @@
         
           
             
-<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+<nav class="md-tabs" aria-label="לשוניות" data-md-component="tabs">
   <div class="md-grid">
     <ul class="md-tabs__list">
       
@@ -202,13 +234,13 @@
   
   
     <li class="md-tabs__item">
-      <a href="/." class="md-tabs__link">
+      <a href="/he/" class="md-tabs__link">
         
   
   
     
   
-  Home
+  בית
 
       </a>
     </li>
@@ -223,13 +255,13 @@
     
     
       <li class="md-tabs__item">
-        <a href="/tutorials/" class="md-tabs__link">
+        <a href="/he/tutorials/" class="md-tabs__link">
           
   
   
     
   
-  Tutorials
+  מדריכים למתחילים
 
         </a>
       </li>
@@ -245,13 +277,13 @@
     
     
       <li class="md-tabs__item">
-        <a href="/how-to/" class="md-tabs__link">
+        <a href="/he/how-to/" class="md-tabs__link">
           
   
   
     
   
-  How-to guides
+  מדריכי ביצוע
 
         </a>
       </li>
@@ -267,13 +299,13 @@
     
     
       <li class="md-tabs__item">
-        <a href="/reference/" class="md-tabs__link">
+        <a href="/he/reference/" class="md-tabs__link">
           
   
   
     
   
-  Reference
+  מידע עזר
 
         </a>
       </li>
@@ -289,13 +321,13 @@
     
     
       <li class="md-tabs__item">
-        <a href="/explanation/" class="md-tabs__link">
+        <a href="/he/explanation/" class="md-tabs__link">
           
   
   
     
   
-  Explanation
+  הסברים
 
         </a>
       </li>
@@ -311,13 +343,13 @@
     
     
       <li class="md-tabs__item">
-        <a href="/contributing/" class="md-tabs__link">
+        <a href="/he/contributing/" class="md-tabs__link">
           
   
   
     
   
-  Contributing
+  תרומה לפרויקט
 
         </a>
       </li>
@@ -331,13 +363,13 @@
   
   
     <li class="md-tabs__item">
-      <a href="/changelog/" class="md-tabs__link">
+      <a href="/he/changelog/" class="md-tabs__link">
         
   
   
     
   
-  Changelog
+  יומן שינויים
 
       </a>
     </li>
@@ -364,15 +396,15 @@
   
 
 
-<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="ניווט" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="/." title="Tashtiot APIs Library" class="md-nav__button md-logo" aria-label="Tashtiot APIs Library" data-md-component="logo">
+    <a href="/he/" title="ספריית ה-APIs של תשתיות" class="md-nav__button md-logo" aria-label="ספריית ה-APIs של תשתיות" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    Tashtiot APIs Library
+    ספריית ה-APIs של תשתיות
   </label>
   
   <ul class="md-nav__list" data-md-scrollfix>
@@ -384,14 +416,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/." class="md-nav__link">
+      <a href="/he/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Home
+    בית
   
 
     
@@ -438,14 +470,14 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="/tutorials/" class="md-nav__link ">
+            <a href="/he/tutorials/" class="md-nav__link ">
               
   
   
   <span class="md-ellipsis">
     
   
-    Tutorials
+    מדריכים למתחילים
   
 
     
@@ -467,7 +499,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Tutorials
+    מדריכים למתחילים
   
 
           </label>
@@ -482,14 +514,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/tutorials/first-app/" class="md-nav__link">
+      <a href="/he/tutorials/first-app/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Your first app
+    האפליקציה הראשונה שלך
   
 
     
@@ -510,14 +542,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/tutorials/secure-your-api/" class="md-nav__link">
+      <a href="/he/tutorials/secure-your-api/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Secure your API
+    אבטחת ה-API שלך
   
 
     
@@ -590,14 +622,14 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="/how-to/" class="md-nav__link ">
+            <a href="/he/how-to/" class="md-nav__link ">
               
   
   
   <span class="md-ellipsis">
     
   
-    How-to guides
+    מדריכי ביצוע
   
 
     
@@ -619,7 +651,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    How-to guides
+    מדריכי ביצוע
   
 
           </label>
@@ -634,14 +666,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/how-to/read-write-bitbucket/" class="md-nav__link">
+      <a href="/he/how-to/read-write-bitbucket/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Read & write Bitbucket files
+    קריאה וכתיבה של קבצים ב-Bitbucket
   
 
     
@@ -662,14 +694,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/how-to/use-awx-argocd-vault/" class="md-nav__link">
+      <a href="/he/how-to/use-awx-argocd-vault/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Drive AWX, ArgoCD & Vault
+    עבודה עם AWX, ArgoCD ו-Vault
   
 
     
@@ -690,14 +722,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/how-to/secure-with-oidc-jwks/" class="md-nav__link">
+      <a href="/he/how-to/secure-with-oidc-jwks/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Secure an API with OIDC &amp; JWKS
+    אבטחת API עם OIDC ו-JWKS
   
 
     
@@ -718,14 +750,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/how-to/verify-a-token/" class="md-nav__link">
+      <a href="/he/how-to/verify-a-token/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Verify a token outside a request
+    אימות טוקן מחוץ לבקשה
   
 
     
@@ -746,14 +778,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/how-to/call-services-with-sso/" class="md-nav__link">
+      <a href="/he/how-to/call-services-with-sso/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Call other services with SSO
+    קריאה לשירותים אחרים עם SSO
   
 
     
@@ -774,14 +806,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/how-to/enable-remote-config-api/" class="md-nav__link">
+      <a href="/he/how-to/enable-remote-config-api/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Enable the Remote Config API
+    הפעלת Remote Config API
   
 
     
@@ -802,14 +834,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/how-to/constrain-field-by-config/" class="md-nav__link">
+      <a href="/he/how-to/constrain-field-by-config/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Constrain a field by resolved config
+    הגבלת שדה לפי קונפיגורציה
   
 
     
@@ -830,14 +862,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/how-to/generate-auth-material/" class="md-nav__link">
+      <a href="/he/how-to/generate-auth-material/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Generate dev auth material
+    יצירת חומרי אימות לפיתוח
   
 
     
@@ -858,14 +890,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/how-to/add-a-connector/" class="md-nav__link">
+      <a href="/he/how-to/add-a-connector/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Add a new connector
+    הוספת מחבר חדש
   
 
     
@@ -886,14 +918,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/how-to/extend-the-template/" class="md-nav__link">
+      <a href="/he/how-to/extend-the-template/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Extend the FastAPI template
+    הרחבת תבנית FastAPI
   
 
     
@@ -914,14 +946,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/how-to/migrate-an-api/" class="md-nav__link">
+      <a href="/he/how-to/migrate-an-api/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Migrate an API to the current version
+    הסבת API לגרסה הנוכחית
   
 
     
@@ -980,14 +1012,14 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="/reference/" class="md-nav__link ">
+            <a href="/he/reference/" class="md-nav__link ">
               
   
   
   <span class="md-ellipsis">
     
   
-    Reference
+    מידע עזר
   
 
     
@@ -1009,7 +1041,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Reference
+    מידע עזר
   
 
           </label>
@@ -1024,14 +1056,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/reference/api-standards/" class="md-nav__link">
+      <a href="/he/reference/api-standards/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    API standards
+    תקני API
   
 
     
@@ -1052,14 +1084,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/reference/configuration/" class="md-nav__link">
+      <a href="/he/reference/configuration/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Configuration
+    קונפיגורציה
   
 
     
@@ -1080,14 +1112,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/reference/cli/" class="md-nav__link">
+      <a href="/he/reference/cli/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    CLI (gen-auth-material)
+    CLI ‏(gen-auth-material)
   
 
     
@@ -1176,14 +1208,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/reference/api/connectors/" class="md-nav__link">
+      <a href="/he/reference/api/connectors/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Connectors
+    מחברים
   
 
     
@@ -1204,14 +1236,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/reference/api/fastapi-app/" class="md-nav__link">
+      <a href="/he/reference/api/fastapi-app/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    FastAPI app
+    אפליקציית FastAPI
   
 
     
@@ -1232,14 +1264,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/reference/api/auth/" class="md-nav__link">
+      <a href="/he/reference/api/auth/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Auth (inbound JWT)
+    אימות (JWT נכנס)
   
 
     
@@ -1260,14 +1292,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/reference/api/security/" class="md-nav__link">
+      <a href="/he/reference/api/security/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Security (outbound SSO)
+    אבטחה (SSO יוצא)
   
 
     
@@ -1288,7 +1320,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/reference/api/config-api/" class="md-nav__link">
+      <a href="/he/reference/api/config-api/" class="md-nav__link">
         
   
   
@@ -1316,14 +1348,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/reference/api/errors/" class="md-nav__link">
+      <a href="/he/reference/api/errors/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Errors
+    שגיאות
   
 
     
@@ -1344,14 +1376,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/reference/api/schemas/" class="md-nav__link">
+      <a href="/he/reference/api/schemas/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Schemas
+    סכמות
   
 
     
@@ -1426,14 +1458,14 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="/explanation/" class="md-nav__link ">
+            <a href="/he/explanation/" class="md-nav__link ">
               
   
   
   <span class="md-ellipsis">
     
   
-    Explanation
+    הסברים
   
 
     
@@ -1455,7 +1487,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Explanation
+    הסברים
   
 
           </label>
@@ -1470,14 +1502,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/explanation/architecture/" class="md-nav__link">
+      <a href="/he/explanation/architecture/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Architecture
+    ארכיטקטורה
   
 
     
@@ -1498,14 +1530,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/explanation/authentication/" class="md-nav__link">
+      <a href="/he/explanation/authentication/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Authentication design
+    תכנון האימות
   
 
     
@@ -1526,14 +1558,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/explanation/dynamic-config-validation/" class="md-nav__link">
+      <a href="/he/explanation/dynamic-config-validation/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Dynamic config validation
+    ולידציה דינמית של קונפיגורציה
   
 
     
@@ -1554,14 +1586,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/explanation/openapi-swagger-injection/" class="md-nav__link">
+      <a href="/he/explanation/openapi-swagger-injection/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    OpenAPI & Swagger injection
+    הזרקה ל-OpenAPI ול-Swagger
   
 
     
@@ -1582,14 +1614,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/explanation/logging/" class="md-nav__link">
+      <a href="/he/explanation/logging/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Logging
+    לוגים
   
 
     
@@ -1610,14 +1642,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/explanation/async/" class="md-nav__link">
+      <a href="/he/explanation/async/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Async and the event loop
+    אסינכרוניות ולולאת האירועים
   
 
     
@@ -1638,14 +1670,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/explanation/job-queues/" class="md-nav__link">
+      <a href="/he/explanation/job-queues/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Job queues & long-running work
+    תורי משימות ועבודה ארוכה
   
 
     
@@ -1666,14 +1698,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/explanation/cloud-native/" class="md-nav__link">
+      <a href="/he/explanation/cloud-native/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Cloud-native APIs & multiple replicas
+    APIs ענן-נייטיב וריבוי רפליקות
   
 
     
@@ -1726,14 +1758,14 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="/contributing/" class="md-nav__link ">
+            <a href="/he/contributing/" class="md-nav__link ">
               
   
   
   <span class="md-ellipsis">
     
   
-    Contributing
+    תרומה לפרויקט
   
 
     
@@ -1755,7 +1787,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Contributing
+    תרומה לפרויקט
   
 
           </label>
@@ -1770,14 +1802,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/contributing/development/" class="md-nav__link">
+      <a href="/he/contributing/development/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Development
+    פיתוח
   
 
     
@@ -1805,14 +1837,14 @@
   
   
     <li class="md-nav__item">
-      <a href="/changelog/" class="md-nav__link">
+      <a href="/he/changelog/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Changelog
+    יומן שינויים
   
 
     
@@ -1838,7 +1870,7 @@
                   <div class="md-sidebar__inner">
                     
 
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+<nav class="md-nav md-nav--secondary" aria-label="תוכן העניינים">
   
   
   
@@ -1866,7 +1898,7 @@
           <button type="button" class="md-top md-icon" data-md-component="top" hidden>
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
-  Back to top
+  חזרה למעלה
 </button>
         
       </main>
@@ -1898,7 +1930,7 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "/", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.indexes", "content.code.copy", "content.code.annotate", "toc.follow"], "search": "/assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "/", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.indexes", "content.code.copy", "content.code.annotate", "toc.follow"], "search": "/assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "\u05d4\u05d5\u05e2\u05ea\u05e7 \u05dc\u05dc\u05d5\u05d7", "clipboard.copy": "\u05d4\u05e2\u05ea\u05e7\u05d4 \u05dc\u05dc\u05d5\u05d7", "search.result.more.one": "\u05e2\u05d5\u05d3 \u05d0\u05d7\u05d3 \u05d1\u05d3\u05e3 \u05d4\u05d6\u05d4", "search.result.more.other": "\u05e2\u05d5\u05d3 # \u05d1\u05d3\u05e3 \u05d4\u05d6\u05d4", "search.result.none": "\u05d0\u05d9\u05df \u05de\u05e1\u05de\u05db\u05d9\u05dd \u05ea\u05d5\u05d0\u05de\u05d9\u05dd", "search.result.one": "\u05de\u05e1\u05de\u05da1 \u05ea\u05d5\u05d0\u05dd", "search.result.other": "# \u05de\u05e1\u05de\u05da \u05ea\u05d5\u05d0\u05dd", "search.result.placeholder": "\u05d9\u05e9 \u05dc\u05d4\u05e7\u05dc\u05d9\u05d3 \u05db\u05d3\u05d9 \u05dc\u05d4\u05ea\u05d7\u05d9\u05dc \u05dc\u05d7\u05e4\u05e9", "search.result.term.missing": "\u05d7\u05e1\u05e8", "select.version": "\u05d1\u05d7\u05d9\u05e8\u05ea \u05d2\u05e8\u05e1\u05d4"}, "version": null}</script>
     
     
       <script src="/assets/javascripts/bundle.a5f9d56c.min.js"></script>

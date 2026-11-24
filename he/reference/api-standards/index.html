@@ -1,0 +1,3849 @@
+
+<!doctype html>
+<html lang="he" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="מחברים לתשתיות (ArgoCD, AWX, Bitbucket Server, Vault) ותבנית אפליקציית FastAPI לשימוש חוזר, בחבילת Python אחת.">
+      
+      
+      
+      
+        <link rel="prev" href="../">
+      
+      
+        <link rel="next" href="../configuration/">
+      
+      
+        
+          <link rel="alternate" href="../../../reference/api-standards/" hreflang="en">
+        
+          <link rel="alternate" href="./" hreflang="he">
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.2">
+    
+    
+      
+        <title>תקני API - ספריית ה-APIs של תשתיות</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="rtl" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#api-standards" class="md-skip">
+          לדלג לתוכן
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="כותרת עליונה">
+    <a href="../../" title="ספריית ה-APIs של תשתיות" class="md-header__button md-logo" aria-label="ספריית ה-APIs של תשתיות" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ספריית ה-APIs של תשתיות
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              תקני API
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+      <div class="md-header__option">
+  <div class="md-select">
+    
+    <button class="md-header__button md-icon" aria-label="בחירת שפה">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
+    </button>
+    <div class="md-select__inner">
+      <ul class="md-select__list">
+        
+          <li class="md-select__item">
+            <a href="../../../reference/api-standards/" hreflang="en" class="md-select__link">
+              English
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="./" hreflang="he" class="md-select__link">
+              עברית
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</div>
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="חיפוש" placeholder="חיפוש" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="חיפוש">
+        
+        <button type="reset" class="md-search__icon md-icon" title="ניקוי" aria-label="ניקוי" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            אתחול חיפוש
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="לשוניות" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../" class="md-tabs__link">
+        
+  
+  
+    
+  
+  בית
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../tutorials/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  מדריכים למתחילים
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../how-to/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  מדריכי ביצוע
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  
+    
+  
+  מידע עזר
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../explanation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  הסברים
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  תרומה לפרויקט
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../changelog/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  יומן שינויים
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="ניווט" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../" title="ספריית ה-APIs של תשתיות" class="md-nav__button md-logo" aria-label="ספריית ה-APIs של תשתיות" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    ספריית ה-APIs של תשתיות
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    בית
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../tutorials/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    מדריכים למתחילים
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    מדריכים למתחילים
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/first-app/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    האפליקציה הראשונה שלך
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/secure-your-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    אבטחת ה-API שלך
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../how-to/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    מדריכי ביצוע
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    מדריכי ביצוע
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/read-write-bitbucket/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    קריאה וכתיבה של קבצים ב-Bitbucket
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/use-awx-argocd-vault/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    עבודה עם AWX, ArgoCD ו-Vault
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/secure-with-oidc-jwks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    אבטחת API עם OIDC ו-JWKS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/verify-a-token/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    אימות טוקן מחוץ לבקשה
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/call-services-with-sso/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    קריאה לשירותים אחרים עם SSO
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/enable-remote-config-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    הפעלת Remote Config API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/constrain-field-by-config/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    הגבלת שדה לפי קונפיגורציה
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/generate-auth-material/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    יצירת חומרי אימות לפיתוח
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/add-a-connector/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    הוספת מחבר חדש
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/extend-the-template/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    הרחבת תבנית FastAPI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-to/migrate-an-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    הסבת API לגרסה הנוכחית
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    מידע עזר
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    מידע עזר
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    תקני API
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    תקני API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="תוכן העניינים">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      תוכן העניינים
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#stack" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        סטאק טכנולוגי
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#project-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        מבנה הפרויקט
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#application-factory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        פונקציית יצירת האפליקציה
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        הגדרות
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#request-contract" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        חוזה הבקשה
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="חוזה הבקשה">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#shape" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        מבנה
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metadata-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        כללי metadata
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#base-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        מודלי בסיס
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#field-conventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        מוסכמות לשדות
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#responses-and-status-codes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        תשובות וקודי סטטוס
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        שגיאות
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#paths-and-versioning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        נתיבים וגרסאות
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="נתיבים וגרסאות">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#router-factories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        פונקציות ליצירת routers
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#async-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        כללי async
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#connectors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        מחברים
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        אימות
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="אימות">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#inbound" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        נכנס
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#outbound-service-to-service" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        יוצא (משירות לשירות)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#remote-config-upstream" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ה-upstream של Remote Config
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dev-tokens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        טוקנים לפיתוח
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#remote-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Remote Config
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#long-running-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        עבודה ארוכה
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multiple-replicas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ריבוי רפליקות
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multi-step-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        פעולות מרובות שלבים
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#logging-and-observability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        לוגים ו-observability
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        בדיקות
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#packaging-and-docker" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        אריזה ו-Docker
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ci" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CI
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="CI">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pipeline
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#versioning-and-changelog-git-cliff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        גרסאות ויומן שינויים (git-cliff)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#known-gaps-in-example-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        פערים ידועים ב-example-api
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pre-merge-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        רשימת בדיקה לפני מיזוג
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    קונפיגורציה
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI ‏(gen-auth-material)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_5" id="__nav_4_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/connectors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    מחברים
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/fastapi-app/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    אפליקציית FastAPI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/auth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    אימות (JWT נכנס)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    אבטחה (SSO יוצא)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/config-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Remote Config API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    שגיאות
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/schemas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    סכמות
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../explanation/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    הסברים
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    הסברים
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ארכיטקטורה
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    תכנון האימות
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/dynamic-config-validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ולידציה דינמית של קונפיגורציה
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/openapi-swagger-injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    הזרקה ל-OpenAPI ול-Swagger
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    לוגים
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/async/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    אסינכרוניות ולולאת האירועים
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/job-queues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    תורי משימות ועבודה ארוכה
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../explanation/cloud-native/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    APIs ענן-נייטיב וריבוי רפליקות
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../contributing/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    תרומה לפרויקט
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    תרומה לפרויקט
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/development/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    פיתוח
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    יומן שינויים
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="תוכן העניינים">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      תוכן העניינים
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#stack" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        סטאק טכנולוגי
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#project-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        מבנה הפרויקט
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#application-factory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        פונקציית יצירת האפליקציה
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        הגדרות
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#request-contract" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        חוזה הבקשה
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="חוזה הבקשה">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#shape" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        מבנה
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metadata-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        כללי metadata
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#base-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        מודלי בסיס
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#field-conventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        מוסכמות לשדות
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#responses-and-status-codes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        תשובות וקודי סטטוס
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        שגיאות
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#paths-and-versioning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        נתיבים וגרסאות
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="נתיבים וגרסאות">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#router-factories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        פונקציות ליצירת routers
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#async-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        כללי async
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#connectors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        מחברים
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#authentication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        אימות
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="אימות">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#inbound" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        נכנס
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#outbound-service-to-service" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        יוצא (משירות לשירות)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#remote-config-upstream" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ה-upstream של Remote Config
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dev-tokens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        טוקנים לפיתוח
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#remote-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Remote Config
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#long-running-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        עבודה ארוכה
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multiple-replicas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ריבוי רפליקות
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multi-step-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        פעולות מרובות שלבים
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#logging-and-observability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        לוגים ו-observability
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        בדיקות
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#packaging-and-docker" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        אריזה ו-Docker
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ci" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CI
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="CI">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pipeline
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#versioning-and-changelog-git-cliff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        גרסאות ויומן שינויים (git-cliff)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#known-gaps-in-example-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        פערים ידועים ב-example-api
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pre-merge-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        רשימת בדיקה לפני מיזוג
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+  
+    
+                  
+
+
+
+<h1 id="api-standards">תקני API<a class="headerlink" href="#api-standards" title="Permanent link">&para;</a></h1>
+<p>כללי החברה לכל API מבוסס HTTP שנבנה על <strong><code>tashtiot-apis-library</code></strong>. APIs חדשים חייבים לעמוד בהם,
+ו-APIs קיימים צריכים להתקרב אליהם בהדרגה. העמוד הזה מפרט את הכללים. ההסברים נמצאים בעמודי
+ה<a href="../../explanation/">הסבר</a>, והמתכונים צעד אחר צעד נמצאים ב<a href="../../how-to/">מדריכי הביצוע</a>.</p>
+<div class="admonition info">
+<p class="admonition-title">מימוש לדוגמה</p>
+<p>המאגר <strong><a href="https://github.com/Platform-Infra-Org/example-api"><code>example-api</code></a></strong> הוא API שלם וניתן להרצה שבנוי על הספרייה. העתיקו ממנו את
+<strong>המבנה</strong> ואת <strong>אופן השימוש בספרייה</strong>. במקומות שבהם הוא סותר את העמוד הזה, העמוד הזה קובע (ראו
+<a href="#known-gaps-in-example-api">פערים ידועים ב-<code>example-api</code></a>).</p>
+</div>
+<p>חדשים בספרייה? התחילו במדריכים למתחילים <a href="../../tutorials/first-app/">האפליקציה הראשונה שלכם</a>
+ו<a href="../../tutorials/secure-your-api/">אבטחת ה-API שלכם</a>.</p>
+<div class="admonition tip">
+<p class="admonition-title">עבודה עם סוכן קוד מבוסס AI</p>
+<ul>
+<li><strong>עבודה שוטפת על API:</strong> מאגר הספרייה כולל skill עצמאי לסוכנים,
+  <a href="https://github.com/Platform-Infra-Org/apis-library/tree/master/skills/building-tashtiot-apis"><code>skills/building-tashtiot-apis/</code></a>.
+  הוא כולל את הכללים האלה, מידע עזר על ה-API של הספרייה ו-API תבנית שנבדק, ולכן הוא עובד גם
+  בתוך הרשת המבודדת, בלי GitHub ובלי האתר הזה. <strong>שמרו אותו במאגר ה-API שלכם בנתיב
+  <code>.claude/skills/building-tashtiot-apis/</code></strong>: כך הוא עובר יחד עם ה-mirror, ונשאר מותאם לגרסת
+  הספרייה שהמאגר משתמש בה. רעננו אותו בכל פעם שאתם משדרגים את הספרייה.</li>
+<li><strong>עבודה על CI, image ופריסה:</strong> השתמשו במדריך ה-CI הפנימי (וב-skill ה-CI הפנימי, אם יש
+  כזה). הם נמצאים בתוך הרשת המבודדת.</li>
+<li><strong>שדרוג לגרסה חדשה של הספרייה, או כתיבה מחדש של API על הספרייה:</strong> השתמשו
+  ב<a href="../../how-to/migrate-an-api/">פרומפט ההסבה</a>.</li>
+</ul>
+</div>
+<hr />
+<h2 id="stack">סטאק טכנולוגי<a class="headerlink" href="#stack" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>תחום</th>
+<th>תקן</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>שפה</td>
+<td>Python <strong>3.12</strong> (הספרייה עצמה תומכת ב-3.10 ומעלה)</td>
+</tr>
+<tr>
+<td>Web framework</td>
+<td><strong>FastAPI</strong> + <strong>uvicorn</strong> (ASGI)</td>
+</tr>
+<tr>
+<td>SDK משותף</td>
+<td><strong><code>tashtiot-apis-library</code></strong> (<a href="../../explanation/architecture/">ארכיטקטורה</a>)</td>
+</tr>
+<tr>
+<td>מודלים / ולידציה</td>
+<td><strong>Pydantic v2</strong>, ו-<strong>pydantic-settings</strong> להגדרות</td>
+</tr>
+<tr>
+<td>לקוח HTTP</td>
+<td><strong>httpx</strong> (אסינכרוני), תמיד דרך <code>BaseAPI</code> של הספרייה</td>
+</tr>
+<tr>
+<td>לוגים</td>
+<td><strong>Loguru</strong>, מוגדר על ידי הספרייה (<a href="../../explanation/logging/">לוגים</a>)</td>
+</tr>
+<tr>
+<td>מנהל חבילות</td>
+<td><strong>uv</strong> (‏<code>uv.lock</code> נשמר ב-git, ‏<code>uv.toml</code> לעולם לא)</td>
+</tr>
+<tr>
+<td>בדיקות</td>
+<td><strong>pytest</strong> + <code>pytest-asyncio</code> (‏<code>asyncio_mode = "auto"</code>) + <code>respx</code></td>
+</tr>
+<tr>
+<td>CI</td>
+<td>‏Woodpecker (‏<code>.woodpecker/*.yaml</code>). ראו <a href="#ci">CI</a></td>
+</tr>
+<tr>
+<td>Image registry</td>
+<td><strong>JFrog Artifactory</strong> (ממנו מושכים את ה-base images, ואליו דוחפים את ה-images שנבנו)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="project-layout">מבנה הפרויקט<a class="headerlink" href="#project-layout" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>&lt;your-api&gt;/
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>├── app/
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>│   ├── main.py            # create_app(): the ONLY wiring point (connectors + routers)
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>│   ├── global_conf.py     # app-wide BaseSettings -&gt; `global_config`
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>│   ├── schemas.py         # shared models (e.g. ProjectMetadata)
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>│   ├── helpers.py         # shared pure helpers (naming conventions, payload parsing)
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>│   └── v1/
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>│       └── &lt;resource&gt;/
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>│           ├── conf.py        # module BaseSettings -&gt; `config` (API_PREFIX, API_TAGS, ids…)
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>│           ├── schemas.py     # Pydantic request/response models ({metadata, spec})
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>│           ├── operations.py  # business logic; receives connectors as arguments
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>│           └── routes.py      # get_&lt;resource&gt;_router(deps) -&gt; APIRouter
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>├── tests/
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>│   ├── conftest.py        # hermetic env (shadows a developer .env)
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>│   └── v1/&lt;resource&gt;/     # conftest.py + test_*.py per module
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>├── .env.example           # every variable, documented. Committed.
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>├── .env                   # local values. NEVER committed.
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>├── pyproject.toml
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>├── uv.lock                # committed
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>├── uv.toml                # Artifactory index + creds. NEVER committed.
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>├── Dockerfile
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>├── .woodpecker/build.yaml
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>└── README.md
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>שכבה</th>
+<th>מותר</th>
+<th>אסור</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>routes.py</code></td>
+<td>להגדיר נתיבים, מודלים וקודי סטטוס; לתרגם חריגות לתשובות HTTP</td>
+<td>להכיל לוגיקה עסקית; לבנות מחברים</td>
+</tr>
+<tr>
+<td><code>operations.py</code></td>
+<td>לתזמר מחברים; להחיל כללים עסקיים; לבצע rollback</td>
+<td>לייבא <code>Request</code>/<code>Response</code>; לקרוא משתני סביבה ישירות</td>
+</tr>
+<tr>
+<td><code>schemas.py</code></td>
+<td>להגדיר מבנה וולידציה</td>
+<td>לבצע I/O</td>
+</tr>
+<tr>
+<td><code>conf.py</code></td>
+<td>להצהיר על הגדרות עם ברירות מחדל ותיאורים</td>
+<td>להחזיק סודות אמיתיים כברירות מחדל</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="application-factory">פונקציית יצירת האפליקציה<a class="headerlink" href="#application-factory" title="Permanent link">&para;</a></h2>
+<p>‏<code>general_create_app()</code> (<a href="../api/fastapi-app/">מידע עזר ל-API</a>) מספקת את היכולות המובנות האלה:</p>
+<table>
+<thead>
+<tr>
+<th>יכולת מובנית</th>
+<th>נתיב / התנהגות</th>
+<th>דגל (ברירת מחדל)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Middleware ללוגים של בקשות</td>
+<td>רושם כל בקשה ותשובה (health/docs/metrics ברמת DEBUG)</td>
+<td><code>enable_logging_middleware=True</code></td>
+</tr>
+<tr>
+<td>Middleware למדידת זמן</td>
+<td>מוסיף את הכותרת <code>X-Process-Time</code> (בננו-שניות)</td>
+<td><code>enable_time_recording_middleware=True</code></td>
+</tr>
+<tr>
+<td>מטפלי חריגות</td>
+<td><code>HTTPException</code> → <code>{"detail": ...}</code>; ולידציה → 422; כל דבר אחר → 500 <code>"Internal Server Error"</code></td>
+<td><code>enable_exception_handlers=True</code></td>
+</tr>
+<tr>
+<td>מדדי Prometheus</td>
+<td><code>GET /metrics</code> (+ מדד ה-gauge‏ <code>app_uptime_seconds</code>)</td>
+<td><code>enable_metrics_route=True</code></td>
+</tr>
+<tr>
+<td>Swagger / ReDoc</td>
+<td><code>GET /docs</code>, <code>GET /redoc</code> (קבצים סטטיים מאוחסנים מקומית)</td>
+<td><code>enable_swagger_routes=True</code></td>
+</tr>
+<tr>
+<td>Probes</td>
+<td><code>GET /liveness</code>, <code>GET /readiness</code></td>
+<td><code>enable_probe_routes=True</code></td>
+</tr>
+<tr>
+<td>נתיב השורש</td>
+<td><code>GET /</code> → הודעת פתיחה</td>
+<td><code>enable_root_route=True</code></td>
+</tr>
+<tr>
+<td>אימות JWT נכנס</td>
+<td>Middleware גלובלי (<a href="#authentication">אימות</a>)</td>
+<td><code>enable_auth=False</code></td>
+</tr>
+<tr>
+<td>משימות רקע</td>
+<td>Coroutines שמופעלות באתחול ומבוטלות בכיבוי</td>
+<td><code>async_background_tasks=[...]</code></td>
+</tr>
+</tbody>
+</table>
+<p>כל keyword אחר (‏<code>title</code>, <code>version</code>, <code>description</code>…) מועבר כמו שהוא ל-<code>FastAPI()</code>.</p>
+<p><strong>כללים:</strong></p>
+<ul>
+<li>‏<code>create_app()</code> בקובץ <code>app/main.py</code> היא <strong>נקודת החיווט היחידה</strong>. היא בונה כל מחבר <strong>פעם אחת</strong>,
+  בונה את ה-Remote Config במידת הצורך, ומחברת את כל ה-routers.</li>
+<li><strong>תמיד העבירו <code>enable_auth=True</code>.</strong> מתג זמן הריצה <code>AUTH_ENABLED</code> קובע אם האימות נאכף בפועל.</li>
+<li>הגדירו <code>title</code> ו-<code>version</code> (‏<code>APP_VERSION</code>, שמוזרק מתגית ה-git בזמן הבנייה).</li>
+<li>משהו שכל API צריך (middleware, נתיב, פונקציית עזר) נכנס לספרייה, לא ל-API אחד
+  (<a href="../../how-to/extend-the-template/">הרחבת תבנית ה-FastAPI</a>).</li>
+</ul>
+<hr />
+<h2 id="configuration">הגדרות<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
+<ul>
+<li>כל ההגדרות הן <strong><code>BaseSettings</code> של pydantic-settings</strong>, שנקראות ממשתני סביבה עם <code>.env</code> כגיבוי.
+  למשתני הסביבה יש עדיפות.</li>
+<li><strong><code>app/global_conf.py</code></strong> מחזיק הגדרות שמשותפות לכמה מודולים (כתובות וטוקנים של מחברים,
+  <code>TEAM_NAME</code>, <code>CONFIG_API_*</code>, <code>API_TITLE</code>, <code>APP_VERSION</code>) ב-singleton‏ <code>global_config</code>.</li>
+<li><strong><code>app/v1/&lt;resource&gt;/conf.py</code></strong> מחזיק את ההגדרות של מודול אחד, כולל <strong><code>API_PREFIX</code></strong>
+  ו-<strong><code>API_TAGS</code></strong>, ב-singleton‏ <code>config</code>.</li>
+<li>לכל שדה יש <code>description=</code>. השתמשו ב-<code>SettingsConfigDict(env_file=".env", extra="ignore")</code>.</li>
+<li>להגדרות חובה אין ברירת מחדל, כך שערך חסר מכשיל את האפליקציה כבר באתחול.</li>
+<li><strong>אל תצהירו מחדש על הגדרות שהספרייה אחראית עליהן</strong> (‏<code>PORT</code>, <code>LOG_LEVEL</code>, <code>PROXIED</code>,
+  <code>PROXY_LISTEN_PATH</code>, <code>AUTH_*</code>, <code>AUTH_SSO_*</code>, <code>CONFIG_REMOTE_*</code>, נתיבי ה-probes וה-Swagger).
+  הרשימה המלאה נמצאת ב<a href="../configuration/">הגדרות</a>.</li>
+<li>כשהאפליקציה מוגשת תחת קידומת נתיב של ingress, הגדירו <code>PROXIED=true</code> ו-<code>PROXY_LISTEN_PATH=/&lt;prefix&gt;</code>.</li>
+</ul>
+<p><strong>סודות:</strong></p>
+<ul>
+<li>הסודות מגיעים ממאגר הסודות של הפריסה (Vault או Kubernetes Secrets, שמוזרקים כמשתני סביבה או
+  כקבצים מחוברים). <strong>לעולם</strong> אל תשימו אותם ב-git, בברירת מחדל של <code>conf.py</code>, ב-<code>.env.example</code>,
+  בלוגים או ב-image.</li>
+<li>‏<code>.env.example</code> מפרט <strong>כל</strong> משתנה, עם ערך placeholder והערה.</li>
+<li>‏<code>.env</code>, ‏<code>uv.toml</code> ומפתחות פרטיים נמצאים ב-git-ignore.</li>
+</ul>
+<hr />
+<h2 id="request-contract">חוזה הבקשה<a class="headerlink" href="#request-contract" title="Permanent link">&para;</a></h2>
+<h3 id="shape">מבנה<a class="headerlink" href="#shape" title="Permanent link">&para;</a></h3>
+<p>לגוף הבקשה של כל נתיב כתיבה יש בדיוק שני אובייקטים ברמה העליונה:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="nt">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="nt">"project"</span><span class="p">:</span><span class="w"> </span><span class="s2">"payments"</span><span class="p">,</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="nt">"space"</span><span class="p">:</span><span class="w"> </span><span class="s2">"net"</span><span class="p">,</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="nt">"network"</span><span class="p">:</span><span class="w"> </span><span class="s2">"core"</span><span class="p">,</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="nt">"region"</span><span class="p">:</span><span class="w"> </span><span class="s2">"kirya"</span><span class="p">,</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="nt">"island"</span><span class="p">:</span><span class="w"> </span><span class="s2">"a1"</span><span class="p">,</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="nt">"environment"</span><span class="p">:</span><span class="w"> </span><span class="s2">"prod"</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">  </span><span class="p">},</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">  </span><span class="nt">"spec"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">    </span><span class="nt">"record_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"api-01"</span><span class="p">,</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">    </span><span class="nt">"ip"</span><span class="p">:</span><span class="w"> </span><span class="s2">"10.0.0.15"</span><span class="p">,</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">    </span><span class="nt">"record_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"A"</span><span class="p">,</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">    </span><span class="nt">"dns_zone"</span><span class="p">:</span><span class="w"> </span><span class="s2">"net.com"</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="p">}</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>אובייקט</th>
+<th>תוכן</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>metadata</code></strong></td>
+<td><strong>מי</strong> מבקש ו<strong>לאן</strong> הפעולה מכוונת: <code>project</code>, <code>space</code>, <code>network</code>, <code>region</code>, <code>island</code> ו-<code>environment</code>.</td>
+</tr>
+<tr>
+<td><strong><code>spec</code></strong></td>
+<td><strong>מה</strong> לעשות: המצב הרצוי, הספציפי למשאב. ה-API שלכם הוא הבעלים שלו ומגדיר אותו.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="metadata-rules">כללי metadata<a class="headerlink" href="#metadata-rules" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong><code>project</code> תמיד מאוכלס</strong> על ידי הקוראים, והוא <strong>חובה</strong>.</li>
+<li><strong><code>space</code>, <code>network</code>, <code>region</code>, <code>island</code> ו-<code>environment</code> הם אופציונליים.</strong> השתמשו באלה שהפעולה
+   שלכם צריכה. יש APIs שלא צריכים אף אחד מהם.</li>
+<li><strong>כל API מקבל את האובייקט <code>metadata</code></strong>, גם אם הוא לא משתמש בשום דבר ממנו. שדות שאינם בשימוש
+   מתעלמים מהם, ולעולם לא דוחים אותם.</li>
+<li>API ש<strong>צריך</strong> קואורדינטה אופציונלית אוכף אותה בסכמה או בפעולה שלו ומחזיר 422. היא לא הופכת
+   לחובה ברמת הפלטפורמה כולה.</li>
+<li>מפתחות נוספים לא מוכרים בתוך <code>metadata</code> מושמטים (ברירת המחדל של Pydantic,‏ <code>extra="ignore"</code>).
+   אל תגדירו <code>extra="forbid"</code> במודלים של metadata.</li>
+</ol>
+<h3 id="base-models">מודלי בסיס<a class="headerlink" href="#base-models" title="Permanent link">&para;</a></h3>
+<p>מתוך החבילה הראשית <code>tashtiot_apis_library</code> (<a href="../api/schemas/">סכמות</a>):</p>
+<table>
+<thead>
+<tr>
+<th>בסיס</th>
+<th>הטיפוס של <code>metadata</code></th>
+<th>ולידציה</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>InfraOperationRequest</code></td>
+<td><code>InfraMetadata</code>: <strong>כל</strong> הקואורדינטות אופציונליות</td>
+<td>רשימות ערכים מותרים חיות והיררכיית קואורדינטות מה-Config API (<a href="../../explanation/dynamic-config-validation/">ולידציה דינמית מול הקונפיגורציה</a>). <strong>התחילו מזה.</strong></td>
+</tr>
+<tr>
+<td><code>RequiredInfraOperationRequest</code></td>
+<td><code>RequiredInfraMetadata</code>: <strong>כל</strong> הקואורדינטות חובה</td>
+<td>אותה ולידציה. השתמשו בו רק אם ה-API שלכם צריך כל קואורדינטה.</td>
+</tr>
+<tr>
+<td><code>OperationRequest</code></td>
+<td><code>MetadataRequest</code>: סטטי, בלי ולידציה חיה</td>
+<td>Legacy. לא לקוד חדש.</td>
+</tr>
+</tbody>
+</table>
+<p>אף אחד מהם לא מגדיר <strong>רק</strong> את <code>project</code> כחובה. כל API מגדיר את זה פעם אחת, ב-<code>app/schemas.py</code>,
+ומשתמש בזה שוב ושוב:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Field</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">tashtiot_apis_library.fastapi_template.config_api</span><span class="w"> </span><span class="kn">import</span> <span class="n">InfraMetadata</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="k">class</span><span class="w"> </span><span class="nc">ProjectMetadata</span><span class="p">(</span><span class="n">InfraMetadata</span><span class="p">):</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="sd">"""Platform metadata: project required, every other coordinate optional."""</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    <span class="n">project</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">"The platform application submitting the request"</span><span class="p">)</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="k">class</span><span class="w"> </span><span class="nc">MetadataRequest</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>    <span class="n">metadata</span><span class="p">:</span> <span class="n">ProjectMetadata</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">"Platform metadata (project required)."</span><span class="p">)</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="c1"># app/v1/dns/schemas.py</span>
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="k">class</span><span class="w"> </span><span class="nc">DNSRecordCreate</span><span class="p">(</span><span class="n">MetadataRequest</span><span class="p">):</span>
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>    <span class="n">spec</span><span class="p">:</span> <span class="n">DNSRecordCreateSpec</span>
+</code></pre></div>
+<h3 id="field-conventions">מוסכמות לשדות<a class="headerlink" href="#field-conventions" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>בצעו ולידציה בגבול.</strong> השתמשו בשדות עם טיפוסים (‏<code>IPv4Address</code>, <code>Enum</code>, <code>constr</code>, <code>max_length</code>)
+  וב-<code>field_validator</code>s. קלט שגוי נכשל עם <strong>422</strong> לפני שמחבר כלשהו נקרא.</li>
+<li>השתמשו באבני הבניין של הספרייה בתוך <code>spec</code> כשהן מתאימות: <code>ResourceSpec</code>, <code>NameNamespace</code>,
+  <code>DefaultMetaSpec</code>.</li>
+<li>לשדה ב-<code>spec</code> שהערכים המותרים שלו תלויים בקואורדינטות של הבקשה, ראו
+  <a href="../../how-to/constrain-field-by-config/">הגבלת שדה לפי הקונפיגורציה שנפתרה</a>.</li>
+<li>לכל שדה יש <code>description=</code>.</li>
+<li><strong>נתיבי קריאה ומחיקה</strong> מזהים משאב באמצעות פרמטרים בנתיב או ב-query. העדיפו פרמטרי query על פני
+  גוף בבקשת DELETE, כי יש proxies שזורקים את הגוף של בקשות DELETE.</li>
+</ul>
+<hr />
+<h2 id="responses-and-status-codes">תשובות וקודי סטטוס<a class="headerlink" href="#responses-and-status-codes" title="Permanent link">&para;</a></h2>
+<ul>
+<li>כל נתיב מצהיר על <code>response_model=</code> (או על type annotation להחזרה). מילונים גולמיים משירותים
+  חיצוניים לעולם לא מועברים הלאה כמו שהם.</li>
+<li>תוצאות של פעולות יורשות מ-<strong><code>OperationResponse</code></strong> (‏<code>status</code>, <code>status_code</code>, <code>return_code</code>,
+  <code>stdout</code>), או מאחת ממחלקות הבת שלה עבור המחברים: <code>AWXOperationResponse</code> (+ <code>job_id</code>) או
+  <code>ArgoOperationResponse</code> (+ <code>app_name</code>). ראו
+  <a href="../../explanation/architecture/#standardized-responses-and-errors">ארכיטקטורה</a>.</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>מצב</th>
+<th>קוד</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>קריאה סינכרונית הצליחה</td>
+<td><code>200</code></td>
+</tr>
+<tr>
+<td>יצירה סינכרונית הסתיימה</td>
+<td><code>201</code></td>
+</tr>
+<tr>
+<td><strong>העבודה התקבלה ומסתיימת באופן אסינכרוני</strong> (משימת AWX הופעלה, סנכרון ArgoCD התחיל, משימה נכנסה לתור)</td>
+<td><strong><code>202</code></strong> + מזהה לתשאול (<a href="#long-running-work">עבודה ארוכה</a>)</td>
+</tr>
+<tr>
+<td>המחיקה הסתיימה, בלי גוף</td>
+<td><code>204</code></td>
+</tr>
+<tr>
+<td>הוולידציה נכשלה</td>
+<td><code>422</code> (אוטומטי)</td>
+</tr>
+<tr>
+<td>טוקן חסר, לא תקין או עם audience שגוי</td>
+<td><code>401</code> (אוטומטי, מה-middleware)</td>
+</tr>
+<tr>
+<td>המשאב לא נמצא</td>
+<td><code>404</code></td>
+</tr>
+<tr>
+<td>התנגשות (כבר קיים, שינוי מקביל)</td>
+<td><code>409</code></td>
+</tr>
+<tr>
+<td>שירות חיצוני (upstream) (‏AWX, ArgoCD, Vault, Git, …) נכשל</td>
+<td><strong><code>502</code></strong></td>
+</tr>
+<tr>
+<td>שירות חיצוני (upstream) חרג מזמן ההמתנה</td>
+<td><code>504</code></td>
+</tr>
+<tr>
+<td>באג</td>
+<td><code>500</code> (אוטומטי; אף פעם לא מוחזר בכוונה)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="errors">שגיאות<a class="headerlink" href="#errors" title="Permanent link">&para;</a></h2>
+<ul>
+<li>מחברים זורקים מחלקות בת של <strong><code>ExternalServiceError</code></strong>: <code>AWXError</code>, <code>ArgoCDError</code>,
+  <code>GitError</code> ו-<code>VaultError</code>. כל אחת נושאת <code>service_name</code>, <code>status_code</code> ו-<code>detail</code>
+  (<a href="../api/errors/">שגיאות</a>).</li>
+<li>‏<code>ExternalServiceError</code> היא <code>HTTPException</code> של FastAPI. אם לא תופסים אותה, היא מחזירה ללקוח את
+  קוד הסטטוס של <strong>השירות החיצוני</strong>. הנתיבים תופסים אותה ומחזירים <strong>502</strong>:
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">app_name</span> <span class="o">=</span> <span class="n">build_app_name</span><span class="p">(</span><span class="n">cluster</span><span class="p">,</span> <span class="n">namespace</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="s2">"haproxy"</span><span class="p">)</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="k">await</span> <span class="n">create_haproxy_operation</span><span class="p">(</span><span class="n">git</span><span class="o">=</span><span class="n">git</span><span class="p">,</span> <span class="n">vault</span><span class="o">=</span><span class="n">vault</span><span class="p">,</span> <span class="n">argocd</span><span class="o">=</span><span class="n">argocd</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="n">payload</span><span class="o">.</span><span class="n">spec</span><span class="p">)</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="k">except</span> <span class="n">ExternalServiceError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="k">return</span> <span class="n">JSONResponse</span><span class="p">(</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>        <span class="n">ArgoOperationResponse</span><span class="p">(</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>            <span class="n">app_name</span><span class="o">=</span><span class="n">app_name</span><span class="p">,</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>            <span class="n">status</span><span class="o">=</span><span class="s2">"Failed"</span><span class="p">,</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>            <span class="n">status_code</span><span class="o">=</span><span class="n">err</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>            <span class="n">stdout</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">err</span><span class="o">.</span><span class="n">service_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">err</span><span class="o">.</span><span class="n">detail</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>        <span class="p">)</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(),</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>        <span class="n">status_code</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_502_BAD_GATEWAY</span><span class="p">,</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>    <span class="p">)</span>
+</code></pre></div></li>
+<li>‏<code>404</code> צפוי מהשירות החיצוני (למשל "הסוד עדיין לא קיים") מטופל בפעולה באמצעות בדיקה של
+  <code>exc.status_code == 404</code>. הוא לא נחשב לכישלון.</li>
+<li>את סוגי שגיאות האימות (‏<code>AuthConfigError</code>, <code>TokenError</code>, <code>SSOError</code>) מייבאים מ-
+  <code>tashtiot_apis_library.fastapi_template.errors</code> או מהחבילה הראשית, ולעולם לא מ-<code>_internal</code>.</li>
+<li>ה-<code>detail</code> של שגיאה לעולם לא מכיל stack traces, טוקנים, או גופי תשובה מהשירות החיצוני שעלולים
+  להכיל סודות.</li>
+<li>גופי שגיאה משתמשים במבנה <code>{"detail": "..."}</code>.</li>
+<li>תשובות 422 ושורות לוג של ולידציה מכילות רק את ה-<code>loc</code>, ה-<code>msg</code> וה-<code>type</code> של כל שגיאה. הספרייה
+  מסירה את הערך שנשלח (‏<code>input</code>) ואת <code>ctx</code>, כך שסיסמה שנדחתה לעולם לא מוחזרת או נרשמת בלוג. גם
+  הודעות של validators מותאמים אישית אסור שיכללו את הערך: כתבו
+  <code>"not a valid IPv4 address"</code>, ולא <code>f"'{v}' is not a valid IPv4 address"</code>.</li>
+</ul>
+<hr />
+<h2 id="paths-and-versioning">נתיבים וגרסאות<a class="headerlink" href="#paths-and-versioning" title="Permanent link">&para;</a></h2>
+<ul>
+<li>סכמת הנתיבים: <strong><code>/api/&lt;api-name&gt;/v&lt;N&gt;/&lt;resource&gt;</code></strong>, למשל <code>/api/example/v1/dns</code>, שמוגדרת
+  כ-<code>API_PREFIX</code> בקובץ <code>conf.py</code> של המודול.</li>
+<li>שמות משאבים הם שמות עצם ברבים, ופעלי ה-HTTP מבטאים את הפעולה. סטטוס של משימה:
+  <code>GET .../status/{job_id}</code> או <code>GET .../status?...</code>.</li>
+<li><strong>שינוי שובר משמעו גרסה חדשה.</strong> הוא נכנס ל-<code>app/v2/&lt;resource&gt;/</code> לצד <code>v1</code>.
+  הסרה או שינוי שם של שדה, שינוי טיפוס, או הפיכת שדה אופציונלי לחובה הם שינויים שוברים.
+  הוספת שדה אופציונלי אינה שינוי שובר.</li>
+<li>ה-endpoints מקובצים ב-Swagger באמצעות <code>API_TAGS</code>, למשל <code>["v1 - DNS Operations"]</code>.</li>
+<li>לכל נתיב יש <code>summary</code>, ‏<code>description</code>, ‏<code>response_model</code> וקוד סטטוס מפורש.</li>
+</ul>
+<h3 id="router-factories">פונקציות ליצירת routers<a class="headerlink" href="#router-factories" title="Permanent link">&para;</a></h3>
+<p>כל מודול חושף <code>get_&lt;resource&gt;_router(&lt;connectors...&gt;) -&gt; APIRouter</code>. המחברים נלכדים ב-closure
+ומועברים במפורש לפעולות. הם לא מוזרקים באמצעות <code>Depends</code> של FastAPI, ולעולם לא נבנים מחדש בכל
+בקשה.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_v1_dns_router</span><span class="p">(</span><span class="n">awx_client</span><span class="p">:</span> <span class="n">AWX</span><span class="p">,</span> <span class="n">provider</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">APIRouter</span><span class="p">:</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="n">router</span> <span class="o">=</span> <span class="n">APIRouter</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">API_PREFIX</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">API_TAGS</span><span class="p">)</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>        <span class="s2">"/"</span><span class="p">,</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>        <span class="n">response_model</span><span class="o">=</span><span class="n">DNSRecordResponse</span><span class="p">,</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>        <span class="n">status_code</span><span class="o">=</span><span class="mi">202</span><span class="p">,</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>        <span class="n">summary</span><span class="o">=</span><span class="s2">"Create DNS Record"</span><span class="p">,</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>        <span class="n">description</span><span class="o">=</span><span class="s2">"Launches the AWX create-DNS job."</span><span class="p">,</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>    <span class="p">)</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="n">record</span><span class="p">:</span> <span class="n">DNSRecordCreate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DNSRecordResponse</span><span class="p">:</span>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>        <span class="k">return</span> <span class="k">await</span> <span class="n">create_dns</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">awx_client</span><span class="p">,</span> <span class="n">provider</span><span class="p">)</span>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>    <span class="k">return</span> <span class="n">router</span>
+</code></pre></div>
+<hr />
+<h2 id="async-rules">כללי async<a class="headerlink" href="#async-rules" title="Permanent link">&para;</a></h2>
+<p>למה הכללים האלה קיימים: <a href="../../explanation/async/">אסינכרוניות ולולאת האירועים</a>.</p>
+<ol>
+<li>Route handlers שמבצעים I/O מוגדרים כ-<code>async def</code> וממתינים (<code>await</code>) לספריות אסינכרוניות.</li>
+<li>
+<p>שום דבר לא חוסם את לולאת האירועים בתוך קוד <code>async def</code>:</p>
+<table>
+<thead>
+<tr>
+<th>אסור</th>
+<th>השתמשו במקום זאת ב-</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>requests.get(...)</code></td>
+<td><code>BaseAPI</code> / <code>httpx.AsyncClient</code></td>
+</tr>
+<tr>
+<td><code>time.sleep(n)</code></td>
+<td><code>await asyncio.sleep(n)</code></td>
+</tr>
+<tr>
+<td><code>subprocess.run(...)</code></td>
+<td><code>await asyncio.create_subprocess_exec(...)</code></td>
+</tr>
+<tr>
+<td>לקוח DB או SDK סינכרוני</td>
+<td>הדרייבר האסינכרוני שלו, או <code>await asyncio.to_thread(fn, ...)</code></td>
+</tr>
+<tr>
+<td>עבודת CPU כבדה</td>
+<td><code>await asyncio.to_thread(...)</code>, או העברתה מחוץ לנתיב הבקשה (<a href="#long-running-work">עבודה ארוכה</a>)</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p>Handlers רגילים מסוג <code>def</code> מיועדים רק לעבודת CPU טריוויאלית (כמו <code>/whoami</code>), ולעולם לא כדרך
+   לקרוא ל-I/O סינכרוני.</p>
+</li>
+<li>קריאות בלתי תלויות רצות במקביל עם <code>asyncio.gather</code>.</li>
+<li>בלי <code>asyncio.run()</code> או <code>loop.run_until_complete()</code> בתוך האפליקציה.</li>
+<li>לכל <code>await</code> של רשת יש timeout. ברירת המחדל של <code>BaseAPI</code> היא 10 שניות, ופונקציות העזר
+   <code>wait_for_*</code> של המחברים מקבלות timeouts מפורשים.</li>
+<li>כל משימה שנוצרת עם <code>asyncio.create_task</code> נשמרת עם הפניה עד שהיא מסתיימת
+   (<a href="../../explanation/job-queues/#in-process-background-tasks-are-not-a-queue">למה</a>).</li>
+</ol>
+<hr />
+<h2 id="connectors">מחברים<a class="headerlink" href="#connectors" title="Permanent link">&para;</a></h2>
+<p>מתוך החבילה הראשית <code>tashtiot_apis_library</code> (<a href="../api/connectors/">מחברים</a>):</p>
+<table>
+<thead>
+<tr>
+<th>מחבר</th>
+<th>בנייה</th>
+<th>המתודות האסינכרוניות העיקריות</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>AWX</code></strong></td>
+<td><code>AWX(base_url, token)</code></td>
+<td><code>launch_job</code>, <code>launch_workflow_job</code>, <code>get_job_status(job_id, include_logs=False)</code>, <code>get_workflow_job_status</code>, <code>wait_for_job_completion(job_id, timeout=300, poll_interval=5)</code>, <code>wait_for_workflow_completion</code>, <code>get_job_output(job_id, start_line, page_size)</code></td>
+</tr>
+<tr>
+<td><strong><code>ArgoCD</code></strong></td>
+<td><code>ArgoCD(base_url, api_key, application_set_timeout)</code></td>
+<td><code>sync</code>, <code>create_app</code>, <code>delete_app</code>, <code>get_app_status</code>, <code>wait_for_app_creation</code>, <code>wait_for_app_deletion</code>, <code>wait_for_update</code>, <code>get_app_values</code>/<code>modify_values</code>, <code>get_app_parameters</code>/<code>modify_parameters</code>, <code>add_namespace_to_cluster_secret</code></td>
+</tr>
+<tr>
+<td><strong><code>Git</code></strong> (‏Bitbucket Server)</td>
+<td><code>Git(base_url, token, username_or_email, project_key, repo_slug, default_ref="main", ssh_key_file_path=..., ssh_port=7995)</code></td>
+<td><code>add_file</code>, <code>modify_file</code>, <code>delete_file</code>, <code>get_file_content</code>, <code>file_exists</code>, <code>list_dir</code>, <code>list_files_recursive</code></td>
+</tr>
+<tr>
+<td><strong><code>Vault</code></strong></td>
+<td><code>Vault(base_url, token)</code></td>
+<td><code>read_secret</code>, <code>write_secret</code>, <code>delete_secret</code></td>
+</tr>
+<tr>
+<td><strong><code>BaseAPI</code></strong> (כללי)</td>
+<td><code>BaseAPI(base_url, headers=None, auth=None, timeout=10.0, verify=False)</code></td>
+<td>כל קריאה של <code>httpx.AsyncClient</code></td>
+</tr>
+</tbody>
+</table>
+<p>מתכונים: <a href="../../how-to/use-awx-argocd-vault/">עבודה עם AWX, ArgoCD ו-Vault</a>,
+<a href="../../how-to/read-write-bitbucket/">קריאה וכתיבה של קבצים ב-Bitbucket</a>.</p>
+<p><strong>כללים:</strong></p>
+<ol>
+<li>המחברים נבנים פעם אחת ב-<code>create_app()</code> ומוזרקים.</li>
+<li>כשקיים מחבר, משתמשים בו במקום ב-HTTP גולמי. לשירותים אחרים קוראים דרך <code>BaseAPI</code>, או דרך
+   <code>sso_authenticated_api</code> כשהם דורשים טוקן SSO.</li>
+<li>ברירת המחדל של <code>BaseAPI</code> היא <code>verify=False</code>. שירותים עם תעודה תקינה מקבלים <code>verify=True</code>, או
+   <code>REQUESTS_CA_BUNDLE</code>/<code>SSL_CERT_FILE</code> שמצביעים על חבילת ה-CA הארגונית. כיבוי האימות של התעודה
+   הוא החלטה מכוונת שמתועדת בהערה.</li>
+<li>משתמשים בתוצאות של המחברים כפי שהן מוחזרות (מודלי Pydantic / <code>OperationResponse</code>s). לא מפענחים
+   JSON גולמי ידנית.</li>
+<li>תוצאה של הפעלת AWX (‏<code>status="successful"</code>, <code>status_code=200</code>, <code>job_id</code>) פירושה שהמשימה
+   <strong>נכנסה לתור</strong>, לא שהסתיימה (<a href="../../explanation/job-queues/#awx-is-already-a-job-queue">AWX הוא כבר תור משימות</a>).</li>
+<li>אינטגרציה חדשה שיותר מצוות אחד ישתמש בה נוספת לספרייה כמחבר
+   (<a href="../../how-to/add-a-connector/">הוספת מחבר חדש</a>, <a href="../../contributing/">תרומה לפרויקט</a>),
+   ולא מועתקת בין APIs.</li>
+</ol>
+<hr />
+<h2 id="authentication">אימות<a class="headerlink" href="#authentication" title="Permanent link">&para;</a></h2>
+<p>רקע על התכנון: <a href="../../explanation/authentication/">תכנון האימות</a>.</p>
+<h3 id="inbound">נכנס<a class="headerlink" href="#inbound" title="Permanent link">&para;</a></h3>
+<ul>
+<li>מחווט על ידי <code>general_create_app(enable_auth=True)</code> ונאכף רק כש-<code>AUTH_ENABLED=true</code>. כשהוא כבוי,
+  האפליקציה עולה <strong>פתוחה</strong> (לפיתוח בלבד).</li>
+<li>
+<p>מוגדר <strong>מצב</strong> אימות <strong>אחד</strong> בדיוק. אחרת יצירת האפליקציה נכשלת עם <code>AuthConfigError</code>.</p>
+<table>
+<thead>
+<tr>
+<th>מצב</th>
+<th>הגדרה</th>
+<th>שימוש</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>JWKS / OIDC (RS256)</strong></td>
+<td><code>AUTH_OIDC_ISSUER</code> (‏discovery) או <code>AUTH_JWKS_URL</code></td>
+<td><strong>Production</strong> (<a href="../../how-to/secure-with-oidc-jwks/">אבטחת API עם OIDC ו-JWKS</a>)</td>
+</tr>
+<tr>
+<td>מפתח ציבורי מקומי (RS256)</td>
+<td><code>AUTH_PUBLIC_KEY_PEM</code> / <code>AUTH_PUBLIC_KEY_PATH</code></td>
+<td>אימות offline או ברשת המבודדת (air-gapped)</td>
+</tr>
+<tr>
+<td>סוד משותף (HS256)</td>
+<td><code>AUTH_HS256_SECRET</code></td>
+<td>בדיקות ופיתוח מקומי בלבד</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p><strong>מה נבדק:</strong> החתימה של הטוקן, תוקפו (‏<code>AUTH_REQUIRE_EXP=true</code> כברירת מחדל) וה-audience שלו.
+  <strong>ב-Production מגדירים <code>AUTH_AUDIENCE</code></strong> ל-audience של ה-API. ‏<code>AUTH_ISSUER</code> הוא בדיקה נוספת
+  אופציונלית.</p>
+</li>
+<li>הטוקן נקרא מ-<code>Authorization: Bearer &lt;jwt&gt;</code> (‏<code>AUTH_HEADER_NAME</code>). כישלון מחזיר 401
+  עם <code>WWW-Authenticate: Bearer</code>.</li>
+<li>נתיבים שמוחרגים כברירת מחדל: <code>/health</code>, <code>/metrics</code>, <code>/static</code>, <code>/docs</code>, <code>/redoc</code>,
+  <code>/openapi.json</code>, <code>/.well-known</code>, <code>/liveness</code> ו-<code>/readiness</code>. אפשר להוסיף עוד באמצעות
+  <code>AUTH_EXCLUDE_PATHS</code>. ה-probes נשארים מוחרגים.</li>
+<li>את ה-claims המאומתים קוראים עם <code>Depends(get_current_claims)</code> מתוך
+  <code>tashtiot_apis_library.fastapi_template.auth</code>, לצורכי לוגים וביקורת.</li>
+<li>טוקנים מאומתים מחוץ לבקשה באמצעות <code>verify_token</code>
+  (<a href="../../how-to/verify-a-token/">אימות טוקן מחוץ לבקשה</a>).</li>
+<li>כפתור ה-<strong>Authorize</strong> של Swagger מופיע אוטומטית כשהאימות נאכף
+  (<a href="../../explanation/openapi-swagger-injection/">הזרקה ל-OpenAPI ול-Swagger</a>).</li>
+</ul>
+<div class="admonition important">
+<p class="admonition-title">ההרשאות מטופלות מחוץ ל-APIs</p>
+<p>בשלב זה, האימות הנכנס הוא <strong>אימות בלבד</strong>: ה-API בודק שה-JWT תקין ושהונפק עבור ה-audience שלו.
+<strong>הרשאות</strong> (איזה קורא רשאי לעשות מה, ועל איזה פרויקט) נאכפות <strong>מחוץ ל-APIs</strong>. ה-APIs <strong>לא</strong>
+מוסיפים בדיקות הרשאה על claims של הטוקן כמו <code>project</code>, תפקידים או scopes.</p>
+</div>
+<h3 id="outbound-service-to-service">יוצא (משירות לשירות)<a class="headerlink" href="#outbound-service-to-service" title="Permanent link">&para;</a></h3>
+<ul>
+<li>לשירותי יעד מוגנים קוראים עם <code>sso_authenticated_api(base_url)</code> מתוך
+  <code>tashtiot_apis_library.fastapi_template.security</code>, שמשתמש ב-grant מסוג <code>client_credentials</code>
+  של OAuth2.</li>
+<li>הוא מוגדר באמצעות <code>AUTH_SSO_TOKEN_URL</code>, <code>AUTH_SSO_CLIENT_ID</code> ו-<code>AUTH_SSO_CLIENT_SECRET</code> (וגם
+  <code>SCOPE</code>, <code>AUDIENCE</code> ו-<code>AUTH_STYLE</code> האופציונליים).</li>
+<li>הספרייה שומרת את הטוקנים ב-cache ומחדשת אותם. ה-APIs לא שומרים טוקנים ב-cache בעצמם.</li>
+<li>ב-Keycloak, ה-<code>aud</code> של שירות היעד מגיע מ-scope עם Audience mapper (‏<code>AUTH_SSO_SCOPE</code>).</li>
+<li>הגדרות חסרות זורקות <code>AuthConfigError</code>, שהפעולה תופסת והופכת לתוצאת שגיאה נקייה.</li>
+<li>מתכונים: <a href="../../how-to/call-services-with-sso/">קריאה לשירותים אחרים עם SSO</a>.</li>
+</ul>
+<h3 id="remote-config-upstream">ה-upstream של Remote Config<a class="headerlink" href="#remote-config-upstream" title="Permanent link">&para;</a></h3>
+<ul>
+<li>‏<code>CONFIG_REMOTE_AUTH_METHOD</code>: ‏<code>sso</code> (ברירת מחדל, <code>CONFIG_REMOTE_SSO_*</code>), ‏<code>bearer</code>
+  (‏<code>CONFIG_REMOTE_BEARER_TOKEN</code>) או <code>none</code> (פיתוח מקומי). ראו
+  <a href="../../how-to/enable-remote-config-api/#choose-the-outbound-auth">הפעלת ה-Remote Config API</a>.</li>
+</ul>
+<h3 id="dev-tokens">טוקנים לפיתוח<a class="headerlink" href="#dev-tokens" title="Permanent link">&para;</a></h3>
+<ul>
+<li>נוצרים עם <code>gen-auth-material</code> (<a href="../../how-to/generate-auth-material/">יצירת חומרי אימות לפיתוח</a>,
+  <a href="../cli/">CLI</a>).</li>
+</ul>
+<hr />
+<h2 id="remote-config">Remote Config<a class="headerlink" href="#remote-config" title="Permanent link">&para;</a></h2>
+<ul>
+<li>ערכים ש<strong>משתנים לפי סביבה או קואורדינטה</strong> (מזהי תבניות, endpoints, מכסות) נפתרים דרך
+  <code>enable_remote_config_api</code> ו-<code>provider.resolve_infra_config(payload.metadata)</code>, ולא נכתבים
+  hard-coded לכל סביבה (<a href="../../how-to/enable-remote-config-api/">הפעלת ה-Remote Config API</a>).</li>
+<li>החיווט הוא <strong>opt-in</strong>: הוא מופעל רק כש-<code>CONFIG_API_URL</code> מוגדר, ו-<code>AuthConfigError</code> נתפסת
+  ונרשמת בלוג.</li>
+<li>לכל ערך שנפתר יש ברירת מחדל סטטית ב-<code>conf.py</code>, שמשמשת כשהספק מושבת או כשהמפתח חסר:
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">resolved</span> <span class="o">=</span> <span class="k">await</span> <span class="n">provider</span><span class="o">.</span><span class="n">resolve_infra_config</span><span class="p">(</span><span class="n">payload</span><span class="o">.</span><span class="n">metadata</span><span class="p">)</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="n">template_id</span> <span class="o">=</span> <span class="n">resolved</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"awx_create_dns_template_id"</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">AWX_CREATE_DNS_TEMPLATE_ID</span><span class="p">)</span>
+</code></pre></div></li>
+</ul>
+<hr />
+<h2 id="long-running-work">עבודה ארוכה<a class="headerlink" href="#long-running-work" title="Permanent link">&para;</a></h2>
+<p>מושגים וטבלת ההחלטה: <a href="../../explanation/job-queues/">תורי משימות ועבודה ארוכה</a>.</p>
+<ul>
+<li>עבודה שלא מסתיימת בבירור בתוך זמן בקשה (בערך 5 שניות) <strong>לא ממתינים לה בתוך הבקשה</strong>.</li>
+<li>
+<p>חוזה ה-API לעבודה כזו:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>POST   /api/&lt;api&gt;/v1/&lt;resource&gt;                -&gt; 202 {id, status, ...}
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>GET    /api/&lt;api&gt;/v1/&lt;resource&gt;/status/{id}    -&gt; 200 {id, status, stdout, ...}
+</code></pre></div>
+<p>הסטטוסים משתמשים באוצר המילים של <code>OperationResponse</code>: ‏<code>pending</code>/<code>running</code> בזמן שהעבודה
+מתבצעת, ו-<code>successful</code>, <code>failed</code> או <code>canceled</code> כשהיא הגיעה למצב סופי.
+- נתיב הסטטוס מחזיר <strong>HTTP 200</strong> בכל פעם שהוא הצליח לקרוא את המשימה, כולל משימה שנכשלה. מצב
+המשימה מופיע בגוף (‏<code>status</code>, ועבור AWX גם ה-<code>status_code</code> הממופה). הוא לעולם לא מועתק לסטטוס
+ה-HTTP. מזהה לא מוכר מחזיר 404, וכישלון של השירות החיצוני מחזיר 502.
+- <strong>משימות AWX הן תור המשימות.</strong> API שמפעיל משימות AWX מחזיר את ה-<code>job_id</code> של AWX וקורא את
+  הסטטוס עם <code>awx.get_job_status</code>.
+- <strong>אין בספרייה מימוש של תור משימות.</strong> צוות שצריך תור עמיד לעבודה שרצה בתוך ה-API שלו מממש תור
+  כזה בעצמו או משתמש בפתרון חיצוני.
+- משימות רקע בתוך התהליך מיועדות רק לעבודה קצרה, ברמת best-effort. הסטטוס שלהן מגיע מהמערכות
+  החיצוניות, לעולם לא מהזיכרון, וכל משימה נשמרת עם הפניה.
+- עבודה תקופתית משתמשת ב-<code>general_create_app(async_background_tasks=[...])</code> והיא אידמפוטנטית (עותק
+  אחד רץ בכל רפליקה).</p>
+</li>
+</ul>
+<hr />
+<h2 id="multiple-replicas">ריבוי רפליקות<a class="headerlink" href="#multiple-replicas" title="Permanent link">&para;</a></h2>
+<p>כל API רץ כמה רפליקות זהות מאחורי load balancer, ובזמן rolling updates רצות שתי גרסאות זו לצד זו.
+למה כל כלל קיים: <a href="../../explanation/cloud-native/">APIs מסוג cloud-native וריבוי רפליקות</a>.</p>
+<ul>
+<li><strong>Stateless:</strong> אין מקור אמת בזיכרון התהליך או במערכת הקבצים המקומית. כל רפליקה חייבת להיות
+  מסוגלת לענות על כל בקשה, ולכן הסטטוס מגיע מהמערכת שאחראית עליו (‏AWX, ArgoCD, Git, Vault) או
+  ממאגר משותף.</li>
+<li>cache לכל pod מותר רק כ-cache, כלומר כש-miss גורם לשליפה מחדש.</li>
+<li><strong>אידמפוטנטי ועמיד ל-race conditions:</strong> בטוח לחזור על פעולות ובטוח להריץ אותן במקביל על שתי
+  רפליקות. התנגשויות בין רפליקות נשארות באחריות השירות החיצוני (למשל <code>add_file</code> של Git על נתיב
+  קיים) ומוחזרות כ-<code>409</code>. לא משתמשים ב-<code>asyncio.Lock</code> כהגנה בין בקשות.</li>
+<li><strong>משימות רקע רצות בכל רפליקה.</strong> רק לולאות אידמפוטנטיות נכנסות ל-<code>async_background_tasks</code>.
+  עבודה שחייבת לרוץ פעם אחת עוברת ל-CronJob של Kubernetes, לתזמון של AWX או לתור עם צרכן יחיד.</li>
+<li><strong>Disposable:</strong> האפליקציה עולה מהר ונכשלת מהר על הגדרות שגויות. הבקשות קצרות מספיק כדי להסתיים
+  בתוך זמן החסד של הכיבוי (30 שניות כברירת מחדל).</li>
+<li><strong>Probes:</strong> ה-liveness וה-readiness לא תלויים במערכות חיצוניות.</li>
+<li><strong>תאימות לאחור על פני שחרור אחד</strong>, כי בזמן פריסה הדרגתית pods ישנים וחדשים משרתים יחד. שינויים
+  שוברים עוברים לגרסת API חדשה.</li>
+<li><strong>תהליך uvicorn אחד לכל pod.</strong> מגדילים קנה מידה באמצעות רפליקות.</li>
+<li>הלוגים נכתבים ל-stdout עם מזהי קורלציה. ה-dashboards מאגדים מדדים מכל ה-pods.</li>
+</ul>
+<hr />
+<h2 id="multi-step-operations">פעולות מרובות שלבים<a class="headerlink" href="#multi-step-operations" title="Permanent link">&para;</a></h2>
+<p>לפעולות שנוגעות בכמה מערכות (‏Git → Vault → ArgoCD) אין טרנזקציה מבוזרת. הן פועלות לפי הכללים
+האלה:</p>
+<ol>
+<li>השלבים מסודרים כך שהשלב שהכי זול לבטל רץ ראשון, ושום דבר שגלוי למשתמש לא עולה לאוויר עד השלב
+   האחרון.</li>
+<li>לפני שמשנים מצב, שומרים ממנו snapshot (קובץ ה-Git הנוכחי, הסוד הנוכחי ב-Vault).</li>
+<li>בכישלון, מבצעים פעולות פיצוי לשלבים שהושלמו, בסדר הפוך. לכל פעולת פיצוי יש <code>try/except</code> משלה,
+   ופעולת פיצוי שנכשלה נרשמת בלוג עם <code>logger.exception</code>. לאחר מכן השגיאה המקורית נזרקת מחדש.</li>
+<li>ה-rollback סימטרי בכל מקום שבו העבודה ממשיכה (בתוך הבקשה, וגם במשימות רקע או במשימות).</li>
+<li>הפעולות אידמפוטנטיות:<ul>
+<li><strong>יצירה:</strong> משאב קיים עם אותו spec מחזיר הצלחה או <code>409</code> (מתועד).</li>
+<li><strong>עדכון:</strong> כתיבות שלא משנות דבר מדולגות (<code>example-api</code> משווה YAML עם <code>yaml_data_equals</code>).</li>
+<li><strong>מחיקה:</strong> "כבר לא קיים" (<code>404</code>) נחשב להצלחה.</li>
+</ul>
+</li>
+<li>ערכי סודות ריקים מוסרים לפני הכתיבה ל-Vault (‏<code>filter_secret_payload</code> ב-
+   <code>example-api</code>).</li>
+<li>שמות המשאבים דטרמיניסטיים ונגזרים מהבקשה (למשל
+   <code>{cluster}-{namespace}-{resource}-{name}</code>).</li>
+</ol>
+<hr />
+<h2 id="logging-and-observability">לוגים ו-observability<a class="headerlink" href="#logging-and-observability" title="Permanent link">&para;</a></h2>
+<p>הגדרת הלוגר ומוסכמת הרמות: <a href="../../explanation/logging/">לוגים</a>.</p>
+<ul>
+<li>הלוגים נכתבים עם <code>from loguru import logger</code>. הספרייה כבר רושמת את הבקשות והתשובות.</li>
+<li>השתמשו ב-placeholders עצלים: <code>logger.info("Syncing app {} in {}", app_name, cluster)</code>.</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>רמה</th>
+<th>משמשת ל-</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>debug</code></td>
+<td>פרטי payload (בלי סודות)</td>
+</tr>
+<tr>
+<td><code>info</code></td>
+<td>אירועים עסקיים ("launched AWX job 123 for record X")</td>
+</tr>
+<tr>
+<td><code>warning</code></td>
+<td>פועל, אבל במצב מוחלש</td>
+</tr>
+<tr>
+<td><code>error</code> / <code>exception</code></td>
+<td>כישלונות, כולל stack traces</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>שורות הלוג כוללות מזהי קורלציה: <code>job_id</code>, <code>app_name</code>, <code>metadata.project</code> וה-<code>sub</code> של
+  הקורא.</li>
+<li><strong>לעולם לא נרשמים בלוג:</strong> טוקנים, סודות, כותרות <code>Authorization</code>, payloads של Vault, או גופי בקשה
+  שמכילים <code>secrets</code>.</li>
+<li>בלי <code>print()</code> בקוד האפליקציה.</li>
+<li>‏<code>/metrics</code> חשוף ל-Prometheus. מדדים עסקיים מוסיפים עם <code>prometheus_client</code>.</li>
+<li>‏<code>/liveness</code> ו-<code>/readiness</code> נשארים בלי אימות.</li>
+<li>סכמת ה-OpenAPI (‏<code>/docs</code>) היא החוזה הציבורי, ולכן ה-summaries, התיאורים והדוגמאות נשמרים
+  מדויקים.</li>
+</ul>
+<hr />
+<h2 id="testing">בדיקות<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h2>
+<p>הגדרות: <code>asyncio_mode = "auto"</code>, <code>pythonpath = ["."]</code>, <code>testpaths = ["tests"]</code>. הריצו עם
+<code>uv run pytest</code>.</p>
+<table>
+<thead>
+<tr>
+<th>בדיקה נדרשת</th>
+<th>דוגמה ב-<code>example-api</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ולידציה של הסכמה: payloads תקינים ולא תקינים (→ 422), כולל בקשה עם <code>metadata.project</code> <strong>בלבד</strong> ובקשה עם מפתחות metadata נוספים</td>
+<td><code>tests/v1/dns/test_dns_schema.py</code></td>
+</tr>
+<tr>
+<td>נתיבים דרך <code>TestClient(create_app())</code> עם bearer תקין</td>
+<td><code>tests/v1/dns/test_dns_routes.py</code></td>
+</tr>
+<tr>
+<td>אימות: בלי טוקן → 401, טוקן שגוי → 401, טוקן תקין → 200</td>
+<td><code>tests/v1/auth_demo/test_auth_demo_routes.py</code></td>
+</tr>
+<tr>
+<td>פעולות: כל מסלול כישלון, ובדיקה שה-rollback מופעל</td>
+<td>—</td>
+</tr>
+<tr>
+<td>גיבוי ל-Remote Config (ספק מושבת או מפתח חסר → ברירת מחדל סטטית)</td>
+<td><code>tests/v1/dns_config/</code></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>סביבה הרמטית:</strong> קובץ <code>tests/conftest.py</code> שבשורש מרוקן את משתני <code>AUTH_*</code>/<code>CONFIG_*</code>
+  האופציונליים. קובצי ה-conftest של המודולים מגדירים את המשתנים הנדרשים <strong>לפני</strong> ייבוא <code>app.main</code>.</li>
+<li><strong>אימות בבדיקות:</strong> ‏HS256 (‏<code>AUTH_ENABLED=true</code>, <code>AUTH_HS256_SECRET=&lt;32+ bytes&gt;</code>), עם טוקנים
+  שנוצרים באמצעות <code>jwt.encode(...)</code> או <a href="../../how-to/generate-auth-material/"><code>gen-auth-material</code></a>.</li>
+<li><strong>בלי קריאות רשת אמיתיות.</strong> עשו mock למתודות של המחברים עם <code>monkeypatch.setattr(...)</code> (מתודות
+  אסינכרוניות שעושים להן mock מוגדרות כ-<code>async def</code>), או עשו mock ל-HTTP עם <code>respx</code>.</li>
+<li>הפעולות מקבלות מחברים כארגומנטים, ולכן בודקים אותן ישירות בבדיקות יחידה עם מימושים מזויפים.</li>
+</ul>
+<hr />
+<h2 id="packaging-and-docker">אריזה ו-Docker<a class="headerlink" href="#packaging-and-docker" title="Permanent link">&para;</a></h2>
+<ul>
+<li>‏<code>uv sync --group dev</code> מתקין הכול. ‏<code>uv.lock</code> נשמר ב-git. מייצרים אותו מחדש עם
+  <code>uv lock</code> בסביבה עם גישה מלאה ל-Artifactory.</li>
+<li>‏<code>uv.toml</code> (אינדקס ה-Artifactory + פרטי ההתחברות) נמצא בשורש המאגר או ב-<code>~/.config/uv/uv.toml</code>,
+  ולעולם לא נשמר ב-git.</li>
+<li>‏<code>tashtiot-apis-library</code> מוצמדת לגרסה מינימלית (‏<code>&gt;=1.1.0</code>). דריסת נתיב ב-<code>[tool.uv.sources]</code>
+  מיועדת לפיתוח מקומי של הספרייה בלבד. בדקו את <a href="../../changelog/">יומן השינויים</a> כשאתם מעלים את
+  הגרסה.</li>
+<li>בלי dependency חדש למשהו שהספרייה, הספרייה הסטנדרטית או FastAPI כבר עושים. בלי לקוחות HTTP
+  סינכרוניים (‏<code>requests</code>).</li>
+<li>Dockerfile (לפי זה של <code>example-api</code>):<ul>
+<li>ה-base image המאושר של Python 3.12 מ-JFrog Artifactory</li>
+<li>העתקת <code>pyproject.toml</code>, <code>uv.lock</code> ו-<code>.python-version</code>, אחר כך הרצת <code>uv sync --frozen --no-dev</code>,
+  ואחר כך העתקת <code>app/</code></li>
+<li>‏<code>ARG APP_VERSION</code> / <code>ENV APP_VERSION</code> שמוגדרים מתגית ה-git</li>
+<li><code>CMD ["uv","run","--no-sync","-m","app.main","--host","0.0.0.0","--port","5000"]</code></li>
+<li>בלי סודות ב-image</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h2 id="ci">CI<a class="headerlink" href="#ci" title="Permanent link">&para;</a></h2>
+<p>ה-CI רץ על <strong>Woodpecker</strong> (‏<code>.woodpecker/*.yaml</code> בכל מאגר) <strong>בתוך הרשת המבודדת (air-gapped)</strong>,
+כי הוא צריך את ה-JFrog Artifactory וה-SonarQube הפנימיים.</p>
+<div class="admonition tip">
+<p class="admonition-title">מדריך ה-CI: ה-Confluence הפנימי</p>
+<p>מדריך ה-CI והמפרט המלא נמצאים ב-<strong>Confluence הפנימי</strong>, שנגיש רק מהרשת המבודדת. הוא מגדיר את
+שלבי ה-pipeline, הסודות הנדרשים, ה-images וספי ה-quality gate. פעלו לפיו כשאתם מקימים או
+משנים pipeline.</p>
+</div>
+<h3 id="pipeline">Pipeline<a class="headerlink" href="#pipeline" title="Permanent link">&para;</a></h3>
+<p>ה-pipeline של כל API מבצע את הפעולות הבאות:</p>
+<table>
+<thead>
+<tr>
+<th>שלב</th>
+<th>מה הוא בודק או מייצר</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>בדיקות</strong></td>
+<td>חבילת בדיקות ה-pytest עוברת (<a href="#testing">בדיקות</a>)</td>
+</tr>
+<tr>
+<td><strong>פורמט</strong></td>
+<td>הקוד תואם ל-formatter (הספרייה עצמה משתמשת ב-<code>ruff format --check</code>)</td>
+</tr>
+<tr>
+<td><strong>Linting</strong></td>
+<td>ה-linter עובר (הספרייה עצמה משתמשת ב-<code>ruff check</code>)</td>
+</tr>
+<tr>
+<td><strong>SonarQube</strong></td>
+<td>סריקת ה-SonarQube עוברת את ה-quality gate של הפרויקט</td>
+</tr>
+<tr>
+<td><strong>בנייה ודחיפה</strong></td>
+<td>ה-Docker image נבנה (‏kaniko) ונדחף ל-<strong>JFrog Artifactory</strong>, עם תגית של גרסת השחרור, שמועברת גם כ-<code>APP_VERSION</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="versioning-and-changelog-git-cliff">גרסאות ויומן שינויים (git-cliff)<a class="headerlink" href="#versioning-and-changelog-git-cliff" title="Permanent link">&para;</a></h3>
+<p>השחרורים מקבלים גרסאות לפי <strong>semver</strong> (תגיות git בפורמט <code>vMAJOR.MINOR.PATCH</code>), וגם הגרסה וגם
+<code>CHANGELOG.md</code> נוצרים על ידי <strong>git-cliff</strong> מתוך <code>cliff.toml</code> (ראו את זה של <code>example-api</code>, או את
+<a href="../../changelog/">יומן השינויים</a> של הספרייה הזו כדי לראות את התוצאה).</p>
+<ul>
+<li><strong>הודעת ה-PR היא הטקסט של יומן השינויים, לא ה-commits הבודדים.</strong> כל PR שממוזג נכנס ל-<code>master</code>
+  כ-commit אחד שנושא את הכותרת והתיאור של ה-PR, ואת זה git-cliff קורא. הודעות ה-commit בתוך
+  ה-branch לא משמשות.</li>
+<li>
+<p><strong>כותרות PR חייבות להיות conventional commits</strong>, כי הקידומת קובעת גם את הסעיף ביומן השינויים וגם
+  את העלאת הגרסה:</p>
+<table>
+<thead>
+<tr>
+<th>קידומת כותרת ה-PR</th>
+<th>סעיף ביומן השינויים</th>
+<th>העלאת גרסה</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>feat: ...</code></td>
+<td>Added</td>
+<td><strong>minor</strong></td>
+</tr>
+<tr>
+<td><code>fix: ...</code></td>
+<td>Fixed</td>
+<td>patch</td>
+</tr>
+<tr>
+<td><code>refactor: ...</code>, <code>perf: ...</code></td>
+<td>Changed</td>
+<td>patch</td>
+</tr>
+<tr>
+<td><code>docs: ...</code></td>
+<td>Documentation</td>
+<td>patch</td>
+</tr>
+<tr>
+<td><code>revert: ...</code></td>
+<td>Reverted</td>
+<td>patch</td>
+</tr>
+<tr>
+<td><code>build: ...</code>, <code>ci: ...</code></td>
+<td>Build, CI</td>
+<td>patch</td>
+</tr>
+<tr>
+<td><code>chore: ...</code>, <code>style: ...</code>, <code>test: ...</code></td>
+<td><em>(לא מופיע)</em></td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>feat!: ...</code> / <code>fix!: ...</code> או footer מסוג <code>BREAKING CHANGE:</code></td>
+<td>(הסעיף שלו)</td>
+<td><strong>major</strong></td>
+</tr>
+</tbody>
+</table>
+<p>תיאור PR שמזכיר <code>security</code> מכניס את הרשומה תחת <strong>Security</strong>.</p>
+</li>
+<li>
+<p><strong>כותרת PR שאינה conventional commit נשמטת</strong> מיומן השינויים ולא מעלה את הגרסה
+  (‏<code>filter_unconventional = true</code>).</p>
+</li>
+<li>כתבו את כותרת ה-PR כשורת יומן השינויים שהקוראים יראו, למשל
+  <code>feat: add DNS record status endpoint</code>.</li>
+<li>‏<code>CHANGELOG.md</code> נשמר ב-git ונוצר על ידי git-cliff, ולכן לא עורכים אותו ידנית.</li>
+<li>שינוי API שובר (‏<code>v&lt;N&gt;</code> חדש, ראו <a href="#paths-and-versioning">נתיבים וגרסאות</a>) משוחרר כגרסת
+  <strong>major</strong>.</li>
+</ul>
+<hr />
+<h2 id="known-gaps-in-example-api">פערים ידועים ב-<code>example-api</code><a class="headerlink" href="#known-gaps-in-example-api" title="Permanent link">&para;</a></h2>
+<p>‏<code>example-api</code> הוא המימוש לדוגמה עבור <strong>המבנה ואופן השימוש בספרייה</strong>. אל תעתיקו ממנו את הדברים
+הבאים:</p>
+<table>
+<thead>
+<tr>
+<th>ב-<code>example-api</code></th>
+<th>התקן</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>‏<code>PUT</code>/<code>GET /{record_name}</code> של <code>dns</code> הם stubs (‏<code>print</code>, כתובת IP קבועה בקוד ו-<code>job_id=1234</code>)</td>
+<td>פעולות אמיתיות, או שאין נתיב בכלל</td>
+</tr>
+<tr>
+<td>לגוף הבקשה של <code>chat</code> אין <code>metadata</code></td>
+<td>כל נתיב כתיבה מקבל <code>{metadata, spec}</code> (<a href="#request-contract">חוזה הבקשה</a>)</td>
+</tr>
+<tr>
+<td>שימוש ישיר ב-<code>InfraOperationRequest</code> (‏<code>project</code> אופציונלי)</td>
+<td>‏<code>ProjectMetadata</code> עם <code>project</code> כחובה (<a href="#base-models">מודלי בסיס</a>)</td>
+</tr>
+<tr>
+<td>פעולות שעדיין רצות מחזירות <code>200</code>/<code>201</code></td>
+<td>‏<code>202</code> + מזהה לתשאול (<a href="#responses-and-status-codes">תשובות וקודי סטטוס</a>)</td>
+</tr>
+<tr>
+<td>‏<code>asyncio.create_task(...)</code> בלי לשמור הפניה</td>
+<td>המשימות נשמרות עם הפניה (<a href="#async-rules">כללי async</a>)</td>
+</tr>
+<tr>
+<td>‏<code>requests</code> מופיע כ-dependency</td>
+<td>רק <code>httpx</code> אסינכרוני דרך <code>BaseAPI</code></td>
+</tr>
+<tr>
+<td>‏<code>chat_client = BaseAPI(...).client</code> בשימוש בלי <code>async with</code> (לעולם לא נסגר)</td>
+<td>‏<code>async with BaseAPI(...) as client:</code>, או סגירת הלקוח ב-lifespan של האפליקציה</td>
+</tr>
+<tr>
+<td>שלבי הבדיקות וה-Sonar בהערה ב-<code>.woodpecker/build.yaml</code></td>
+<td>מדריך ה-<a href="#ci">CI</a></td>
+</tr>
+<tr>
+<td>ה-<code>Dockerfile</code> מושך את ה-base image שלו מ-<code>harbor.app.com</code></td>
+<td>ה-base images מגיעים מ-JFrog Artifactory</td>
+</tr>
+<tr>
+<td>ברירות מחדל שנראות כמו סודות ב-<code>global_conf.py</code> (‏<code>AWX_TOKEN="sheker123"</code>)</td>
+<td>סודות הם שדות חובה בלי ברירת מחדל</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="pre-merge-checklist">רשימת בדיקה לפני מיזוג<a class="headerlink" href="#pre-merge-checklist" title="Permanent link">&para;</a></h2>
+<p><strong>מבנה וחוזה</strong></p>
+<ul>
+<li>[ ] המודול בנוי לפי <code>conf.py / schemas.py / operations.py / routes.py</code>, ומחווט רק ב-<code>create_app()</code>.</li>
+<li>[ ] כל נתיב כתיבה מקבל <code>{metadata, spec}</code>. ‏<code>metadata.project</code> הוא חובה, שאר הקואורדינטות
+      אופציונליות, ו-metadata שאינו בשימוש מתקבל וזוכה להתעלמות.</li>
+<li>[ ] הנתיב הוא <code>/api/&lt;api&gt;/v&lt;N&gt;/&lt;resource&gt;</code>, ושינויים שוברים עברו לגרסה חדשה.</li>
+<li>[ ] לכל נתיב יש <code>response_model</code>, ‏<code>summary</code>, ‏<code>description</code> וקוד הסטטוס הנכון.</li>
+</ul>
+<p><strong>Async</strong></p>
+<ul>
+<li>[ ] אין קריאות חוסמות ב-<code>async def</code> (‏<code>requests</code>, <code>time.sleep</code>, לקוחות סינכרוניים, עבודת CPU כבדה).</li>
+<li>[ ] לכל <code>await</code> של רשת יש timeout. קריאות בלתי תלויות משתמשות ב-<code>asyncio.gather</code>.</li>
+<li>[ ] עבודה ארוכה מחזירה <code>202</code> + מזהה (<a href="#long-running-work">עבודה ארוכה</a>). לכל משימה שנוצרת
+      נשמרת הפניה.</li>
+</ul>
+<p><strong>מחברים ושגיאות</strong></p>
+<ul>
+<li>[ ] המחברים נבנים פעם אחת ומוזרקים. אין HTTP גולמי כשקיים מחבר.</li>
+<li>[ ] ‏<code>ExternalServiceError</code> ממופה ל-<code>502</code>. אין סודות או stack traces ב-<code>detail</code>.</li>
+<li>[ ] זרימות מרובות שלבים שומרות snapshot של המצב, מבצעות פעולות פיצוי בסדר הפוך, רושמות בלוג
+      כישלונות של rollback, והן אידמפוטנטיות.</li>
+<li>[ ] בטוח לריבוי רפליקות: אין מצב בזיכרון או בדיסק המקומי, בטוח מול בקשות כפולות מקבילות,
+      אין עבודה חד-פעמית ב-<code>async_background_tasks</code>, תאימות לאחור עם השחרור הקודם.</li>
+</ul>
+<p><strong>אבטחה</strong></p>
+<ul>
+<li>[ ] ‏<code>general_create_app(enable_auth=True)</code>. הגדרות ה-Production משתמשות ב-JWKS/OIDC ומגדירות
+      <code>AUTH_AUDIENCE</code>.</li>
+<li>[ ] אין בדיקות הרשאה על claims של הטוקן בתוך ה-API (ההרשאות מטופלות מחוץ ל-APIs).</li>
+<li>[ ] אין סודות ב-git, ב-<code>.env.example</code>, בברירות מחדל של <code>conf.py</code>, בלוגים או ב-image. אימות
+      ה-TLS פעיל, או כבוי עם סיבה מתועדת.</li>
+</ul>
+<p><strong>איכות</strong></p>
+<ul>
+<li>[ ] ‏<code>.env.example</code> ו-<code>README.md</code> מעודכנים עבור כל משתנה ונתיב חדשים.</li>
+<li>[ ] הבדיקות מכסות את הסכמה (תקינה, לא תקינה, metadata עם project בלבד), נתיבים עם אימות, ומסלולי
+      כישלון ו-rollback. בלי קריאות רשת אמיתיות.</li>
+<li>[ ] ה-CI ירוק (בדיקות, פורמט, linting, ‏SonarQube) לפי מדריך ה-CI ב-Confluence הפנימי (<a href="#ci">CI</a>).</li>
+<li>[ ] כותרת ה-PR היא conventional commit שנקראת טוב כשורה ביומן השינויים
+      (<a href="#versioning-and-changelog-git-cliff">גרסאות ויומן שינויים</a>).</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+  
+
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  חזרה למעלה
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.indexes", "content.code.copy", "content.code.annotate", "toc.follow"], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "\u05d4\u05d5\u05e2\u05ea\u05e7 \u05dc\u05dc\u05d5\u05d7", "clipboard.copy": "\u05d4\u05e2\u05ea\u05e7\u05d4 \u05dc\u05dc\u05d5\u05d7", "search.result.more.one": "\u05e2\u05d5\u05d3 \u05d0\u05d7\u05d3 \u05d1\u05d3\u05e3 \u05d4\u05d6\u05d4", "search.result.more.other": "\u05e2\u05d5\u05d3 # \u05d1\u05d3\u05e3 \u05d4\u05d6\u05d4", "search.result.none": "\u05d0\u05d9\u05df \u05de\u05e1\u05de\u05db\u05d9\u05dd \u05ea\u05d5\u05d0\u05de\u05d9\u05dd", "search.result.one": "\u05de\u05e1\u05de\u05da1 \u05ea\u05d5\u05d0\u05dd", "search.result.other": "# \u05de\u05e1\u05de\u05da \u05ea\u05d5\u05d0\u05dd", "search.result.placeholder": "\u05d9\u05e9 \u05dc\u05d4\u05e7\u05dc\u05d9\u05d3 \u05db\u05d3\u05d9 \u05dc\u05d4\u05ea\u05d7\u05d9\u05dc \u05dc\u05d7\u05e4\u05e9", "search.result.term.missing": "\u05d7\u05e1\u05e8", "select.version": "\u05d1\u05d7\u05d9\u05e8\u05ea \u05d2\u05e8\u05e1\u05d4"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>
