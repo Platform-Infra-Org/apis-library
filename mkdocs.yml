@@ -10,6 +10,7 @@ validation:
 
 theme:
   name: material
+  custom_dir: overrides  # notice on pages not yet translated (see overrides/main.html)
   features:
     - navigation.sections
     - navigation.tabs
@@ -36,6 +37,80 @@ theme:
 
 plugins:
   - search
+  # Languages: English (default, at /) and Hebrew (RTL, at /he/). A page is translated by adding
+  # `<page>.he.md` next to `<page>.md`; untranslated pages fall back to English with a notice.
+  - i18n:
+      docs_structure: suffix
+      fallback_to_default: true
+      reconfigure_material: true  # language switcher in the header + per-language search
+      reconfigure_search: true
+      languages:
+        - locale: en
+          default: true
+          name: English
+          build: true
+        - locale: he
+          name: עברית
+          build: true
+          site_name: ספריית ה-APIs של תשתיות
+          site_description: >-
+            מחברים לתשתיות (ArgoCD, AWX, Bitbucket Server, Vault) ותבנית אפליקציית FastAPI
+            לשימוש חוזר, בחבילת Python אחת.
+          theme:
+            language: he  # Material switches the whole layout to right-to-left
+          admonition_translations:
+            note: הערה
+            tip: טיפ
+            info: מידע
+            warning: אזהרה
+            important: חשוב
+            danger: סכנה
+            example: דוגמה
+          nav_translations:
+            Home: בית
+            Tutorials: מדריכים למתחילים
+            Your first app: האפליקציה הראשונה שלך
+            Secure your API: אבטחת ה-API שלך
+            How-to guides: מדריכי ביצוע
+            Read & write Bitbucket files: קריאה וכתיבה של קבצים ב-Bitbucket
+            Drive AWX, ArgoCD & Vault: עבודה עם AWX, ArgoCD ו-Vault
+            Secure an API with OIDC &amp; JWKS: אבטחת API עם OIDC ו-JWKS
+            Verify a token outside a request: אימות טוקן מחוץ לבקשה
+            Call other services with SSO: קריאה לשירותים אחרים עם SSO
+            Enable the Remote Config API: הפעלת Remote Config API
+            Constrain a field by resolved config: הגבלת שדה לפי קונפיגורציה
+            Generate dev auth material: יצירת חומרי אימות לפיתוח
+            Add a new connector: הוספת מחבר חדש
+            Extend the FastAPI template: הרחבת תבנית FastAPI
+            Migrate an API to the current version: הסבת API לגרסה הנוכחית
+            Reference: מידע עזר
+            API standards: תקני API
+            Configuration: קונפיגורציה
+            CLI (gen-auth-material): CLI ‏(gen-auth-material)
+            API: API
+            Connectors: מחברים
+            FastAPI app: אפליקציית FastAPI
+            Auth (inbound JWT): אימות (JWT נכנס)
+            Security (outbound SSO): אבטחה (SSO יוצא)
+            Remote Config API: Remote Config API
+            Errors: שגיאות
+            Schemas: סכמות
+            Explanation: הסברים
+            Architecture: ארכיטקטורה
+            Authentication design: תכנון האימות
+            Dynamic config validation: ולידציה דינמית של קונפיגורציה
+            OpenAPI & Swagger injection: הזרקה ל-OpenAPI ול-Swagger
+            Logging: לוגים
+            Async and the event loop: אסינכרוניות ולולאת האירועים
+            Job queues & long-running work: תורי משימות ועבודה ארוכה
+            Cloud-native APIs & multiple replicas: APIs ענן-נייטיב וריבוי רפליקות
+            Contributing: תרומה לפרויקט
+            Development: פיתוח
+            Changelog: יומן שינויים
+  # The API reference pages are built once per language, so each symbol has an anchor in both;
+  # link to the one in the same language as the current page.
+  - autorefs:
+      resolve_closest: true
   - mkdocstrings:
       handlers:
         python:
