@@ -86,8 +86,15 @@ in the header. This uses the `mkdocs-static-i18n` plugin (configured under `plug
 - **When you change an English page that has a Hebrew version**, update the Hebrew page in the
   same PR, or delete it so readers get the up-to-date English fallback instead of a stale
   translation.
-- **In Hebrew pages, link to another page's anchors, not to the page's own headings.** Hebrew
-  headings get non-descriptive generated ids.
+- **Every Hebrew heading carries its English id** (`## כללי async {#async-rules}`), so anchors are
+  identical in both languages and a link like `api-standards.md#async-rules` works from either.
+  So a Hebrew page keeps the English page's headings: same count, levels and order. After writing
+  or editing a Hebrew page, run:
+
+    ```bash
+    uv run --extra docs python scripts/docs_i18n.py check docs/<page>.md docs/<page>.he.md  # structure
+    uv run --extra docs python scripts/docs_i18n.py ids docs                                 # add/refresh ids
+    ```
 
 ## Before you open a PR
 
