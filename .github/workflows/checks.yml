@@ -33,6 +33,14 @@ jobs:
       - name: Tests
         run: uv run --extra dev pytest
 
+      # The API skill ships a runnable template; keep it working against this library version.
+      - name: Skill template tests
+        run: >-
+          uv run --extra dev pytest -p no:cacheprovider
+          -c skills/building-tashtiot-apis/template/pyproject.toml
+          --rootdir skills/building-tashtiot-apis/template
+          skills/building-tashtiot-apis/template/tests
+
       - name: AWX output simulation
         run: uv run --extra dev python examples/awx_output_demo.py
 

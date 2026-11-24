@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{#
+  Hebrew build, page not translated yet (mkdocs-static-i18n served the English fallback):
+  show a notice, and keep the English text left-to-right inside the right-to-left layout.
+#}
+{% block content %}
+  {% if i18n_page_locale == "he" and i18n_file_locale != "he" %}
+    <div class="admonition info">
+      <p class="admonition-title">העמוד עדיין לא תורגם</p>
+      <p>עמוד זה זמין כרגע באנגלית בלבד.</p>
+    </div>
+    <div dir="ltr">{{ super() }}</div>
+  {% else %}
+    {{ super() }}
+  {% endif %}
+{% endblock %}

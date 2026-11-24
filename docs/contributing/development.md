@@ -70,6 +70,32 @@ uv run mkdocs build --strict   # what CI-equivalent checks expect: fails on any 
 The API reference pages are generated from docstrings, so keep docstrings accurate when you change
 public signatures.
 
+### Translations (Hebrew)
+
+The site is built in English (at `/`) and Hebrew (at `/he/`, right-to-left), with a language switcher
+in the header. This uses the `mkdocs-static-i18n` plugin (configured under `plugins: - i18n` in
+`mkdocs.yml`):
+
+- **To translate a page**, add `<page>.he.md` next to `<page>.md` (for example
+  `explanation/async.he.md`). Links stay the same (`job-queues.md`); each language resolves them to
+  its own version.
+- **Untranslated pages** fall back to English under `/he/`, with a "not translated yet" notice
+  (`overrides/main.html`).
+- **Nav titles and admonition titles** are translated in `mkdocs.yml` (`nav_translations`,
+  `admonition_translations`). When you add a page to `nav`, add its Hebrew title there too.
+- **When you change an English page that has a Hebrew version**, update the Hebrew page in the
+  same PR, or delete it so readers get the up-to-date English fallback instead of a stale
+  translation.
+- **Every Hebrew heading carries its English id** (`## כללי async {#async-rules}`), so anchors are
+  identical in both languages and a link like `api-standards.md#async-rules` works from either.
+  So a Hebrew page keeps the English page's headings: same count, levels and order. After writing
+  or editing a Hebrew page, run:
+
+    ```bash
+    uv run --extra docs python scripts/docs_i18n.py check docs/<page>.md docs/<page>.he.md  # structure
+    uv run --extra docs python scripts/docs_i18n.py ids docs                                 # add/refresh ids
+    ```
+
 ## Before you open a PR
 
 - `uv run ruff format . && uv run ruff check .` — clean.
