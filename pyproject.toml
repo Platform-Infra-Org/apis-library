@@ -52,6 +52,8 @@ docs = [
     "mkdocstrings[python]",
     # 1.19+ wires scoped cross-references (needs Python >= 3.10); stay on the 1.x line for now.
     "mkdocstrings-python>=1.19,<2",
+    # Hebrew (RTL) version of the site: page.he.md next to page.md, English fallback.
+    "mkdocs-static-i18n>=1.3,<2",
 ]
 
 [tool.setuptools_scm]
