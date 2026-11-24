@@ -1,4 +1,4 @@
-# ספריית ה-APIs של תשתיות
+# ספריית ה-APIs של תשתיות {#tashtiot-apis-library}
 
 חבילת Python אחת שמאגדת שני ארגזי כלים, כמעט בלתי תלויים זה בזה, לבניית שירותים מוכנים לייצור:
 
@@ -20,7 +20,7 @@ pip install tashtiot-apis-library
 from tashtiot_apis_library import AWX, ArgoCD, Git, Vault, general_create_app
 ```
 
-## איך התיעוד מאורגן
+## איך התיעוד מאורגן {#how-this-documentation-is-organised}
 
 התיעוד בנוי לפי שיטת [Diátaxis](https://diataxis.fr/): ארבעה חלקים, וכל אחד עונה על צורך אחר.
 התחילו בחלק שמתאים למה שאתם מנסים לעשות:
@@ -50,7 +50,7 @@ from tashtiot_apis_library import AWX, ArgoCD, Git, Vault, general_create_app
 עובדים **על** הספרייה ולא רק משתמשים בה? ראו **[תרומה לפרויקט](contributing/index.md)** להגדרת
 סביבת הפיתוח, לכלים ולמוסכמות.
 
-## במבט מהיר
+## במבט מהיר {#at-a-glance}
 
 | רוצים… | לכו אל |
 |---|---|
