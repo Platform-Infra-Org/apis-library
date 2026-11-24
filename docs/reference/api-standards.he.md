@@ -13,9 +13,14 @@
 ו[אבטחת ה-API שלכם](../tutorials/secure-your-api.md).
 
 !!! tip "עבודה עם סוכן קוד מבוסס AI"
-    - **עבודה שוטפת על API:** מאגר הספרייה כולל skill לסוכנים עם הכללים האלה,
-      [`skills/building-tashtiot-apis/`](https://github.com/Platform-Infra-Org/apis-library/tree/master/skills/building-tashtiot-apis). העתיקו את התיקייה הזו לתיקייה
-      `.claude/skills/` במאגר ה-API שלכם (או ל-`~/.claude/skills/` עבור כל המאגרים).
+    - **עבודה שוטפת על API:** מאגר הספרייה כולל skill עצמאי לסוכנים,
+      [`skills/building-tashtiot-apis/`](https://github.com/Platform-Infra-Org/apis-library/tree/master/skills/building-tashtiot-apis).
+      הוא כולל את הכללים האלה, מידע עזר על ה-API של הספרייה ו-API תבנית שנבדק, ולכן הוא עובד גם
+      בתוך הרשת המבודדת, בלי GitHub ובלי האתר הזה. **שמרו אותו במאגר ה-API שלכם בנתיב
+      `.claude/skills/building-tashtiot-apis/`**: כך הוא עובר יחד עם ה-mirror, ונשאר מותאם לגרסת
+      הספרייה שהמאגר משתמש בה. רעננו אותו בכל פעם שאתם משדרגים את הספרייה.
+    - **עבודה על CI, image ופריסה:** השתמשו במדריך ה-CI הפנימי (וב-skill ה-CI הפנימי, אם יש
+      כזה). הם נמצאים בתוך הרשת המבודדת.
     - **שדרוג לגרסה חדשה של הספרייה, או כתיבה מחדש של API על הספרייה:** השתמשו
       ב[פרומפט ההסבה](../how-to/migrate-an-api.md).
 
